@@ -478,7 +478,7 @@ namespace kysSharp
         // 专门用来在某些情况下做动画的显示和延时
         // 中间可以插入一个回调函数来补充额外逻辑
         /////////////////////////////////////////////////////////////////////////
-        public int drawAndPresent(int times, Action<object?>? func, object? data)
+        public int drawAndPresent(int times, Action<object?>? func=null, object? data = null)
         {
             if (times < 1) return 0;
             if (times > 100) times = 100;

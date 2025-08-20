@@ -447,7 +447,7 @@ namespace kysSharp
                 Console.Write("%u ms elapsed\n", now - time_);
             }
         }
-        public void GetMouseState(ref int x, ref int y)
+        public void getMouseState(ref int x, ref int y)
         {
             float xFloat = 0, yFloat = 0;
             SDL3.SDL_GetMouseState(&xFloat, &yFloat);
@@ -857,7 +857,7 @@ namespace kysSharp
         /// </summary>
         /// <param name="handle">句柄</param>
         /// <returns></returns>
-        public int Init(void* handle = null)
+        public int init(void* handle = null)
         {
             if (SDL3.SDL_Init((SDL_InitFlags)SDL3.SDL_INIT_VIDEO) == false)
             {
