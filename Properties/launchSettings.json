@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "kysSharp": {
+      "commandName": "Project",
+      "workingDirectory": "D:\\kysSharp\\work\\bin"
+    }
+  }
+}

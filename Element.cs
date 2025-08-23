@@ -58,6 +58,7 @@ namespace kysSharp
 
         public static void drawAll()
         {
+            int t0 = (int)Engine.getInstance().getTicks();
             //从最后一个独占屏幕的场景开始画
             int begin_base = 0;
             for (int i = 0; i < root_.Count; i++)    //记录最后一个全屏的层
@@ -335,10 +336,9 @@ namespace kysSharp
         private void checkEventAndPresent(bool check_event)
         {
             SDL_Event e= new SDL_Event();
-            /*
-            var engine = Engine::getInstance();
+            var engine = Engine.getInstance();
             //while (engine->pollEvent(e) > 0);  //实际是只要最后一个事件
-            engine->pollEvent(e);
+            engine.pollEvent(ref e);
             if (check_event)
             {
                 checkStateAndEvent(e);
@@ -354,14 +354,13 @@ namespace kysSharp
                     break;
             }
             clearEvent(e);
-            int t1 = engine->getTicks();
+            int t1 = (int)engine.getTicks();
             int t = max_delay_ - (t1 - prev_present_ticks_);
             if (t > max_delay_) { t = max_delay_; }
             if (t <= 0) { t = 1; }
-            engine->delay(t);
-            engine->renderPresent();
+            engine.delay(t);
+            engine.renderPresent();
             prev_present_ticks_ = t1;
-            */
         }
 
         private void checkChildState()

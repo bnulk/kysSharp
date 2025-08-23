@@ -49,6 +49,7 @@ namespace kysSharp
                 SDL3.SDL_GetWindowSize(window_, pw, ph);
             }
         }
+
         public void getWindowMaxSize(out int w, out int h)
         {
             fixed (int* pw = &w)
@@ -406,9 +407,6 @@ namespace kysSharp
             SDL3.SDL_RenderTexture(renderer_, tex2_, null, null);
         }
 
-
-
-
         /// <summary>
         /// 声音相关
         /// </summary>
@@ -418,12 +416,12 @@ namespace kysSharp
 
         public void PlayMusic(int num)
         {
-            Audio.GetInstance().CheckAndReplayMusic(num);
+            Audio.getInstance().checkAndReplayMusic(num);
         }
 
         public void StopMusic()
         {
-            Audio.GetInstance().StopMusic();
+            Audio.getInstance().stopMusic();
         }
 
 
@@ -433,10 +431,10 @@ namespace kysSharp
         public SDL_Event e_;
         public int time_;
 
-        public void Delay(int t) { SDL3.SDL_Delay((uint)t); }
-        public uint GetTicks() { return (uint)SDL3.SDL_GetTicks(); }
-        public uint Tic() { time_ = (int)SDL3.SDL_GetTicks(); return (uint)time_; }
-        public void Toc()
+        public void delay(int t) { SDL3.SDL_Delay((uint)t); }
+        public uint getTicks() { return (uint)SDL3.SDL_GetTicks(); }
+        public uint tic() { time_ = (int)SDL3.SDL_GetTicks(); return (uint)time_; }
+        public void toc()
         {
             // 获取当前时间（以毫秒为单位）
             int now = (int)SDL3.SDL_GetTicks();
@@ -463,7 +461,7 @@ namespace kysSharp
         /// </summary>
         /// <param name="e"></param>
         /// <returns></returns>
-        public bool PollEvent(ref SDL_Event e)
+        public bool pollEvent(ref SDL_Event e)
         {
             bool hasEvent;
             fixed (SDL_Event* pe = &e)
@@ -489,11 +487,6 @@ namespace kysSharp
 
         // 在 Engine 类中添加 numKeys 变量定义，并修正 checkKeyPress 方法
         private int numKeys; // 新增字段
-
-
-
-
-
 
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////
@@ -893,7 +886,8 @@ namespace kysSharp
             // 设置渲染区域
             rect_ = new SDL_Rect { x = 0, y = 0, w = start_w_, h = start_h_ };
             // 加载 Logo 贴图（你需要实现 LoadImage 函数）
-            logo_ = loadImage("logo.png");
+            string logoPath = Path.Combine("..", "game","resource","title","logo.png");
+            logo_ = loadImage(logoPath);
             // 显示 logo 并呈现
             showLogo();
             SDL3.SDL_RenderPresent(renderer_);
@@ -928,7 +922,7 @@ namespace kysSharp
 
 
             //音频部分初始化
-            Audio.GetInstance().Init();
+            //Audio.getInstance().Init();
 
 
 

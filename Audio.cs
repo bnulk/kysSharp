@@ -19,7 +19,7 @@ namespace kysSharp
 
 
         // 单例模式获取 Audio 实例
-        public static Audio GetInstance()
+        public static Audio getInstance()
         {
             if (_audioInstance == null)
             {
@@ -60,11 +60,19 @@ namespace kysSharp
                 channels = 2                                                 // channels = 2 表示音频的声道数，也就是你播放的声音是单声道还是立体声。单声道为1，双声道为2。
             };
 
+
+
+
             // 打开音频设备
-            audioDeviceId = SDL3.SDL_OpenAudioDevice(0, &spec);              //0表示默认设备
+            //audioDeviceId = SDL3.SDL_OpenAudioDevice(0, &spec);              //0表示默认设备
+            // 将 audioDeviceId = SDL3.SDL_OpenAudioDevice(null, &spec);
+            // 修改为 audioDeviceId = SDL3.SDL_OpenAudioDevice(SDL3.SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
+            //audioDeviceId = SDL3.SDL_OpenAudioDevice(SDL3.SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
+            
+
 
             // 创建混音器设备
-            mixer = (nint)SDL3_mixer.MIX_CreateMixerDevice(0, &spec);
+            mixer = (nint)SDL3_mixer.MIX_CreateMixerDevice(SDL3.SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
             if (mixer == IntPtr.Zero)
             {
                 throw new Exception($"无法创建混音器设备！错误：{SDL3.SDL_GetError()}");
@@ -139,7 +147,7 @@ namespace kysSharp
         }
         */
         // 按索引播放音乐，使用第一个轨道
-        public void PlayMusic(int num)
+        public void playMusic(int num)
         {
             if (num < 0 || num >= music.Count || tracks.Count == 0)
             {
@@ -163,7 +171,7 @@ namespace kysSharp
         }
 
         // 播放音效
-        public void PlayASound(int num)
+        public void playASound(int num)
         {
             if (num < 0 || num >= asound.Count || tracks.Count == 0)
             {
@@ -187,7 +195,7 @@ namespace kysSharp
         }
 
         // 播放音效
-        public void PlayESound(int num)
+        public void playESound(int num)
         {
             if (num < 0 || num >= esound.Count || tracks.Count == 0)
             {
@@ -214,7 +222,7 @@ namespace kysSharp
         /// 检查音乐是否播放结束并重新播放
         /// </summary>
         /// <param name="num"></param>
-        public void CheckAndReplayMusic(int num)
+        public void checkAndReplayMusic(int num)
         {
             if (tracks.Count == 0)
             {
@@ -226,11 +234,11 @@ namespace kysSharp
             if (!SDL3_mixer.MIX_TrackPlaying((MIX_Track*)track))
             {
                 Console.WriteLine("音乐播放结束，重新播放...");
-                PlayMusic(num);  // 你自己封装的播放方法
+                playMusic(num);  // 你自己封装的播放方法
             }
         }
 
-        public void StopMusic()
+        public void stopMusic()
         {
             SDL3_mixer.MIX_StopAllTracks((MIX_Mixer*)mixer, 2000);
         }

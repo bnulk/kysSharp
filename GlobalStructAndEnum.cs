@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SDL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,6 +36,16 @@ namespace kysSharp
         public int item_id;
         public int count;
     }
+
+    public enum Type
+    {
+        MainMap = 0,
+        Scene,
+        Battle,
+        Cloud,
+        MaxType
+    }
+
 
     /////////////////////////////////////////////////////////////////////////
     // Point 类
@@ -105,6 +116,8 @@ namespace kysSharp
             return Math.Abs(Fx - this.x) + Math.Abs(Fy - this.y);
         }
     }
+
+    
 
 
 }
