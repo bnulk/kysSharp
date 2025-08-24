@@ -27,13 +27,15 @@ namespace kysSharp
             Engine.getInstance().tic();      //画走马灯图片用
 
             menu_ = new Menu();
+            /*
             Texture? texture = TextureManager.getInstance().loadTexture("title", 17);
             if(texture!=null)
             {
                 menu_.setTexture(texture);
             }
-            /*
-            menu_.setPosition(400, 200);
+            */
+            
+            menu_.setPosition(600, 200);
             var b = new Button("title", 3, 23, 23);
             menu_.addChild(b, 20, 0);
             b = new Button("title", 4, 24, 24);
@@ -41,7 +43,6 @@ namespace kysSharp
             b = new Button("title", 5, 25, 25);
             menu_.addChild(b, 20, 100);
             //menu_load_ = new UISave();
-            */
         }
 
         public override void draw()
@@ -86,17 +87,15 @@ namespace kysSharp
                 byte showAlpha = getAlphaBasedOnShowX(showX);
                 TextureManager.getInstance().renderTexture("head", i, (int)showX, 510, default, showAlpha);
             }
-
         }
 
         public override void dealEvent(SDL_Event e)
         {
-            /*
             int r = menu_.run();
 
             if (r == 0)
             {
-
+                /*
                 Save::getInstance()->load(0);
                 Script::getInstance()->runScript("../game/script/0.lua");
                 auto random_role = new RandomRole();
@@ -108,24 +107,23 @@ namespace kysSharp
                     MainScene::getIntance()->setTowards(1);
                     MainScene::getIntance()->run();
                 }
-
+                */
             }
             if (r == 1)
             {
-
+                /*
                 if (menu_load_.run() >= 0)
                 {
                     //Save::getInstance()->getRole(0)->MagicLevel[0] = 900;    //测试用
                     //Script::getInstance()->runScript("../game/script/0.lua");
                     MainScene::getIntance()->run();
                 }
-
+                */
             }
             if (r == 2)
             {
                 setExit(true);
             }
-    */
         }
 
         public override void onEntrance()

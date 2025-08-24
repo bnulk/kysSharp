@@ -26,9 +26,10 @@ namespace kysSharp
 
         public override void draw()         //如何画本节点
         {
-            if (texture_path_!=null)
+            if (texture_path_!=null && texture_path_!="")
             {
-                TextureManager.getInstance().renderTexture(texture_path_, texture_normal_id_, x_, y_, color_normal_, 255);
+                SDL_Color sDL_Color = new SDL_Color() { r = 255, g = 255, b = 255, a = 255 };
+                TextureManager.getInstance().renderTexture(texture_path_, texture_normal_id_, x_, y_, sDL_Color, 255);
             }
             //实际上仅用了一个颜色，需要有颜色变化请用button
             if (text_!=null)

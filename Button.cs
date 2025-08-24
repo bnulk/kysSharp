@@ -69,7 +69,7 @@ namespace kysSharp
             TextureManager.getInstance().renderTexture(texture_path_, id, x, y, color, alpha);
 
 
-            if (text_!=null)
+            if (text_!=null && text_!="")
             {
                 SDL_Color color_text = color_normal_;
                 if (state_ == State.Pass)

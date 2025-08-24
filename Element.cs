@@ -266,25 +266,35 @@ namespace kysSharp
 
         public bool isPressOK(SDL_Event e)
         {
-            if (e.type == SDL3.SDLK_RETURN || e.type == SDL3.SDLK_RETURN2 || e.type == SDL3.SDLK_SPACE)
+            if (e.type == (uint)SDL_EventType.SDL_EVENT_KEY_DOWN)
             {
-                return true;
+                if(e.key.key == SDL_Keycode.SDLK_RETURN || e.key.key == SDL_Keycode.SDLK_KP_ENTER || e.key.key== SDL_Keycode.SDLK_SPACE)
+                return true; 
             }
-            if (e.type == SDL3.SDL_BUTTON_LEFT)
+            if (e.type == (uint)SDL_EventType.SDL_EVENT_MOUSE_BUTTON_DOWN)
             {
-                return true;
+                if(e.button.button==SDL3.SDL_BUTTON_LEFT)
+                {
+                    return true;
+                }                
             }
             return false;
         }
         public bool isPressCancel(SDL_Event e)
         {
-            if (e.type == SDL3.SDLK_ESCAPE)
+            if (e.type == (uint)SDL_EventType.SDL_EVENT_KEY_DOWN)
             {
-                return true;
+                if (e.key.key == SDL_Keycode.SDLK_ESCAPE)
+                {
+                    return true;
+                }
             }
-            if (e.type == SDL3.SDL_BUTTON_RIGHT)
+            if (e.type == (uint)SDL_EventType.SDL_EVENT_MOUSE_BUTTON_DOWN)
             {
-                return true;
+                if (e.button.button == SDL3.SDL_BUTTON_RIGHT)
+                {
+                    return true;
+                }
             }
             return false;
         }
@@ -319,7 +329,7 @@ namespace kysSharp
                 }
 
                 checkSelfState(e);
-                checkChildState();
+                checkChildState();                                              //获取按键和经过的子控件标号
                 //可以在dealEvent中改变原有状态，强制设置某些情况
                 dealEvent(e);
                 //为简化代码，将按下回车和ESC的操作写在此处
@@ -422,14 +432,14 @@ namespace kysSharp
         /// <summary>
         /// 运行本节点，参数为是否在root中运行，为真则参与绘制，为假则不会被画出
         /// </summary>
-        /// <param name="in_root"></param>
+        /// <param name="in_root">是否在root中运行。为真则参与绘制，为假则不会被画出。</param>
         /// <returns></returns>
         public int run(bool in_root= true)
         {
             exit_ = false;
             visible_ = true;
-            if (in_root) { addOnRootTop(this); }
-            onEntrance();
+            if (in_root) { addOnRootTop(this); }         //按照参数in_root，如果true，就把这个Element加入到root_列表中。基于root_画Element。
+            onEntrance();                                //刚运行这个Element，需要运行的东西
             running_ = true;
             while (!exit_)
             {
