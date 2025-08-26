@@ -1,8 +1,9 @@
 ﻿using SDL;
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using System.Text.Unicode;
+using System.Threading.Tasks;
 
 namespace kysSharp
 {
@@ -28,270 +29,219 @@ namespace kysSharp
             return _audioInstance;
         }
 
-        // 私有构造函数，防止外部直接创建实例
         private Audio()
         {
             music = new List<IntPtr>();
             asound = new List<IntPtr>();
             esound = new List<IntPtr>();
             tracks = new List<IntPtr>();
-        }
+            mixer= new IntPtr();
 
-        // 初始化音频系统，加载音效和音乐
-        public void Init()
-        {
-            // 初始化 SDL 的音频子系统
-            if (SDL3.SDL_INIT_AUDIO < 0)
+            ///////////////////////////////////////////////////////////////////////
+            // 1. 初始化 SDL 音频子系统
+            // SDL3.SDL_Init 是 SDL 的初始化函数，参数是要启用的子系统。
+            // SDL_INIT_AUDIO 表示只初始化音频子系统。
+            // 返回值是布尔类型，true 表示成功，false 表示失败。
+            ///////////////////////////////////////////////////////////////////////
+            if (SDL3.SDL_Init((SDL_InitFlags)SDL3.SDL_INIT_AUDIO) == false)
             {
                 throw new Exception($"SDL 初始化失败！错误：{SDL3.SDL_GetError()}");
             }
 
-            // 初始化 SDL3_mixer
+            ///////////////////////////////////////////////////////////////////////
+            // 2. 初始化 SDL3_mixer
+            // SDL3_mixer 是 SDL3 的音频扩展库，主要用于简化音乐和音效的播放。
+            // MIX_Init 返回 true 表示成功，false 表示失败。
+            ///////////////////////////////////////////////////////////////////////
             if (!SDL3_mixer.MIX_Init())
             {
-                throw new Exception($"SDL3_mixer 初始化失败！错误：{SDL3.SDL_GetError()}");
+                Console.WriteLine($"SDL3_mixer 初始化失败：{SDL3.SDL_GetError()}");
+                return;
             }
-            
-            // 定义音频规格
+
+            ///////////////////////////////////////////////////////////////////////
+            // 3. 配置音频规格 (AudioSpec)
+            // SDL_AudioSpec 结构体定义了音频的参数：
+            //   freq    → 采样率 (Hz)，44100 表示 CD 音质
+            //   format  → 音频格式，这里是 16 位有符号小端整数 (常见标准)
+            //   channels→ 声道数，2 表示立体声 (左声道 + 右声道)
+            ///////////////////////////////////////////////////////////////////////
             SDL_AudioSpec spec = new SDL_AudioSpec
             {
-                freq = 44100,                                                // 参数 44100 → 音频采样率，常用 CD 质量（44.1kHz）
-                format = SDL_AudioFormat.SDL_AUDIO_S16LE,                    // 参数 SDL_AudioFormat.S16LSB → 16位有符号小端音频格式
-                channels = 2                                                 // channels = 2 表示音频的声道数，也就是你播放的声音是单声道还是立体声。单声道为1，双声道为2。
+                freq = 44100,
+                format = SDL_AudioFormat.SDL_AUDIO_S16LE,
+                channels = 2
             };
 
+            ///////////////////////////////////////////////////////////////////////
+            // 4. 打开默认音频设备
+            // SDL_OpenAudioDevice 用来打开一个音频输出设备。
+            // 第一个参数 SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK 表示使用默认输出设备。
+            // 第二个参数 &spec 表示按照我们定义的规格来打开。
+            // 返回值 dev 是一个设备 ID，用来标识这个音频设备。
+            ///////////////////////////////////////////////////////////////////////
+            SDL_AudioDeviceID dev = SDL3.SDL_OpenAudioDevice(SDL3.SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
+            if (dev == 0)
+            {
+                Console.WriteLine($"打开音频设备失败: {SDL3.SDL_GetError()}");
+                return;
+            }
 
-
-
-            // 打开音频设备
-            //audioDeviceId = SDL3.SDL_OpenAudioDevice(0, &spec);              //0表示默认设备
-            // 将 audioDeviceId = SDL3.SDL_OpenAudioDevice(null, &spec);
-            // 修改为 audioDeviceId = SDL3.SDL_OpenAudioDevice(SDL3.SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
-            //audioDeviceId = SDL3.SDL_OpenAudioDevice(SDL3.SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
-            
-
-
-            // 创建混音器设备
-            mixer = (nint)SDL3_mixer.MIX_CreateMixerDevice(SDL3.SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
+            ///////////////////////////////////////////////////////////////////////
+            // 5. 创建 Mixer（混音器）
+            // MIX_CreateMixerDevice 将一个 Mixer 绑定到指定的音频设备。
+            // Mixer 的作用是管理音轨，支持同时播放多个声音并自动混合。
+            ///////////////////////////////////////////////////////////////////////
+            mixer = (IntPtr)SDL3_mixer.MIX_CreateMixerDevice(dev, &spec);
             if (mixer == IntPtr.Zero)
             {
-                throw new Exception($"无法创建混音器设备！错误：{SDL3.SDL_GetError()}");
+                Console.WriteLine($"创建 Mixer 失败: {SDL3.SDL_GetError()}");
+                return;
             }
 
-            // 创建轨道（相当于 SDL2_mixer 的 8 个默认通道）
-            for (int i = 0; i < 8; i++)
+
+            // 循环模拟加载 23 个音乐资源
+            ///////////////////////////////////////////////////////////////////////
+            // 6. 加载 WAV 文件
+            // MIX_LoadAudio 用来加载音频文件到 Mixer。
+            // 需要传入音频路径 (UTF-8 格式)，最后必须以 '\0' 结尾。
+            // true/false 参数表示是否自动解码为原始 PCM 格式。
+            ///////////////////////////////////////////////////////////////////////
+            string path;
+            int i;
+            for (i=1;i<24;i++)
             {
-                IntPtr track = (nint)SDL3_mixer.MIX_CreateTrack((MIX_Mixer*)mixer);
-                if (track == IntPtr.Zero)
+                path = Path.Combine("..", "game", "music0", i.ToString() + ".MP3");
+                if (!File.Exists(path))
                 {
-                    Console.WriteLine($"无法创建轨道 {i}！错误：{SDL3.SDL_GetError()}");
-                    continue;
+                    Console.WriteLine($"文件不存在：{path}");
+                    return;
                 }
-                tracks.Add(track);
+
+                byte[] pathBytes = Encoding.UTF8.GetBytes(path + '\0');
+                IntPtr audio;
+                unsafe
+                {
+                    fixed (byte* ptr = pathBytes)
+                    {
+                        audio = (IntPtr)SDL3_mixer.MIX_LoadAudio((MIX_Mixer*)mixer, ptr, true);
+                    }
+                }
+
+                if (audio == IntPtr.Zero)
+                {
+                    Console.WriteLine($"加载音频失败：{SDL3.SDL_GetError()}");
+                    return;
+                }
+                music.Add(audio);
             }
-
-
-            byte[] pathBytes;
-            // 循环模拟加载 24 个音乐资源
-            for (int i = 1; i < 24; i++)
+            for (i = 0; i < 25; i++)
             {
-                // 将字符串转换为 UTF - 8 编码的字节数组，并添加空终止符
-                pathBytes = Encoding.UTF8.GetBytes("music\\" + i.ToString() + ".mid" + "\0");
-                // 固定字节数组以获取指针
-                fixed (byte* pathPtr = pathBytes)
+                path = Path.Combine("..", "game", "sound", "atk"+i.ToString("00") + ".wav");
+                if (!File.Exists(path))
                 {
-                    // 调用底层函数
-                    nint m = (nint)SDL3_mixer.MIX_LoadAudio((MIX_Mixer*)mixer, pathPtr, false);
-                    music.Add(m);
+                    Console.WriteLine($"文件不存在：{path}");
+                    return;
                 }
-            }
-            for (int i = 0; i < 25; i++)
-            {
-                // 将字符串转换为 UTF - 8 编码的字节数组，并添加空终止符
-                pathBytes = Encoding.UTF8.GetBytes("sound\\" + "atk" + i.ToString("D2") + ".wav" + "\0");
-                // 固定字节数组以获取指针
-                fixed (byte* pathPtr = pathBytes)
-                {
-                    // 调用底层函数
-                    nint a = (nint)SDL3_mixer.MIX_LoadAudio((MIX_Mixer*)mixer, pathPtr, false);
-                    asound.Add(a);
-                }
-            }
-            for (int i = 0; i < 53; i++)
-            {
-                // 将字符串转换为 UTF - 8 编码的字节数组，并添加空终止符
-                pathBytes = Encoding.UTF8.GetBytes("sound\\" + "e" + i.ToString("D2") + ".wav" + "\0");
-                // 固定字节数组以获取指针
-                fixed (byte* pathPtr = pathBytes)
-                {
-                    // 调用底层函数
-                    nint e = (nint)SDL3_mixer.MIX_LoadAudio((MIX_Mixer*)mixer, pathPtr, false);
-                    esound.Add(e);
-                }
-            }
 
+                byte[] pathBytes = Encoding.UTF8.GetBytes(path + '\0');
+                IntPtr audio;
+                unsafe
+                {
+                    fixed (byte* ptr = pathBytes)
+                    {
+                        audio = (IntPtr)SDL3_mixer.MIX_LoadAudio((MIX_Mixer*)mixer, ptr, true);
+                    }
+                }
 
+                if (audio == IntPtr.Zero)
+                {
+                    Console.WriteLine($"加载音频失败：{SDL3.SDL_GetError()}");
+                    return;
+                }
+                asound.Add(audio);
+            }
+            for (i = 0; i < 53; i++)
+            {
+                path = Path.Combine("..", "game", "sound", "e" + i.ToString("00") + ".wav");
+                if (!File.Exists(path))
+                {
+                    Console.WriteLine($"文件不存在：{path}");
+                    return;
+                }
+
+                byte[] pathBytes = Encoding.UTF8.GetBytes(path + '\0');
+                IntPtr audio;
+                unsafe
+                {
+                    fixed (byte* ptr = pathBytes)
+                    {
+                        audio = (IntPtr)SDL3_mixer.MIX_LoadAudio((MIX_Mixer*)mixer, ptr, true);
+                    }
+                }
+
+                if (audio == IntPtr.Zero)
+                {
+                    Console.WriteLine($"加载音频失败：{SDL3.SDL_GetError()}");
+                    return;
+                }
+                esound.Add(audio);
+            }
         }
 
-        // 播放背景音乐
-        /*
-        public bool PlayMusic(int num)
-        {
-            if (num < 0 || num >= music.Count)
-                return false;
-            if (music!=null)
-            {
-                return SDL3_mixer.MIX_PlayAudio((MIX_Mixer*)mixer, (MIX_Audio*)music[num]);
-            }
-            return false;
-        }
-        */
-        // 按索引播放音乐，使用第一个轨道
         public void playMusic(int num)
         {
-            if (num < 0 || num >= music.Count || tracks.Count == 0)
+            if (!SDL3_mixer.MIX_PlayAudio((MIX_Mixer*)mixer, (MIX_Audio*)music[num]))
             {
-                Console.WriteLine($"无效的音乐索引 {num} 或没有可用轨道！");
-                return;
+                Console.WriteLine($"播放失败：{SDL3.SDL_GetError()}");
             }
-
-            IntPtr track = tracks[0]; // 使用第一个轨道播放音乐
-            if (!SDL3_mixer.MIX_SetTrackAudio((MIX_Track*)track, (MIX_Audio*)music[num]))
+            else
             {
-                Console.WriteLine($"无法为轨道设置音频！错误：{SDL3.SDL_GetError()}");
-                return;
-            }
-
-            SDL_PropertiesID sDL_PropertiesID = new SDL_PropertiesID();
-
-            if (!SDL3_mixer.MIX_PlayTrack((MIX_Track*)track, sDL_PropertiesID))
-            {
-                Console.WriteLine($"无法播放轨道！错误：{SDL3.SDL_GetError()}");
+                Console.WriteLine("播放中…");
             }
         }
 
-        // 播放音效
-        public void playASound(int num)
+        public void playAsound(int num)
         {
-            if (num < 0 || num >= asound.Count || tracks.Count == 0)
+            if (!SDL3_mixer.MIX_PlayAudio((MIX_Mixer*)mixer, (MIX_Audio*)asound[num]))
             {
-                Console.WriteLine($"无效的音乐索引 {num} 或没有可用轨道！");
-                return;
+                Console.WriteLine($"播放失败：{SDL3.SDL_GetError()}");
             }
-
-            IntPtr track = tracks[0]; // 使用第一个轨道播放音乐
-            if (!SDL3_mixer.MIX_SetTrackAudio((MIX_Track*)track, (MIX_Audio*)asound[num]))
+            else
             {
-                Console.WriteLine($"无法为轨道设置音频！错误：{SDL3.SDL_GetError()}");
-                return;
-            }
-
-            SDL_PropertiesID sDL_PropertiesID = new SDL_PropertiesID();
-
-            if (!SDL3_mixer.MIX_PlayTrack((MIX_Track*)track, sDL_PropertiesID))
-            {
-                Console.WriteLine($"无法播放轨道！错误：{SDL3.SDL_GetError()}");
+                Console.WriteLine("播放中…");
             }
         }
 
-        // 播放音效
-        public void playESound(int num)
+        public void playEsound(int num)
         {
-            if (num < 0 || num >= esound.Count || tracks.Count == 0)
+            if (!SDL3_mixer.MIX_PlayAudio((MIX_Mixer*)mixer, (MIX_Audio*)esound[num]))
             {
-                Console.WriteLine($"无效的音乐索引 {num} 或没有可用轨道！");
-                return;
+                Console.WriteLine($"播放失败：{SDL3.SDL_GetError()}");
             }
-
-            IntPtr track = tracks[0]; // 使用第一个轨道播放音乐
-            if (!SDL3_mixer.MIX_SetTrackAudio((MIX_Track*)track, (MIX_Audio*)esound[num]))
+            else
             {
-                Console.WriteLine($"无法为轨道设置音频！错误：{SDL3.SDL_GetError()}");
-                return;
-            }
-
-            SDL_PropertiesID sDL_PropertiesID = new SDL_PropertiesID();
-
-            if (!SDL3_mixer.MIX_PlayTrack((MIX_Track*)track, sDL_PropertiesID))
-            {
-                Console.WriteLine($"无法播放轨道！错误：{SDL3.SDL_GetError()}");
+                Console.WriteLine("播放中…");
             }
         }
 
-        /// <summary>
-        /// 检查音乐是否播放结束并重新播放
-        /// </summary>
-        /// <param name="num"></param>
-        public void checkAndReplayMusic(int num)
+        bool IsPlaying(MIX_Mixer* mixer, MIX_Audio* audio)
         {
-            if (tracks.Count == 0)
+            MIX_Audio* playing = SDL3_mixer.MIX_GetTrackPlaybackPosition(mixer);
+            while (playing != null)
             {
-                Console.WriteLine("没有可用的轨道进行检查！");
-                return;
+                if (playing == audio) return true;
+                playing = SDL3_mixer.MIX_NextAudio(mixer, playing);
             }
-
-            IntPtr track = tracks[0]; // 检查第一个轨道（用于音乐）
-            if (!SDL3_mixer.MIX_TrackPlaying((MIX_Track*)track))
-            {
-                Console.WriteLine("音乐播放结束，重新播放...");
-                playMusic(num);  // 你自己封装的播放方法
-            }
-        }
-
-        public void stopMusic()
-        {
-            SDL3_mixer.MIX_StopAllTracks((MIX_Mixer*)mixer, 2000);
+            return false;
         }
 
 
         public void Dispose()
         {
-            // 释放音乐
-            foreach (var m in music)
-            {
-                SDL3_mixer.MIX_DestroyAudio((MIX_Audio*)m);
-            }
-            // 释放音效
-            foreach (var m in asound)
-            {
-                SDL3_mixer.MIX_DestroyAudio((MIX_Audio*)m);
-            }
-            foreach (var m in esound)
-            {
-                SDL3_mixer.MIX_DestroyAudio((MIX_Audio*)m);
-            }
-
-            music.Clear();
-            asound.Clear();
-            esound.Clear();
-            // 关闭 SDL_mixer 音频系统
             SDL3_mixer.MIX_DestroyMixer((MIX_Mixer*)mixer);
-
-            foreach(var t in tracks)
-            {
-                SDL3_mixer.MIX_DestroyTrack((MIX_Track*)t);
-            }
-            
             SDL3_mixer.MIX_Quit();
-            // 清理资源
-            _audioInstance = null;
+            SDL3.SDL_Quit();
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        }
+    }
 }

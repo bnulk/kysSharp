@@ -11,6 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Audio111.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ppy.SDL3-CS" Version="2025.816.0" />
     <PackageReference Include="ppy.SDL3_image-CS" Version="2025.816.0" />
     <PackageReference Include="ppy.SDL3_mixer-CS" Version="2025.816.0" />

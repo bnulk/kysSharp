@@ -128,7 +128,7 @@ namespace kysSharp
 
         public override void onEntrance()
         {
-            //Audio.getInstance().playMusic(16);
+            Audio.getInstance().playMusic(1);
         }
 
         private void getSdlTextureSize(SDL_Texture* texture, ref int w, ref int h)

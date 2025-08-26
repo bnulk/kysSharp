@@ -416,12 +416,12 @@ namespace kysSharp
 
         public void PlayMusic(int num)
         {
-            Audio.getInstance().checkAndReplayMusic(num);
+            //Audio.getInstance().checkAndReplayMusic(num);
         }
 
         public void StopMusic()
         {
-            Audio.getInstance().stopMusic();
+            //Audio.getInstance().stopMusic();
         }
 
 
