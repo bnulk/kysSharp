@@ -225,16 +225,6 @@ namespace kysSharp
             }
         }
 
-        bool IsPlaying(MIX_Mixer* mixer, MIX_Audio* audio)
-        {
-            MIX_Audio* playing = SDL3_mixer.MIX_GetTrackPlaybackPosition(mixer);
-            while (playing != null)
-            {
-                if (playing == audio) return true;
-                playing = SDL3_mixer.MIX_NextAudio(mixer, playing);
-            }
-            return false;
-        }
 
 
         public void Dispose()

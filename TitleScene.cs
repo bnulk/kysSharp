@@ -27,15 +27,13 @@ namespace kysSharp
             Engine.getInstance().tic();      //画走马灯图片用
 
             menu_ = new Menu();
-            /*
             Texture? texture = TextureManager.getInstance().loadTexture("title", 17);
             if(texture!=null)
             {
                 menu_.setTexture(texture);
             }
-            */
             
-            menu_.setPosition(600, 200);
+            menu_.setPosition(800, 300);
             var b = new Button("title", 3, 23, 23);
             menu_.addChild(b, 20, 0);
             b = new Button("title", 4, 24, 24);
