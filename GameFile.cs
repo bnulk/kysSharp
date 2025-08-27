@@ -7,6 +7,39 @@ namespace kysSharp
 {
     class GameFile
     {
+
+        /// <summary>
+        /// 获取idx文件中的内容
+        /// </summary>
+        /// <param name="filename_idx">idx文件名</param>
+        /// <param name="filename_grp">grp文件名</param>
+        /// <param name="offset">偏移值</param>
+        /// <param name="length">长度</param>
+        /// <returns></returns>
+        public static byte[] GetIdxContent(string filename_idx, string filename_grp, ref List<int> offset, ref List<int> length)
+        {
+            int[] Ridx;
+
+            int len = 0;
+            readFile(filename_idx, out Ridx, out len);
+
+            offset = new List<int>();
+            length = new List<int>();
+            offset.Add(0);
+
+            for (int i = 0; i < len; i++)
+            {
+                offset.Add((int)Ridx[i]);
+                length.Add((int)(offset[i + 1] - offset[i]));
+            }
+            int total_length = offset[offset.Count - 1];
+
+            byte[] Rgrp = new byte[total_length];
+            readFile(filename_grp, out Rgrp, total_length);
+
+            return Rgrp;
+        }
+
         /// <summary>
         /// 按字节数组读取二进制文件
         /// </summary>
