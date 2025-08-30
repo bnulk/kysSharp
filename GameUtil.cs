@@ -290,17 +290,17 @@ namespace kysSharp
             r.Level++;
 
             r.PhysicalPower = Constant.MAX_PHYSICAL_POWER;
-            r.MaxHP += r.IncLife * 3 + RandomClassical.Rand(6);
+            r.MaxHP += r.IncLife * 3 + RandomClassical.rand(6);
             r.HP = r.MaxHP;
-            r.MaxMP += 20 + RandomClassical.Rand(6);
+            r.MaxMP += 20 + RandomClassical.rand(6);
             r.MP = r.MaxMP;
 
             r.Hurt = 0;
             r.Poison = 0;
 
-            r.Attack += RandomClassical.Rand(7);
-            r.Speed += RandomClassical.Rand(7);
-            r.Defence += RandomClassical.Rand(7);
+            r.Attack += RandomClassical.rand(7);
+            r.Speed += RandomClassical.rand(7);
+            r.Defence += RandomClassical.rand(7);
 
             Check_Up(ref r.Medcine, 0, 3);
             Check_Up(ref r.Detoxification, 0, 3);
@@ -319,7 +319,7 @@ namespace kysSharp
         {
             if (value > limit)
             {
-                value += 1 + RandomClassical.Rand(max_inc);
+                value += 1 + RandomClassical.rand(max_inc);
             }
         }
 
@@ -353,7 +353,7 @@ namespace kysSharp
         /// <returns>物品经验值是否足够</returns>
         public static bool CanFinishedItem(ref Role r)
         {
-            var item = Save.GetInstance().GetItem(r.PracticeItem);
+            var item = Save.getInstance().GetItem(r.PracticeItem);
             if (r.ExpForItem >= GetFinishedExpForItem(ref r, ref item))
             {
                 return true;
@@ -400,10 +400,10 @@ namespace kysSharp
             if (r == null) { return; }
             if (i == null) { return; }
 
-            var r0 = Save.GetInstance().GetRole(i.User);
-            var book = Save.GetInstance().GetItem(r.PracticeItem);
-            var equip0 = Save.GetInstance().GetItem(r.Equip0);
-            var equip1 = Save.GetInstance().GetItem(r.Equip1);
+            var r0 = Save.getInstance().GetRole(i.User);
+            var book = Save.getInstance().GetItem(r.PracticeItem);
+            var equip0 = Save.getInstance().GetItem(r.Equip0);
+            var equip1 = Save.getInstance().GetItem(r.Equip1);
 
             if (r0.ID != 0) { r0.PracticeItem = -1; }
             i.User = r.ID;

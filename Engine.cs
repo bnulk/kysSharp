@@ -414,12 +414,12 @@ namespace kysSharp
         public void pauseAudio(int pause) { SDL3.SDL_PauseAudioDevice(_audioDevice); }
         public void closeAudio() { SDL3.SDL_CloseAudioDevice(_audioDevice); }
 
-        public void PlayMusic(int num)
+        public void playMusic(int num)
         {
             //Audio.getInstance().checkAndReplayMusic(num);
         }
 
-        public void StopMusic()
+        public void stopMusic()
         {
             //Audio.getInstance().stopMusic();
         }

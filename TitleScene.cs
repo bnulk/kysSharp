@@ -93,19 +93,20 @@ namespace kysSharp
 
             if (r == 0)
             {
-                /*
-                Save::getInstance()->load(0);
-                Script::getInstance()->runScript("../game/script/0.lua");
-                auto random_role = new RandomRole();
-                random_role->setRole(Save::getInstance()->getRole(0));
-                if (random_role->runAtPosition(300, 0) == 0)
+                Save.getInstance().load(0);
+                //Script::getInstance()->runScript("../game/script/0.lua");
+                var random_role = new RandomRole();
+
+                random_role.SetRole(Save.getInstance().GetRole(0));
+                if (random_role.runAtPosition(300, 0) == 0)
                 {
-                    MainScene::getIntance()->setManPosition(Save::getInstance()->MainMapX, Save::getInstance()->MainMapY);
-                    MainScene::getIntance()->forceEnterSubScene(70, 19, 20);
-                    MainScene::getIntance()->setTowards(1);
-                    MainScene::getIntance()->run();
+                    MainScene.getInstance().setManPosition(
+                        Save.getInstance().protagonistInformation.MainMapX, Save.getInstance().protagonistInformation.MainMapY);
+                    //MainScene.getInstance().forceEnterSubScene(70, 19, 20);
+                    MainScene.getInstance().setTowards(Towards.RightDown);
+                    MainScene.getInstance().run();
                 }
-                */
+
             }
             if (r == 1)
             {

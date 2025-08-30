@@ -460,7 +460,7 @@ namespace kysSharp
         /// 设置从begin开始的全部节点状态为退出
         /// </summary>
         /// <param name="begin">begin开始的节点标号</param>
-        public void exitAll(int begin)
+        public void exitAll(int begin = 0)
         {
             for (int i = begin; i < root_.Count; i++)
             {

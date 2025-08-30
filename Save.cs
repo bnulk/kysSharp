@@ -25,7 +25,7 @@ namespace kysSharp
 
 
         public static Save save_ = new Save();
-        public static Save GetInstance()
+        public static Save getInstance()
         {
             return save_;
         }
@@ -114,7 +114,7 @@ namespace kysSharp
         }
 
 
-        public bool Load(int num)
+        public bool load(int num)
         {
             if (!CheckSaveFileExist(num)) { return false; }
             string filenamer = GetFilename(num, 'r');

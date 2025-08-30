@@ -12,6 +12,8 @@ namespace kysSharp
 
         public int run()
         {
+            GameUtil.Initialize();
+
             var engine = Engine.getInstance();
             engine.setStartWindowSize(1024, 640);
             engine.init();                       //引擎初始化之后才能创建纹理
