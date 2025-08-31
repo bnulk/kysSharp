@@ -34,7 +34,8 @@ namespace kysSharp
             }
 
             Random random = new Random();
-            role_= new Role();
+            if (role_ == null)
+                return;
             role_.MaxHP = 25 + random.Next(26);
             role_.HP = role_.MaxHP;
             role_.MaxMP = 25 + random.Next(26);
@@ -57,7 +58,7 @@ namespace kysSharp
 
         public override void draw()
         {
-            Engine.getInstance().fillColor(new SDL.SDL_Color() { r=0,g=0,b=0,a=192}, 0, 0, -1, -1);
+            Engine.getInstance().fillColor(new SDL.SDL_Color() { r=0,g=0,b=0,a=220}, 0, 0, -1, -1);
             if(role_!=null)
             head_.SetRole(ref role_);
             base.draw();

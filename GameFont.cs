@@ -29,7 +29,31 @@ namespace kysSharp
             return font_;
         }
 
-        private int calIndex(int size, ushort c) { return size * 0x1000000 + c; }
+        /////////////////////////////////////////////////////////////////////////
+        // 函数名称：CalIndex
+        // 功能描述：将两个参数 (size, c) 组合成一个唯一的整数索引。
+        // 参数说明：
+        //   int size   —— 整型数值，通常代表某个块的大小、类别编号或高位标识。
+        //   ushort c   —— 无符号16位整数（范围 0 ~ 65535），作为低位标识。
+        // 返回值：
+        //   int —— 组合后的唯一索引值。
+        // 实现原理：
+        //   1. 将 size 乘以 0x1000000 (16777216)，相当于把 size 左移 24 位。
+        //   2. 将 c 加到结果中，c 只会占用低 16 位，不会影响高位。
+        //   3. 最终结果可以看作：高位存 size，低位存 c。
+        // 应用场景：
+        //   - 用于生成复合索引（Composite Index）。
+        //   - 快速在数组/哈希表中唯一标识 (size, c) 这对值。
+        //   - 节省空间，避免使用结构体或元组存储。
+        /////////////////////////////////////////////////////////////////////////
+        public int calIndex(int size, ushort c)
+        {
+            // 计算公式：索引 = size * 0x1000000 + c
+            // 其中 0x1000000 (16777216) = 1 << 24，即将 size 左移 24 位
+            // 加上 c (ushort) 后，c 的数值会填充到索引的低 16 位
+            return size * 0x1000000 + c;
+        }
+
 
         public void draw(string text, int size, int x, int y, SDL_Color color, byte alpha)
         {
@@ -47,7 +71,7 @@ namespace kysSharp
                 p++;
 
                 // 计算唯一索引 (与字符和字体大小相关)
-                int index = CalIndex(size, c);
+                int index = calIndex(size, c);
 
                 ///////////////////////////////////////////////////////////////////////
                 // Step2: 检查缓存，如果没有则创建纹理
@@ -94,7 +118,6 @@ namespace kysSharp
                         alpha
                     );
                     Engine.getInstance().renderCopy((SDL_Texture*)texture, x + 1, y, w, h);
-
                     Engine.getInstance().setColor((SDL_Texture*)texture, color, alpha);
                     Engine.getInstance().renderCopy((SDL_Texture*)texture, x, y, w, h);
                 }
@@ -104,15 +127,6 @@ namespace kysSharp
                 ///////////////////////////////////////////////////////////////////////
                 x += w;
             }
-        }
-
-        ///////////////////////////////////////////////////////////////////////
-        // calIndex : 根据 字体大小 + 字符码点 计算唯一索引
-        // 用于保证不同大小/不同字符缓存区分
-        ///////////////////////////////////////////////////////////////////////
-        private int CalIndex(int size, char c)
-        {
-            return size * 65536 + c; // 相当于 (size << 16) | c
         }
 
         public void drawWithBox(string text, int size, int x, int y, SDL_Color color, byte alpha, byte alpha_box)

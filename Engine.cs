@@ -739,6 +739,15 @@ namespace kysSharp
 
         public SDL_Texture* createTextTexture(string fontname, string text, int size, SDL_Color c)
         {
+            // 初始化 TTF
+            if (SDL3_ttf.TTF_Init() ==false)
+            {
+                Console.WriteLine($"TTF_Init failed: {SDL3.SDL_GetError()}");
+                SDL3.SDL_Quit();
+                return null;
+            }
+
+
             // 加载字体
             TTF_Font* font = SDL3_ttf.TTF_OpenFont(fontname, size);
             if (font == null)
@@ -746,8 +755,8 @@ namespace kysSharp
                 Console.WriteLine($"Failed to load font: {SDL3.SDL_GetError()}");
                 return null;
             }
-            // 渲染文本为纹理
-            SDL_Surface* surface = SDL3_ttf.TTF_RenderText_Solid(font, text, (nuint)text.Length, c);
+
+            SDL_Surface* surface = SDL3_ttf.TTF_RenderText_Solid(font, text, 0, c);
             if (surface == null)
             {
                 Console.WriteLine($"Failed to render text: {SDL3.SDL_GetError()}");
@@ -764,7 +773,10 @@ namespace kysSharp
                 return null;
             }
             return texture;
+
         }
+
+
 
         /// <summary>
         /// 显示消息框函数

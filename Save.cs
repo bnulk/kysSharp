@@ -240,10 +240,9 @@ namespace kysSharp
 
             foreach (var role in roles_)
             {
-                if (role.Name != null && role.Name.Length > 0)
+                if (role.strName != null && role.strName.Length > 0)
                 {
-                    // 将 sbyte[] 转换成 string，这里用 UTF8 作为示例
-                    string name = System.Text.Encoding.UTF8.GetString((byte[])(Array)role.Name);
+                    string name = GameUtil.EraseModredundantChar(role.strName);
 
                     if (!string.IsNullOrWhiteSpace(name))
                     {
@@ -254,10 +253,9 @@ namespace kysSharp
 
             foreach (var magic in magics_)
             {
-                if (magic.Name != null && magic.Name.Length > 0)
+                if (magic.strName != null && magic.strName.Length > 0)
                 {
-                    // 将 sbyte[] 转换成 string，这里用 UTF8 作为示例
-                    string name = System.Text.Encoding.UTF8.GetString((byte[])(Array)magic.Name);
+                    string name = GameUtil.EraseModredundantChar(magic.strName);
 
                     if (!string.IsNullOrWhiteSpace(name))
                     {
@@ -269,10 +267,9 @@ namespace kysSharp
 
             foreach (var item in items_)
             {
-                if (item.Name != null && item.Name.Length > 0)
+                if (item.strName != null && item.strName.Length > 0)
                 {
-                    // 将 sbyte[] 转换成 string，这里用 UTF8 作为示例
-                    string name = System.Text.Encoding.UTF8.GetString((byte[])(Array)item.Name);
+                    string name = GameUtil.EraseModredundantChar(item.strName);
 
                     if (!string.IsNullOrWhiteSpace(name))
                     {
@@ -284,10 +281,9 @@ namespace kysSharp
 
             foreach (var submapInfo in submap_infos_)
             {
-                if (submapInfo.Name != null && submapInfo.Name.Length > 0)
+                if (submapInfo.strName != null && submapInfo.strName.Length > 0)
                 {
-                    // 将 sbyte[] 转换成 string，这里用 UTF8 作为示例
-                    string name = System.Text.Encoding.UTF8.GetString((byte[])(Array)submapInfo.Name);
+                    string name = GameUtil.EraseModredundantChar(submapInfo.strName);
 
                     if (!string.IsNullOrWhiteSpace(name))
                     {

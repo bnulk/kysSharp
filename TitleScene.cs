@@ -1,10 +1,12 @@
 ﻿using SDL;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static kysSharp.GameRandom;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace kysSharp
 {
@@ -59,7 +61,7 @@ namespace kysSharp
                 head_y_ = RandomClassical.rand(640 - 150);
             }
 
-            SDL_Color sDL_Color = new SDL_Color() { r = 255, g = 255, b = 255, a = 255 };
+            SDL_Color sDL_Color = new SDL_Color() { r = 255, g = 255, b = 255, a = 198 };
             TextureManager.getInstance().renderTexture("head", head_id_, head_x_, head_y_, sDL_Color, (byte)alpha);
 
             //走马灯
@@ -87,6 +89,7 @@ namespace kysSharp
             }
         }
 
+
         public override void dealEvent(SDL_Event e)
         {
             int r = menu_.run();
@@ -96,15 +99,14 @@ namespace kysSharp
                 Save.getInstance().load(0);
                 //Script::getInstance()->runScript("../game/script/0.lua");
                 var random_role = new RandomRole();
-
                 random_role.SetRole(Save.getInstance().GetRole(0));
                 if (random_role.runAtPosition(300, 0) == 0)
                 {
-                    MainScene.getInstance().setManPosition(
-                        Save.getInstance().protagonistInformation.MainMapX, Save.getInstance().protagonistInformation.MainMapY);
+                    //MainScene.getInstance().setManPosition(
+                        //Save.getInstance().protagonistInformation.MainMapX, Save.getInstance().protagonistInformation.MainMapY);
                     //MainScene.getInstance().forceEnterSubScene(70, 19, 20);
-                    MainScene.getInstance().setTowards(Towards.RightDown);
-                    MainScene.getInstance().run();
+                    //MainScene.getInstance().setTowards(Towards.RightDown);
+                    //MainScene.getInstance().run();
                 }
 
             }
