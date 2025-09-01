@@ -1,5 +1,6 @@
 ﻿using kysSharp;
 using kysSharp.Types;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using static kysSharp.GameRandom;
@@ -13,18 +14,27 @@ namespace kysSharp
     public static class GameUtil
     {
 
-        private static List<int> level_up_list_;
+        private static List<int> level_up_list_= new List<int>();
 
         public static void Initialize()
         {
-            var str = Path.Combine("..", "game", "list", "levelup.txt");
-            ConvertLibs.FindNumbers(str, ref level_up_list_);
+            var filePath = Path.Combine("..", "game", "list", "levelup.txt");
+            string content = File.ReadAllText(filePath);
+            string[] strings = content.Split(",");
+
             if (level_up_list_.Count < Types.Constant.MAX_LEVEL)
             {
                 level_up_list_ = new List<int>();
                 for (int i = 0; i < Types.Constant.MAX_LEVEL; i++)
                 {
-                    level_up_list_.Add(60000);
+                    if (i>=strings.Length)
+                    {
+                        level_up_list_.Add(60000);
+                    }
+                    else
+                    {
+                        level_up_list_.Add(Convert.ToInt32(strings[i]));
+                    }                    
                 }
             }
 

@@ -55,7 +55,7 @@ namespace kysSharp
         }
 
 
-        public void draw(string text, int size, int x, int y, SDL_Color color, byte alpha)
+        public void draw(string text, int size, int x, int y, SDL_Color color)
         {
             int p = 0;
             while (p < text.Length)
@@ -115,10 +115,10 @@ namespace kysSharp
                             b = (byte)(color.b / 2),
                             a = color.a
                         },
-                        alpha
+                        color.a
                     );
                     Engine.getInstance().renderCopy((SDL_Texture*)texture, x + 1, y, w, h);
-                    Engine.getInstance().setColor((SDL_Texture*)texture, color, alpha);
+                    Engine.getInstance().setColor((SDL_Texture*)texture, color, color.a);
                     Engine.getInstance().renderCopy((SDL_Texture*)texture, x, y, w, h);
                 }
 
@@ -147,7 +147,7 @@ namespace kysSharp
                     a = color.a
                 },
                 alpha_box);
-            draw(text, size, x, y, color, alpha);
+            draw(text, size, x, y, color);
         }
 
 

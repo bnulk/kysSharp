@@ -47,7 +47,7 @@ namespace kysSharp
             int x = x_;
             int y = y_;
             var id = texture_normal_id_;
-            SDL_Color color = new SDL_Color { r=255, b=255, g=255, a=255 };
+            SDL_Color color = new() { r=255, b=255, g=255, a=255 };
             byte alpha = 225;
             if (state_ == State.Normal)
             {

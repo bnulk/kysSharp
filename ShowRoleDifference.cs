@@ -164,12 +164,12 @@ namespace kysSharp
 
             if (isEqual == true)
             {
-                GameFont.getInstance().draw("無明显效果", 20, x, y, c,c.a);
+                GameFont.getInstance().draw("無明显效果", 20, x, y, c);
             }
 
             if (force != 0)
             {
-                GameFont.getInstance().draw("hello", size, x, y, c,c.a);
+                GameFont.getInstance().draw("hello", size, x, y, c);
             }
 
             isShowDifference = true;

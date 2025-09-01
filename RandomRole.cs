@@ -15,7 +15,7 @@ namespace kysSharp
             button_ok_.setText("確定".PadRight(4));
             addChild(button_ok_, 350, 55);
             head_ = new Head();
-            addChild(head_, -350, 50);
+            addChild(head_, -290, 100);
 
         }
 
@@ -59,7 +59,7 @@ namespace kysSharp
         public override void draw()
         {
             Engine.getInstance().fillColor(new SDL.SDL_Color() { r=0,g=0,b=0,a=220}, 0, 0, -1, -1);
-            if(role_!=null)
+            if (role_ != null)
             head_.SetRole(ref role_);
             base.draw();
         }

@@ -177,8 +177,8 @@ namespace kysSharp
                 return;
             //物品名和数量
             var str = (GameUtil.EraseModredundantChar(item.strName) + " " + Save.getInstance().GetItemCountInBag(current_item_.ID)).ToString();
-            GameFont.getInstance().draw(str, 24, x_ + 10, y_ + 370, white,white.a);
-            GameFont.getInstance().draw(GameUtil.EraseModredundantChar(item.strIntroduction), 20, x_ + 10, y_ + 400, white,white.a);
+            GameFont.getInstance().draw(str, 24, x_ + 10, y_ + 370, white);
+            GameFont.getInstance().draw(GameUtil.EraseModredundantChar(item.strIntroduction), 20, x_ + 10, y_ + 400, white);
 
             int x = 10, y = 430;
             int size = 20;
@@ -300,7 +300,7 @@ namespace kysSharp
                     x = 10;
                     y += size + 5;
                 }
-                GameFont.getInstance().draw(str, size, x_ + x, y_ + y, c,c.a);
+                GameFont.getInstance().draw(str, size, x_ + x, y_ + y, c);
                 x += draw_length;
             }
         }

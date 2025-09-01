@@ -739,15 +739,7 @@ namespace kysSharp
 
         public SDL_Texture* createTextTexture(string fontname, string text, int size, SDL_Color c)
         {
-            // 初始化 TTF
-            if (SDL3_ttf.TTF_Init() ==false)
-            {
-                Console.WriteLine($"TTF_Init failed: {SDL3.SDL_GetError()}");
-                SDL3.SDL_Quit();
-                return null;
-            }
-
-
+            SDL3.SDL_SetHint(SDL3.SDL_HINT_RENDER_LINE_METHOD, "1");
             // 加载字体
             TTF_Font* font = SDL3_ttf.TTF_OpenFont(fontname, size);
             if (font == null)
@@ -756,7 +748,8 @@ namespace kysSharp
                 return null;
             }
 
-            SDL_Surface* surface = SDL3_ttf.TTF_RenderText_Solid(font, text, 0, c);
+            //SDL_Surface* surface = SDL3_ttf.TTF_RenderText_Solid(font, text, 0, c);            //快速，但是质量差
+            SDL_Surface* surface = SDL3_ttf.TTF_RenderText_Blended(font, text, 0, c);            //质量好，但是慢
             if (surface == null)
             {
                 Console.WriteLine($"Failed to render text: {SDL3.SDL_GetError()}");

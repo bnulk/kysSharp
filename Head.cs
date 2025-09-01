@@ -52,7 +52,7 @@ namespace kysSharp
 
             if (state_ == State.Normal)
             {
-                color = new SDL_Color() { r = 128, b = 125, g = 128, a = 255 };
+                color = new SDL_Color() { r = 128, b = 128, g = 128, a = 255 };
             }
 
             if(state_==State.Pass)
@@ -69,20 +69,19 @@ namespace kysSharp
             if (only_head_) { return; }
 
             //下面都是画血条等
-
-            font.draw(GameUtil.EraseModredundantChar(role_.strName).PadRight(8), 16, x_ + 160, y_ + 13, white, 255);
+            font.draw(GameUtil.EraseModredundantChar(role_.strName).PadRight(8), 16, x_ + 117, y_ + 9, white);
             SDL_Rect r1 = new SDL_Rect() { w = 0, h=0, x=0, y=0 };
-            font.draw(role_.Level.ToString(), 16, x_ + 132 - 4 * GameUtil.Digit(role_.Level), y_ + 9, new SDL_Color() { r = 255, b = 255, g = 255, a = 255 }, 255);
+            font.draw(role_.Level.ToString(), 16, x_ + 99 - 4 * GameUtil.Digit(role_.Level), y_ + 5, new SDL_Color() { r = 255, b = 200, g = 50, a = 255 });
 
             SDL_Color c, c_text;
             if (role_.MaxHP > 0)
             {
                 r1 = new SDL_Rect()
                 {
-                    x = x_ + 128,
-                    y = y_ + 42,
-                    w = 185 * role_.HP / role_.MaxHP,
-                    h = 12
+                    x = x_ + 96,
+                    y = y_ + 32,
+                    w = 138 * role_.HP / role_.MaxHP,
+                    h = 9
                 };
             }
             else
@@ -93,12 +92,12 @@ namespace kysSharp
 
             Engine.getInstance().renderSquareTexture(&r1, c, 192);
 
-            font.draw((role_.HP.ToString().PadRight(3) + "/" + role_.MaxHP.ToString().PadRight(3)), 16, x_ + 195, y_ + 39, 
-                new SDL_Color() {r=250, g=200, b=50, a=255 }, 255);
+            font.draw((role_.HP.ToString().PadRight(3) + "/" + role_.MaxHP.ToString().PadRight(3)), 16, x_ + 138, y_ + 28, 
+                new SDL_Color() {r=250, g=200, b=50, a=255 });
 
             if (role_.MaxMP > 0)
             {
-                r1= new SDL_Rect() { x = x_ + 128, y = y_ + 63, w = 185 * role_.MP / role_.MaxMP, h = 12 };
+                r1= new SDL_Rect() { x = x_ + 96, y = y_ + 48, w = 138 * role_.MP / role_.MaxMP, h = 9 };
             }
             else
             {
@@ -118,14 +117,13 @@ namespace kysSharp
             }
 
             Engine.getInstance().renderSquareTexture(&r1, c, 192);
+            font.draw((role_.MP.ToString().PadRight(3) + "/" + role_.MaxMP.ToString().PadRight(3)), 16, x_ + 138, y_ + 44, c_text);
 
-            font.draw((role_.MP.ToString().PadRight(3) + "/" + role_.MaxMP.ToString().PadRight(3)), 16, x_ + 195, y_ + 60, c_text, 255);
-
-            r1 = new SDL_Rect() {x= x_ + 153,y= y_ + 86,w= 111 * role_.PhysicalPower / 100,h=12 };
+            r1 = new SDL_Rect() {x= x_ + 115,y= y_ + 65,w= 83 * role_.PhysicalPower / 100,h=9 };
             c=new SDL_Color() { r=128, g=128, b=255, a=255 };
             Engine.getInstance().renderSquareTexture(&r1, c, 192);
-            font.draw(role_.PhysicalPower.ToString().PadRight(3), 16, x_ + 203 - 4 * GameUtil.Digit(role_.PhysicalPower), y_ + 84, 
-                new SDL_Color() { r=250,g=200,b=50,a=255}, 255);
+            font.draw(role_.PhysicalPower.ToString().PadRight(3), 16, x_ + 154 - 4 * GameUtil.Digit(role_.PhysicalPower), y_ + 61, 
+                new SDL_Color() { r=250,g=200,b=50,a=255});
         }
 
 
