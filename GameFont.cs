@@ -129,7 +129,7 @@ namespace kysSharp
             }
         }
 
-        public void drawWithBox(string text, int size, int x, int y, SDL_Color color, byte alpha, byte alpha_box)
+        public void drawWithBox(string text, int size, int x, int y, SDL_Color color, byte alpha_box)
         {
             SDL_Rect r;
             r.x = x - 10;
@@ -141,10 +141,10 @@ namespace kysSharp
                 r,
                 new SDL_Color
                 {
-                    r = (byte)(color.r / 2),
-                    g = (byte)(color.g / 2),
-                    b = (byte)(color.b / 2),
-                    a = color.a
+                    r = 255,
+                    g = 255,
+                    b = 255,
+                    a = 255
                 },
                 alpha_box);
             draw(text, size, x, y, color);

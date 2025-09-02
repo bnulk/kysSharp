@@ -36,11 +36,11 @@ namespace kysSharp
             {
                 if (have_box_)
                 {
-                    //Font::getInstance()->drawWithBox(text_, font_size_, x_ + text_x_, y_ + text_y_, color_normal_, 255);
+                    GameFont.getInstance().drawWithBox(text_, font_size_, x_ + text_x_, y_ + text_y_, color_normal_,255);
                 }
                 else
                 {
-                    //Font::getInstance()->draw(text_, font_size_, x_ + text_x_, y_ + text_y_, color_normal_, 255);
+                    GameFont.getInstance().draw(text_, font_size_, x_ + text_x_, y_ + text_y_, color_normal_);
                 }
             }
         }

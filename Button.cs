@@ -80,7 +80,7 @@ namespace kysSharp
                 {
                     color_text = color_press_;
                 }
-                GameFont.getInstance().drawWithBox(text_, font_size_, x_ + text_x_, y_ + text_y_, color_text, 255, alpha);
+                GameFont.getInstance().drawWithBox(text_, font_size_, x_ + text_x_, y_ + text_y_, color_text, alpha);
             }
         }
 
