@@ -58,9 +58,9 @@ namespace kysSharp
 
         public override void draw()
         {
-            Engine.getInstance().fillColor(new SDL.SDL_Color() { r=0,g=0,b=0,a=220}, 0, 0, -1, -1);
+            Engine.getInstance().fillColor(new SDL.SDL_Color() { r = 0, g = 0, b = 0, a = 220 }, 0, 0, -1, -1);
             if (role_ != null)
-            head_.SetRole(ref role_);
+                head_.SetRole(ref role_);
             base.draw();
         }
 

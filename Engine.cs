@@ -224,12 +224,30 @@ namespace kysSharp
 
         public void renderCopy(SDL_Texture* t, SDL_Rect* rect0, SDL_Rect* rect1, int inPresent /*= 0*/)
         {
-            SDL_Rect rect=new SDL_Rect();
-            rect0 = &rect;
-            SDL_FRect r0 = new SDL_FRect { x = rect.x, y = rect.y, w = rect.w, h = rect.h };
-            rect1 = &rect;
-            SDL_FRect r1 = new SDL_FRect { x = rect.x, y = rect.y, w = rect.w, h = rect.h };
-            SDL3.SDL_RenderTexture(renderer_, t, &r0, &r1);
+            SDL_FRect r0;
+            SDL_FRect r1;
+            SDL_FRect* r0Ptr;
+            SDL_FRect* r1Ptr;
+
+            if (rect0!=null)
+            {
+                r0 = new SDL_FRect { x = (*rect0).x, y = (*rect0).y, w = (*rect0).w, h = (*rect0).h };
+                r0Ptr = &r0;
+            }
+            else
+            {
+                r0Ptr = null;
+            }
+            if(rect1!=null)
+            {
+                r1 = new SDL_FRect { x = (*rect1).x, y = (*rect1).y, w = (*rect1).w, h = (*rect1).h };
+                r1Ptr = &r1;
+            }
+            else
+            {
+                r1Ptr = null;
+            }
+            SDL3.SDL_RenderTexture(renderer_, t, r0Ptr, r1Ptr);
         }
 
         public void showLogo() { SDL3.SDL_RenderTexture(renderer_, logo_, null, null); }
@@ -926,6 +944,8 @@ namespace kysSharp
             Console.WriteLine($"maximum width and height are: {max_x_}, {max_y_}");
 
 
+            //UI初始化
+            square_ = createSquareTexture(100);
             //音频部分初始化
             //Audio.getInstance().Init();
 

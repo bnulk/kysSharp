@@ -48,7 +48,6 @@ namespace kysSharp
         public override void draw()
         {
             string str;
-            int tmpLength;
             int exp_up;
 
             if (role_ != null || !show_button_)
