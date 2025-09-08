@@ -17,8 +17,8 @@ namespace kysSharp
         ///////////////////////////////////////////////////////////////////////
         private Dictionary<int, IntPtr> buffer_ = new();
 
-        private readonly string fontnamec_ = Path.Combine("..", "game", "font", "chinese.ttf");
-        private readonly string fontnamee_ = Path.Combine("..", "game", "font", "english.ttf");
+        private readonly string fontnamec_ = Path.Combine("game", "font", "chinese.ttf");
+        private readonly string fontnamee_ = Path.Combine("game", "font", "english.ttf");
 
         public static GameFont getInstance()
         {

@@ -1,5 +1,4 @@
-﻿using MAP_INT = System.Int16;
-
+﻿
 namespace kysSharp.Types
 {
     /// <summary>

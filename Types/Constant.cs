@@ -1,5 +1,6 @@
 ﻿namespace kysSharp.Types
 {
+    using MAP_INT = System.Int16;
     /// <summary>
     /// 常量
     /// </summary>

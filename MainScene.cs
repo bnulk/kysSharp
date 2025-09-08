@@ -1,153 +1,136 @@
-﻿using SDL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using kysSharp;
+using kysSharp.Types;
+using SDL;
+using System.Drawing;
 
 namespace kysSharp
 {
-    internal class MainScene : Scene
+    class MainScene : Scene
     {
-        public static MainScene mainScene_= new MainScene();
+        private static MainScene main_scene_ = new MainScene();
+
+        public MapSquare earth_layer_, surface_layer_, building_layer_, build_x_layer_, build_y_layer_, entrance_layer_;
+
+        public bool data_readed_ = false;
+
+        public int rest_time_ = 0;                     //停止操作的时间
+
+        public int MAN_PIC_0 = 2501;                   //初始主角图偏移量
+        public int MAN_PIC_COUNT = 7;                  //单向主角图张数
+        public int REST_PIC_0 = 2529;                  //主角休息图偏移量
+        public int REST_PIC_COUNT = 6;                 //单向休息图张数
+        public int SHIP_PIC_0 = 3715;                  //初始主角图偏移量
+        public int SHIP_PIC_COUNT = 4;                 //单向主角图张数
+        public int BEGIN_REST_TIME = 200;              //开始休息的时间
+        public int REST_INTERVAL = 15;                 //休息图切换间隔
+
+        public int force_submap_ = -1;
+        public int force_submap_x_ = -1;
+        public int force_submap_y_ = -1;
+
+        Cloud.CloudTowards cloud_towards = Cloud.CloudTowards.Left;
+        List<Cloud> cloud_vector_ = new List<Cloud>();
+
+        private struct DrawInfo { public int i; public Point p; }
+
         public static MainScene getInstance()
         {
-            return mainScene_;
+            if(main_scene_==null)
+            {
+                main_scene_ = new MainScene();
+            }
+            return main_scene_;
         }
 
         public MainScene()
         {
+
             full_window_ = true;
+            COORD_COUNT = Constant.MAINMAP_COORD_COUNT;
 
-            if (_readed == false)
+            if (!data_readed_)
             {
-                short[] tmpShort;
-                int length = Earth.Length;
-                GameFile.readFile("resource/earth.002", out tmpShort, length);
-                OneDim2TwoDim(ref Earth, tmpShort);
-                GameFile.readFile("resource/surface.002", out tmpShort, length);
-                OneDim2TwoDim(ref Surface, tmpShort);
-                GameFile.readFile("resource/building.002", out tmpShort, length);
-                OneDim2TwoDim(ref Building, tmpShort);
-                GameFile.readFile("resource/buildx.002", out tmpShort, length);
-                OneDim2TwoDim(ref BuildY, tmpShort);
-                GameFile.readFile("resource/buildy.002", out tmpShort, length);
-                OneDim2TwoDim(ref BuildX, tmpShort);
+                earth_layer_ = new MapSquare(COORD_COUNT);
+                surface_layer_ = new MapSquare(COORD_COUNT);
+                building_layer_ = new MapSquare(COORD_COUNT);
+                build_x_layer_ = new MapSquare(COORD_COUNT);
+                build_y_layer_ = new MapSquare(COORD_COUNT);
+
+                int length = COORD_COUNT * COORD_COUNT * sizeof(MAP_INT);
+
+                GameFile.readFile(Path.Combine("game","resource","earth.002"), out earth_layer_.data_, length / 2);
+                GameFile.readFile(Path.Combine("game", "resource", "surface.002"), out surface_layer_.data_, length / 2);
+                GameFile.readFile(Path.Combine("game", "resource", "building.002"), out building_layer_.data_, length / 2);
+                GameFile.readFile(Path.Combine("game", "resource", "buildx.002"), out build_x_layer_.data_, length / 2);
+                GameFile.readFile(Path.Combine("game", "resource", "buildy.002"), out build_y_layer_.data_, length / 2);
+
+                Divide2(ref earth_layer_);
+                Divide2(ref surface_layer_);
+                Divide2(ref building_layer_);
             }
-            _readed = true;
+            data_readed_ = true;
 
-            man_x_ = 240;
-            man_y_ = 240;
 
-            Console.WriteLine("toward=" + towards_.ToString());
-
-            //一百朵云
+            //100个云
             for (int i = 0; i < 100; i++)
             {
                 var c = new Cloud();
-                c.InitCloud();
-                cloudVector.Add(c);
+                cloud_vector_.Add(c);
+                c.initRand();
             }
-
-            GetEntrance();
-        }
-
-
-
-        public const int maxX = 480;
-        public const int maxY = 480;
-        public short[,] mapArray= new short[maxX, maxY]; //地图数组
-
-        public short[,] Earth = new short[480, 480];                                         //short两字节
-        public short[,] Surface = new short[480, 480];
-        public short[,] Building = new short[480, 480];
-        public short[,] BuildX = new short[480, 480];
-        public short[,] BuildY = new short[480, 480];
-        public short[,] Entrance = new short[480, 480];
-
-        int MAN_PIC_0 = 2501;         //初始主角图偏移量
-        int MAN_PIC_COUNT = 7;        //单向主角图张数
-        int REST_PIC_0 = 2529;        //主角休息图偏移量
-        int REST_PIC_COUNT = 6;       //单向休息图张数
-        int SHIP_PIC_0 = 3715;        //初始主角图偏移量
-        int SHIP_PIC_COUNT = 4;       //单向主角图张数
-        int BEGIN_REST_TIME = 200;    //开始休息的时间
-        int REST_INTERVAL = 15;       //休息图切换间隔
-
-        Stack<Point> wayQue = new Stack<Point>();                                               //栈(路径栈)
-
-
-        public int cloudX, cloudY;
-        public int manPicture;
-        public int restTime = 0;                   //停止操作的时间
-        public int cloud_restTime = 0;             //云消失的时间
-        public const int cloudSize = 240;              //云朵宽度
-        public const int tag_mainLayer = 1;     //主层编号 
-        public const int tag_wordLayer = 1;     //文字层编号
-
-
-        public bool isEsc = false;					//是否已打开系统菜单
-
-        Cloud.CloudTowards cloudTowards = Cloud.CloudTowards.Left;
-        List<Cloud> cloudVector= new List<Cloud>();
-
-        public bool _readed = false;
-
-        ~MainScene()
-        {
-            Engine.getInstance().stopMusic(); // 停止音乐
-        }
-
-        private struct DrawInfo
-        {
-            public int i;
-            public Point p;
         }
 
         public override void draw()
         {
             int k = 0;
 
-            var t0 = Engine.getInstance().getTicks();
-
             Dictionary<int, DrawInfo> map = new Dictionary<int, DrawInfo>();
             DrawInfo tmpDrawInfo = new DrawInfo();
 
-            TextureManager.getInstance().renderTexture("mmap", 0, 0, 0);
-
-
-            for (int sum = -view_sum_region_; sum <= -view_sum_region_ + 15; sum++)
+            for (int sum = -view_sum_region_; sum <= view_sum_region_ + 15; sum++)
             {
                 for (int i = -view_width_region_; i <= view_width_region_; i++)
                 {
-                    int i1 = man_x_ + i + (sum / 2);
-                    int i2 = man_y_ - i + (sum - sum / 2);
-                    var p = getPositionOnRender(i1, i2, man_x_, man_y_);
-                    if (isOutLine(i1,i2)==false)
+                    int ix = man_x_ + i + (sum / 2);
+                    int iy = man_y_ - i + (sum - sum / 2);
+                    var p = getPositionOnRender(ix, iy, man_x_, man_y_);
+                    p.x += x_;
+                    p.y += y_;
+                    //auto p = getMapPoint(ix, iy, *_Mx, *_My);
+                    if (!isOutLine(ix, iy))
                     {
                         //共分3层，地面，表面，建筑，主角包括在建筑中
-                        if (Earth[i1, i2] > 0)
+                        //调试模式下不画出地面，图的数量太多占用CPU很大
+
+                        if (earth_layer_.GetData(ix, iy) > 0)
                         {
-                            TextureManager.getInstance().renderTexture("mmap", Earth[i1, i2] / 2, p.x, p.y);
+                            TextureManager.getInstance().renderTexture("mmap", earth_layer_.GetData(ix, iy), p.x, p.y);
                         }
-                        if (Surface[i1, i2] > 0)
+
+                        if (surface_layer_.GetData(ix, iy) > 0)
                         {
-                            TextureManager.getInstance().renderTexture("mmap", Surface[i1, i2] / 2, p.x, p.y);
+                            TextureManager.getInstance().renderTexture("mmap", surface_layer_.GetData(ix, iy), p.x, p.y);
                         }
-                        
-                        if (Building[i1, i2] > 0)
+
+
+                        if (building_layer_.GetData(ix, iy) > 0)
                         {
-                            var t = Building[i1, i2] / 2;
+                            var t = building_layer_.GetData(ix, iy);
+
                             //根据图片的宽度计算图的中点, 为避免出现小数, 实际是中点坐标的2倍
                             //次要排序依据是y坐标
-                            //直接设置z轴
+                            //直接设置z轴                            
+                            var tex = TextureManager.getInstance().loadTexture("mmap", t);
 
-                            var w = TextureManager.getInstance().map_["mmap"][t].w;
-                            var h = TextureManager.getInstance().map_["mmap"][t].h;
-                            var dy = TextureManager.getInstance().map_["mmap"][t].dy;
+                            int w = 0, h = 0, dy = 0;
+                            if (tex != null)
+                            {
+                                w = tex.w;
+                                h = tex.h;
+                                dy = tex.dy;
+                            }
 
-                            int c = ((i1 + i2) - (w + 35) / 36 - (dy - h + 1) / 9) * 1024 + i1;                                 //显示的顺序,楞搞的一个公式
+                            int c = ((ix + iy) - (w + 35) / 36 - (dy - h + 1) / 9) * 1024 + ix;                //生成一个绘制建筑的顺序，从上到下，从左到右。
 
                             tmpDrawInfo.i = t;
                             tmpDrawInfo.p = p;
@@ -161,20 +144,26 @@ namespace kysSharp
                             {
                                 map[2 * c + 1] = tmpDrawInfo;
                             }
+                        }
 
-                        }                        
-                        
-                        if (i1 == man_x_ && i2 == man_x_)
+
+                        if (ix == man_x_ && iy == man_y_)
                         {
-                            manPicture = MAN_PIC_0 + (int)towards_ * MAN_PIC_COUNT + step_;          //每个方向的第一张是静止图
-                            if (restTime >= BEGIN_REST_TIME)
+                            if (IsWater(man_x_, man_y_))
                             {
-                                manPicture = MAN_PIC_0 + (int)towards_ * MAN_PIC_COUNT + (restTime - BEGIN_REST_TIME) / REST_INTERVAL % REST_PIC_COUNT;
+                                man_pic_ = SHIP_PIC_0 + (int)towards_ * SHIP_PIC_COUNT + step_;
                             }
-                            int c = 1024 * (i1 + i2) + i1 + 2000000;
+                            else
+                            {
+                                man_pic_ = MAN_PIC_0 + (int)towards_ * MAN_PIC_COUNT + step_;  //每个方向的第一张是静止图
+                                if (rest_time_ >= BEGIN_REST_TIME)
+                                {
+                                    man_pic_ = REST_PIC_0 + (int)towards_ * REST_PIC_COUNT + (rest_time_ - BEGIN_REST_TIME) / REST_INTERVAL % REST_PIC_COUNT;
+                                }
+                            }
+                            int c = 1024 * (ix + iy) + ix;                                 //绘制主角的顺序，和遮挡相关。
 
-
-                            tmpDrawInfo.i = manPicture;
+                            tmpDrawInfo.i = man_pic_;
                             tmpDrawInfo.p = p;
                             if (map.ContainsKey(2 * c) == false)
                             {
@@ -185,11 +174,11 @@ namespace kysSharp
                                 map[2 * c] = tmpDrawInfo;
                             }
                         }
-                        
                     }
                     k++;
                 }
             }
+
             //按键值排序，由小到大。
             map = map.OrderBy(p => p.Key).ToDictionary(p => p.Key, o => o.Value);
 
@@ -199,274 +188,261 @@ namespace kysSharp
                 TextureManager.getInstance().renderTexture("mmap", item.Value.i, item.Value.p.x, item.Value.p.y);
             }
 
-            var t1 = Engine.getInstance().getTicks();
+            //鼠标的位置，此处直接画到最上面了
+            var pMouse = getMousePosition(man_x_, man_y_);
+            pMouse = getPositionOnRender(pMouse.x, pMouse.y, man_x_, man_y_);
+            TextureManager.getInstance().renderTexture("mmap", 1, pMouse.x, pMouse.y, 
+                new SDL_Color() { r=255,g=255,b=255,a=255 }, 255);
 
-
-            //云的贴图
-            foreach (var c in cloudVector)
+            foreach (var c in cloud_vector_)
             {
                 c.draw();
             }
 
-            Engine.getInstance().playMusic(1); //播放背景音乐
-
+            Engine.getInstance().renderAssistTextureToWindow();
         }
-       
-        public void CloudMove()
+
+        public override void onEntrance()
         {
-            foreach (var c in cloudVector)
+            calViewRegion();
+
+            //云的贴图
+            foreach (var c in cloud_vector_)
             {
-                c.ChangePosition();
-                c.SetPositionOnScreen(man_x_, man_x_, render_center_x_, render_center_y_);
+                c.flow();
+                c.SetPositionOnScreen(man_x_, man_y_, render_center_x_, render_center_y_);
+            }
+            
+        }
+
+        public void Divide2(ref MapSquare m)
+        {
+            for (int i = 0; i < m.SquareSize(); i++)
+            {
+                m.Data_[i] = (MAP_INT)(m.GetData(i) / 2);
             }
         }
 
-        /// <summary>
-        /// 一维数组填入二维数组
-        /// </summary>
-        /// <param name="twoDim">二维数组</param>
-        /// <param name="oneDim">一维数组</param>
-        private void OneDim2TwoDim(ref short[,] twoDim, short[] oneDim)
+        public override void backRun()
         {
-            int dim = twoDim.GetLength(0);
-            int i, j;
-
-            for (i = 0; i < dim; i++)
+            //云的贴图
+            foreach (var c in cloud_vector_)
             {
-                for (j = 0; j < dim; j++)
-                {
-                    twoDim[i, j] = oneDim[i * dim + j];
-                }
+                c.flow();
+                c.SetPositionOnScreen(man_x_, man_y_, render_center_x_, render_center_y_);
             }
         }
 
-        
-        /// <summary>
-        /// 获取入口
-        /// </summary>
-        public void GetEntrance()
-        {
-            for (int x = 0; x < maxX; x++)
-            {
-                for (int y = 0; y < maxY; y++)
-                {
-                    Entrance[x, y] = -1;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 按键值升序排列Dictionary
-        /// </summary>
-        /// <param name="dic">字典</param>
-        /// <returns>键值升序排列的Dictionary</returns>
-        private IOrderedEnumerable<KeyValuePair<int, DrawInfo>> DictionarySort(Dictionary<int, DrawInfo> dic)
-        {
-            return dic.OrderBy(i => i.Key);
-        }
-
-
-        /// <summary>
-        /// //计时器，负责画图以及一些其他问题
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e">键信息</param>
         public override void dealEvent(SDL_Event e)
         {
+            /*
+            //强制进入，通常用于开始
+            if (force_submap_ >= 0)
+            {
+                var sub_map = new SubScene(force_submap_);
+                sub_map.SetManViewPosition(force_submap_x_, force_submap_y_);
+                sub_map.SetTowards((int)towards_);
+                sub_map.Run();
+                towards_ = sub_map.towards_;
+                force_submap_ = -1;
+                SetVisible(true);
+            }
+            */
             int x = man_x_, y = man_y_;
 
-            if (e.type == (uint)SDL_EventType.SDL_EVENT_KEY_DOWN)
+            //键盘走路部分，检测4个方向键           
+            int pressed = 0;
+            for (var i = (int)(SDL_Keycode.SDLK_RIGHT); i <= (int)(SDL_Keycode.SDLK_UP); i++)
             {
-                switch (e.key.key)
+                if (i != (int)pre_pressed_ && Engine.getInstance().checkKeyPress((SDL_Keycode)i))
                 {
-                    case SDL_Keycode.SDLK_LEFT:
-                        {
-                            y--;
-                            CheckIsEntrance(x, y);
-                            walk(x, y, Towards.LeftUp);
-                            StopFindWay();
-                            break;
-                        }
-                    case SDL_Keycode.SDLK_RIGHT:
-                        {
-                            y++;
-                            CheckIsEntrance(x, y);
-                            walk(x, y, Towards.RightDown);
-                            StopFindWay();
-                            break;
-                        }
-                    case SDL_Keycode.SDLK_UP:
-                        {
-                            x--;
-                            CheckIsEntrance(x, y);
-                            walk(x, y, Towards.RightUp);
-                            StopFindWay();
-                            break;
-                        }
-                    case SDL_Keycode.SDLK_DOWN:
-                        {
-                            x++;
-                            CheckIsEntrance(x, y);
-                            walk(x, y, Towards.LeftDown);
-                            StopFindWay();
-                            break;
-                        }
-                    case SDL_Keycode.SDLK_ESCAPE:
-                        {
-                            StopFindWay();
-                            break;
-                        }
-                    default:
-                        {
-                            restTime++;
-                            break;
-                        }
+                    pressed = i;
                 }
             }
+            if (pressed == 0 && Engine.getInstance().checkKeyPress(pre_pressed_))
+            {
+                pressed = (int)pre_pressed_;
+            }
+            pre_pressed_ = (SDL_Keycode)pressed;
 
-            CloudMove();
+            if (pressed!=0)
+            {
+                //注意，中间空出几个步数是为了可以单步行动，子场景同
+                if (total_step_ < 1 || total_step_ >= 5)
+                {
+                    changeTowardsByKey((SDL_Keycode)pressed);
+                    getTowardsPosition(man_x_, man_y_, towards_, ref x, ref y);
+                    TryWalk(x, y);
+                }
+                total_step_++;
+            }
+            else
+            {
+                total_step_ = 0;
+            }
+
+            if (pressed!=0 && checkEntrance(x, y))
+            {
+                way_que_.Clear();
+                clearEvent(e);
+                total_step_ = 0;
+            }
+
+            rest_time_++;
         }
-
-
-        public void walk(int x, int y, Towards t)
+        /// <summary>
+        /// 尝试走向x，y位置
+        /// </summary>
+        /// <param name="x">目的地x</param>
+        /// <param name="y">目的地y</param>
+        public void TryWalk(int x, int y)
         {
             if (canWalk(x, y))
             {
                 man_x_ = x;
                 man_y_ = y;
             }
-            if (towards_ != t)
+            step_++;
+            if (IsWater(man_x_, man_y_))
             {
-                towards_ = t;
-                //step = 0;
+                step_ = step_ % SHIP_PIC_COUNT;
             }
             else
             {
-                step_++;
+                if (step_ >= MAN_PIC_COUNT)
+                {
+                    step_ = 1;
+                }
             }
-            step_ = step_ % MAN_PIC_COUNT;
-            restTime = 0;
+            rest_time_ = 0;
         }
 
-        /// <summary>
-        /// 检查是否在入口
-        /// </summary>
-        /// <param name="x">坐标x</param>
-        /// <param name="y">坐标y</param>
-        /// <returns></returns>
-        public bool CheckIsEntrance(int x, int y)
+        public override void onPressedCancel()
         {
+            UI.getInstance().run();
+        }
+        public bool IsBuilding(int x, int y)
+        {
+            return (building_layer_.GetData(build_x_layer_.GetData(x, y), build_y_layer_.GetData(x, y)) > 0);
+        }
+
+        public bool IsWater(int x, int y)
+        {
+            var pic = earth_layer_.GetData(x, y);
+            if (pic == 419 || pic >= 306 && pic <= 335)
+            {
+                return true;
+            }
+            else if (pic >= 179 && pic <= 181
+                || pic >= 253 && pic <= 335
+                || pic >= 508 && pic <= 511)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override bool canWalk(int x, int y)
+        {
+            //if (checkEntrance(x, y, true))
+            //{
+            //    return true;
+            //}  这里不需要加，实际上入口都是无法走到的
+
+            if(isOutLine(x, y))
+            {
+                return false;
+            }
+            if (IsBuilding(x, y)/*|| checkIsWater(x, y)*/)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        public bool checkEntrance(int x, int y, bool only_check = false)
+        {
+            /*
+            for (int i = 0; i < Save.GetInstance().GetSubMapInfos().Count; i++)
+            {
+                var s = Save.GetInstance().GetSubMapInfo(i);
+                if (x == s.MainEntranceX1 && y == s.MainEntranceY1 || x == s.MainEntranceX2 && y == s.MainEntranceY2)
+                {
+                    bool can_enter = false;
+                    if (s.EntranceCondition == 0)
+                    {
+                        can_enter = true;
+                    }
+                    else if (s.EntranceCondition == 2)
+                    {
+                        //注意进入条件2的设定
+                        foreach (var r in Save.GetInstance().protagonistInformation.Team)
+                        {
+                            if (Save.GetInstance().GetRole(r).Speed >= 70)
+                            {
+                                can_enter = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (only_check)
+                    {
+                        return true;
+                    }
+                    if (can_enter)
+                    {
+                        //UISave.AutoSave();
+                        //这里看起来要主动多画一帧，待修
+                        //DrawAndPresent();
+                        var sub_map = new SubScene(i);
+                        sub_map.SetManViewPosition(s.EntranceX, s.EntranceY);
+                        sub_map.Run();
+                        towards_ = sub_map.towards_;
+                        return true;
+                    }
+                }
+            }
+            */
             return false;
         }
 
         /// <summary>
-        /// 停止寻路
+        /// 强制进入子场景
         /// </summary>
-        public void StopFindWay()
+        /// <param name="submap_id">子场景id</param>
+        /// <param name="x">位置x</param>
+        /// <param name="y">位置y</param>
+        public void ForceEnterSubScene(int submap_id, int x, int y)
         {
-            if (wayQue != null)
-            {
-                while (wayQue.Count != 0)
-                {
-                    wayQue.Pop();
-                }
-            }
+            force_submap_ = submap_id;
+            if (x >= 0) { force_submap_x_ = x; }
+            if (y >= 0) { force_submap_y_ = y; }
+            setVisible(false);
+        }
+
+        public void SetEntrance()
+        {
         }
 
         /// <summary>
-        /// 检查是否能走
+        /// 判断是否在屏幕以外
         /// </summary>
-        /// <param name="x">坐标x</param>
-        /// <param name="y">坐标y</param>
-        /// <returns>是否能走</returns>
-        public override bool canWalk(int x, int y)
+        /// <param name="x">点x</param>
+        /// <param name="y">点y</param>
+        /// <returns>是否在屏幕以外</returns>
+        public override bool isOutScreen(int x, int y)
         {
-            if (IsBuilding(x, y) || IsOutLine(x, y) || IsWater(x, y))
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// 检查是否为建筑
-        /// </summary>
-        /// <param name="x">坐标x</param>
-        /// <param name="y">坐标y</param>
-        /// <returns>是否为建筑</returns>
-        public bool IsBuilding(int x, int y)
-        {
-            short num = Building[BuildX[x, y], BuildY[x, y]];
-            if(num>0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// 检查是否越界
-        /// </summary>
-        /// <param name="x">坐标x</param>
-        /// <param name="y">坐标y</param>
-        /// <returns>是否越界</returns>
-        public bool IsOutLine(int x, int y)
-        {
-            if (x < 0 || x > maxX || y < 0 || y > maxY)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// 检查是否越出屏幕
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        public bool IsOutScreen(int x, int y)
-        {
-            if (Math.Abs(man_x_ - x) >= 2 * view_width_region_ || Math.Abs(man_y_ - y) >= view_sum_region_)
-                return true;
-            else
-                return false;
-        }
-
-        /// <summary>
-        /// 检查是否为水
-        /// </summary>
-        /// <param name="x">坐标x</param>
-        /// <param name="y">坐标y</param>
-        /// <returns>是否为水</returns>
-        public bool IsWater(int x, int y)
-        {
-            if (Earth[x, y] == 838 || Earth[x, y] >= 612 && Earth[x, y] <= 670)
-            {
-                return true;
-            }
-            else if (Earth[x, y] >= 358 && Earth[x, y] <= 362
-                || Earth[x, y] >= 506 && Earth[x, y] <= 670
-                || Earth[x, y] >= 1016 && Earth[x, y] <= 1022)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return (Math.Abs(man_x_ - x) >= 2 * view_width_region_ || Math.Abs(man_y_ - y) >= view_sum_region_);
         }
 
 
+        
 
 
 
@@ -475,6 +451,11 @@ namespace kysSharp
 
 
 
+
+
+
+
+       
 
 
 

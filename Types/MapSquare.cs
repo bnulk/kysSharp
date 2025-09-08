@@ -1,13 +1,12 @@
 ﻿using System;
-using MAP_INT = System.Int16;
 
 namespace kysSharp.Types
 {
     [Serializable]
     public class MapSquare
     {
-        private MAP_INT[] data_;
-        private MAP_INT line_;
+        public MAP_INT[] data_;
+        public MAP_INT line_;
 
         public MAP_INT[] Data_ { get => data_; set => data_ = value; }
         public MAP_INT Line_ { get => line_; set => line_ = value; }

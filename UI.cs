@@ -19,7 +19,7 @@ namespace kysSharp
         int item_id_ = -1;
 
 
-        public static UI GetInstance() { return ui_; }
+        public static UI getInstance() { return ui_; }
 
         public UI()
         {

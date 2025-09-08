@@ -12,7 +12,7 @@ namespace kysSharp
     internal unsafe class TextureManager
     {
         private static TextureManager? texture_manager_;
-        private string path_ = Path.Combine("..", "game", "resource");
+        private string path_ = Path.Combine("game", "resource");
         private Random random = new Random();
 
         public Dictionary<string, List<Texture>> map_ = new Dictionary<string, List<Texture>>();
@@ -159,6 +159,9 @@ namespace kysSharp
                 for (int i = 0; i < l; i++)
                 {
                     Texture texture = new Texture();
+
+                    //texture.dx = Convert.ToInt32(s.Substring(4 * i, 2));
+                    //texture.dy = Convert.ToInt32(s.Substring(4 * i + 2, 2));
                     texture.dx = (int)s[2 * i];                                        //和源程序不同，原因是这里用了short，源程序是char* 
                     texture.dy = (int)s[2 * i + 1];
                     v.Add(texture);
@@ -192,7 +195,7 @@ namespace kysSharp
                 {
                     for (int i = 0; i < 10; i++)
                     {
-                        t.tex[i] = Engine.getInstance().loadImage(Path.Combine(p ,num.ToString(),"_" ,i.ToString() + ".png"));
+                        t.tex[i] = Engine.getInstance().loadImage(Path.Combine(p ,num.ToString()+"_" +i.ToString() + ".png"));
                         if (t.tex[i]==null)
                         {
                             t.count = i;

@@ -102,11 +102,11 @@ namespace kysSharp
                 random_role.SetRole(Save.getInstance().GetRole(0));
                 if (random_role.runAtPosition(300, 0) == 0)
                 {
-                    //MainScene.getInstance().setManPosition(
-                        //Save.getInstance().protagonistInformation.MainMapX, Save.getInstance().protagonistInformation.MainMapY);
+                    MainScene.getInstance().setManPosition(
+                        Save.getInstance().protagonistInformation.MainMapX, Save.getInstance().protagonistInformation.MainMapY);
                     //MainScene.getInstance().forceEnterSubScene(70, 19, 20);
-                    //MainScene.getInstance().setTowards(Towards.RightDown);
-                    //MainScene.getInstance().run();
+                    MainScene.getInstance().setTowards(Towards.RightDown);
+                    MainScene.getInstance().run();
                 }
 
             }

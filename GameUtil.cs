@@ -18,7 +18,7 @@ namespace kysSharp
 
         public static void Initialize()
         {
-            var filePath = Path.Combine("..", "game", "list", "levelup.txt");
+            var filePath = Path.Combine("game", "list", "levelup.txt");
             string content = File.ReadAllText(filePath);
             string[] strings = content.Split(",");
 

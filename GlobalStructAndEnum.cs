@@ -1,9 +1,4 @@
-﻿using SDL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿global using MAP_INT = System.Int16;
 
 namespace kysSharp
 {

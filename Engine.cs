@@ -909,7 +909,7 @@ namespace kysSharp
             // 设置渲染区域
             rect_ = new SDL_Rect { x = 0, y = 0, w = start_w_, h = start_h_ };
             // 加载 Logo 贴图（你需要实现 LoadImage 函数）
-            string logoPath = Path.Combine("..", "game","resource","title","logo.png");
+            string logoPath = Path.Combine("game","resource","title","logo.png");
             logo_ = loadImage(logoPath);
             // 显示 logo 并呈现
             showLogo();
@@ -952,6 +952,32 @@ namespace kysSharp
             return 0;
         }
 
+        public bool checkKeyPress(SDL_Keycode key)
+        {
+            /*
+            // 获取 Down 键的 scancode
+            int scancode = (int)SDL3.SDL_GetScancodeFromKey(SDL_Keycode.SDLK_DOWN, null);
+
+            // 获取键盘状态
+            int* numkeys = null;
+            bool* state = (bool*)SDL3.SDL_GetKeyboardState(numkeys);
+
+            // 检查 Down 键是否按下
+            if (state[scancode])
+            {
+                Console.WriteLine("hello, down.");
+            }
+            */
+
+            // 获取 key 键的 scancode
+            int scancode = (int)SDL3.SDL_GetScancodeFromKey(key, null);
+            // 获取键盘状态
+            int* numkeys = null;
+            bool* state = (bool*)SDL3.SDL_GetKeyboardState(numkeys);
+
+            //检查 key 键是否按下
+            return state[scancode];
+        }
 
 
 

@@ -2,7 +2,7 @@
   "profiles": {
     "kysSharp": {
       "commandName": "Project",
-      "workingDirectory": "D:\\kysSharp\\work\\bin"
+      "workingDirectory": "D:\\kysSharp\\work"
     }
   }
 }

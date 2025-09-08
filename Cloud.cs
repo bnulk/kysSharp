@@ -26,7 +26,7 @@ namespace kysSharp
         byte alpha_;
         SDL_Color color_;
 
-        public void InitCloud()
+        public void initRand()
         {
             Random ra = new Random();
             position.x = ra.Next() % maxX;

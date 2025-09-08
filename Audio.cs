@@ -111,7 +111,7 @@ namespace kysSharp
             int i;
             for (i=1;i<24;i++)
             {
-                path = Path.Combine("..", "game", "music0", i.ToString() + ".MP3");
+                path = Path.Combine("game", "music0", i.ToString() + ".MP3");
                 if (!File.Exists(path))
                 {
                     Console.WriteLine($"文件不存在：{path}");
@@ -137,7 +137,7 @@ namespace kysSharp
             }
             for (i = 0; i < 25; i++)
             {
-                path = Path.Combine("..", "game", "sound", "atk"+i.ToString("00") + ".wav");
+                path = Path.Combine("game", "sound", "atk"+i.ToString("00") + ".wav");
                 if (!File.Exists(path))
                 {
                     Console.WriteLine($"文件不存在：{path}");
@@ -163,7 +163,7 @@ namespace kysSharp
             }
             for (i = 0; i < 53; i++)
             {
-                path = Path.Combine("..", "game", "sound", "e" + i.ToString("00") + ".wav");
+                path = Path.Combine("game", "sound", "e" + i.ToString("00") + ".wav");
                 if (!File.Exists(path))
                 {
                     Console.WriteLine($"文件不存在：{path}");

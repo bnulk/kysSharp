@@ -85,22 +85,22 @@ namespace kysSharp
             string filename = "";
             if (i > 0)
             {
-                filename = Path.Combine("..","game","save" , c.ToString() + i.ToString() + ".grp");
+                filename = Path.Combine("game","save" , c.ToString() + i.ToString() + ".grp");
                 if (c == 'r') { filename += "32"; }
             }
             else
             {
                 if (c == 'r')
                 {
-                    filename = Path.Combine("..", "game", "save", "ranger.grp32");
+                    filename = Path.Combine("game", "save", "ranger.grp32");
                 }
                 else if (c == 's')
                 {
-                    filename = Path.Combine("..", "game", "save", "allsin.grp");
+                    filename = Path.Combine("game", "save", "allsin.grp");
                 }
                 else if (c == 'd')
                 {
-                    filename = Path.Combine("..", "game", "save", "alldef.grp");
+                    filename = Path.Combine("game", "save", "alldef.grp");
                 }
             }
             return filename;
@@ -120,7 +120,7 @@ namespace kysSharp
             string filenamer = GetFilename(num, 'r');
             string filenames = GetFilename(num, 's');
             string filenamed = GetFilename(num, 'd');
-            string filename_idx = Path.Combine("..", "game", "save", "ranger.idx32");
+            string filename_idx = Path.Combine("game", "save", "ranger.idx32");
 
             var rgrp = GameFile.GetIdxContent(filename_idx, filenamer, ref offset_, ref length_);
 
