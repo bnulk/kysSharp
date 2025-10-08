@@ -235,19 +235,18 @@ namespace kysSharp
 
         public override void dealEvent(SDL_Event e)
         {
-            /*
             //强制进入，通常用于开始
             if (force_submap_ >= 0)
             {
                 var sub_map = new SubScene(force_submap_);
-                sub_map.SetManViewPosition(force_submap_x_, force_submap_y_);
-                sub_map.SetTowards((int)towards_);
-                sub_map.Run();
+                sub_map.setManViewPosition(force_submap_x_, force_submap_y_);
+                sub_map.setTowards(towards_);
+                sub_map.run();
                 towards_ = sub_map.towards_;
                 force_submap_ = -1;
-                SetVisible(true);
+                setVisible(true);
             }
-            */
+
             int x = man_x_, y = man_y_;
 
             //键盘走路部分，检测4个方向键           
@@ -290,6 +289,7 @@ namespace kysSharp
 
             rest_time_++;
         }
+
         /// <summary>
         /// 尝试走向x，y位置
         /// </summary>

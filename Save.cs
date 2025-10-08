@@ -27,7 +27,15 @@ namespace kysSharp
         public static Save save_ = new Save();
         public static Save getInstance()
         {
-            return save_;
+            if(save_==null)
+            {
+                save_ = new Save();
+                return save_;
+            }
+            else
+            {
+                return save_;
+            }
         }
 
         //注意在读取之后，offset比length尾部会多一个元素，该值即总长度
@@ -38,13 +46,13 @@ namespace kysSharp
         private List<Role> roles_ = new List<Role>();
         private List<Magic> magics_ = new List<Magic>();
         private List<Item> items_ = new List<Item>();
-        private List<SubmapInfo> submap_infos_ = new List<SubmapInfo>();
+        private List<SubMapInfo> submap_infos_ = new List<SubMapInfo>();
         private List<Shop> shops_ = new List<Shop>();
 
         private Dictionary<string, Role> roles_by_name_ = new Dictionary<string, Role>();
         private Dictionary<string, Item> items_by_name_ = new Dictionary<string, Item>();
         private Dictionary<string, Magic> magics_by_name_ = new Dictionary<string, Magic>();
-        private Dictionary<string, SubmapInfo> submap_infos_by_name_ = new Dictionary<string, SubmapInfo>();
+        private Dictionary<string, SubMapInfo> submap_infos_by_name_ = new Dictionary<string, SubMapInfo>();
 
 
 
@@ -63,7 +71,7 @@ namespace kysSharp
         public Role GetRole(int i) { if (i < 0 || i >= roles_.Count) { return null; } return roles_[i]; }
         public Magic GetMagic(int i) { if (i <= 0 || i >= magics_.Count) { return null; } return magics_[i]; }  //0号武功无效
         public Item GetItem(int i) { if (i < 0 || i >= items_.Count) { return null; } return items_[i]; }
-        public SubmapInfo GetSubMapInfo(int i) { if (i < 0 || i >= submap_infos_.Count) { return null; } return submap_infos_[i]; }
+        public SubMapInfo GetSubMapInfo(int i) { if (i < 0 || i >= submap_infos_.Count) { return null; } return submap_infos_[i]; }
         public Shop GetShop(int i) { if (i < 0 || i >= shops_.Count) { return null; } return shops_[i]; }
 
         public int GetTeamMateID(int i) { return protagonistInformation.Team[i]; }
@@ -72,12 +80,12 @@ namespace kysSharp
         public Role GetRoleByName(string name) { return roles_by_name_[name]; }
         public Magic GetMagicByName(string name) { return magics_by_name_[name]; }
         public Item GetItemByName(string name) { return items_by_name_[name]; }
-        public SubmapInfo GetSubMapRecordByName(string name) { return submap_infos_by_name_[name]; }
+        public SubMapInfo GetSubMapRecordByName(string name) { return submap_infos_by_name_[name]; }
 
         public List<Role> GetRoles() { return save_.roles_; }
         public List<Magic> GetMagics() { return save_.magics_; }
         public List<Item> GetItems() { return save_.items_; }
-        public List<SubmapInfo> GetSubMapInfos() { return save_.submap_infos_; }
+        public List<SubMapInfo> GetSubMapInfos() { return save_.submap_infos_; }
         public List<Shop> GetShops() { return save_.shops_; }
 
         public string GetFilename(int i, char c)

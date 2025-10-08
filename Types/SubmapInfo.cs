@@ -4,12 +4,12 @@ namespace kysSharp.Types
     /// <summary>
     /// 实际的场景数据
     /// </summary>
-    public class SubmapInfo : SubmapInfoSave
+    public class SubMapInfo : SubMapInfoSave
     {
         public MAP_INT[,] layer_data_;
         public SubmapEvent[] events_;
 
-        public SubmapInfo()
+        public SubMapInfo()
         {
             layer_data_ = new MAP_INT[Constant.SUBMAP_LAYER_COUNT, Constant.SUBMAP_COORD_COUNT * Constant.SUBMAP_COORD_COUNT];
             events_ = new SubmapEvent[Constant.SUBMAP_EVENT_COUNT];

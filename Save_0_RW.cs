@@ -245,15 +245,15 @@ namespace kysSharp
             }
         }
 
-        private void ReadDataToSubmapInfos(byte[] bytes, int offset, int length, int length_one, ref List<SubmapInfo> submap_infos_mem_)
+        private void ReadDataToSubmapInfos(byte[] bytes, int offset, int length, int length_one, ref List<SubMapInfo> submap_infos_mem_)
         {
             int i, j;
             int offsetSubmapInfo;
             byte[] tmpBytes;
             sbyte[] tmpSbytes;
             short[] tmpChar = new short[4];
-            SubmapInfo submapInfo = new SubmapInfo();
-            submap_infos_mem_ = new List<SubmapInfo>();
+            SubMapInfo submapInfo = new SubMapInfo();
+            submap_infos_mem_ = new List<SubMapInfo>();
 
             int[] s = new int[length / 4];
             s = ByteUtils.ByteToInt32(bytes, offset, length);
@@ -261,7 +261,7 @@ namespace kysSharp
             int count = length / length_one;
             for (i = 0; i < count; i++)
             {
-                submapInfo = new SubmapInfo();
+                submapInfo = new SubMapInfo();
                 offsetSubmapInfo = i * length_one / 4;
 
                 submapInfo.ID = s[offsetSubmapInfo + 0];
@@ -399,7 +399,7 @@ namespace kysSharp
             }
         }
 
-        private void ReadDataToSubmapLayerData(short[] shorts, ref List<SubmapInfo> submapInfos)
+        private void ReadDataToSubmapLayerData(short[] shorts, ref List<SubMapInfo> submapInfos)
         {
             int numberOfEveryLayerInfo = Constant.SUBMAP_COORD_COUNT * Constant.SUBMAP_COORD_COUNT;                        //单层信息数目为64*64
             int numberOfEverySubmapInfo = Constant.SUBMAP_LAYER_COUNT * numberOfEveryLayerInfo;                           //单个子场景数目信息6*64*64
@@ -418,7 +418,7 @@ namespace kysSharp
             }
         }
 
-        private void ReadDataToSubmapEvent(short[] shorts, ref List<SubmapInfo> submapInfos)
+        private void ReadDataToSubmapEvent(short[] shorts, ref List<SubMapInfo> submapInfos)
         {
             int numberOfEveryEventInfo = 11;
             int numberOfEverySubmapEvent = 11 * Constant.SUBMAP_EVENT_COUNT;

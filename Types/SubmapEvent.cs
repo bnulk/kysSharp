@@ -37,7 +37,7 @@ namespace kysSharp.Types
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="submap_record"></param>
-        public void SetPosition(int x, int y, SubmapInfo submap_record)
+        public void SetPosition(int x, int y, SubMapInfo submap_record)
         {
             if (x < 0) { x = X_; }
             if (y < 0) { y = Y_; }

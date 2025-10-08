@@ -104,7 +104,7 @@ namespace kysSharp
                 {
                     MainScene.getInstance().setManPosition(
                         Save.getInstance().protagonistInformation.MainMapX, Save.getInstance().protagonistInformation.MainMapY);
-                    //MainScene.getInstance().forceEnterSubScene(70, 19, 20);
+                    MainScene.getInstance().ForceEnterSubScene(70, 19, 20);
                     MainScene.getInstance().setTowards(Towards.RightDown);
                     MainScene.getInstance().run();
                 }

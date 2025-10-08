@@ -4,7 +4,7 @@
     /// 存档中的子场景数据
     /// 约定：Scene表示游戏中运行的某个Element实例，而Map表示存储的数据
     /// </summary>
-    public class SubmapInfoSave
+    public class SubMapInfoSave
     {
         public int ID;
         public sbyte[] Name = new sbyte[20];
