@@ -36,6 +36,14 @@ namespace kysSharp
         public SubMapInfo getMapInfo() { return submap_info_; }
 
         public void changeExitMusic(int m) { exit_music_ = m; }
+
+        //第一类事件，主动触发
+        bool checkEvent1(int x, int y, Towards tw) { return checkEvent(x, y, tw, -1); }
+        //第二类事件，物品触发
+        bool checkEvent2(int x, int y, Towards tw, int item_id) { return checkEvent(x, y, tw, item_id); }
+        //第三类事件，经过触发
+        bool checkEvent3(int x, int y) { return checkEvent(x, y, Towards.None, -1); }
+
         private void setID(int id)
         {
             submap_id_ = id;
@@ -154,7 +162,7 @@ namespace kysSharp
         {
             int x = man_x_, y = man_y_;
 
-            //checkEvent3(x, y);
+            checkEvent3(x, y);
             if (isExit(x, y) || isJumpSubScene())
             {
                 way_que_.Clear();
@@ -225,36 +233,48 @@ namespace kysSharp
             }
         }
 
-        public bool checkEvent(int x, int y, int tw /*= None*/, int item_id /*= -1*/)
+        public bool checkEvent(int x, int y, Towards tw /*= None*/, int item_id /*= -1*/)
         {
-            /*
-            getTowardsPosition(man_x_, man_y_, tw, &x, &y);
-            int event_index_submap = submap_info_->EventIndex(x, y);
+            getTowardsPosition(man_x_, man_y_, tw, ref x, ref y);
+            int event_index_submap = submap_info_.GetEventIndex(x, y);
             if (event_index_submap >= 0)
             {
                 int id = 0;
-                if (tw != Towards_None)
+                var eventObj = submap_info_?.Event(x, y);
+                if (tw != Towards.None)
                 {
                     if (item_id < 0)
                     {
-                        id = submap_info_->Event(x, y)->Event1;
+                        if (eventObj != null)
+                        {
+                            id = eventObj.Event1;
+                        }
                     }
                     else
                     {
-                        id = submap_info_->Event(x, y)->Event2;
+                        if (eventObj != null)
+                        {
+                            id = eventObj.Event2;
+                        }
                     }
                     if (id > 0) { step_ = 0; }
                 }
                 else
                 {
-                    id = submap_info_->Event(x, y)->Event3;
+                    if (eventObj != null)
+                    {
+                        id = eventObj.Event3;
+                    }
                 }
                 if (id > 0)
                 {
-                    return Event::getInstance()->callEvent(id, this, submap_info_->ID, item_id, event_index_submap, x, y);
+                    var info = submap_info_ ;
+                    if (info?.ID != null)
+                    {
+                        return Event.getInstance().CallEvent(id, this, info.ID, item_id, event_index_submap, x, y);
+                    }
                 }
             }
-            */
             return false;
         }
 

@@ -306,7 +306,7 @@ namespace kysSharp
 
             if (button_leave_.getState() == State.Press)
             {
-                Event.GetInstance().CallLeaveEvent(role_);
+                Event.getInstance().CallLeaveEvent(role_);
                 role_ = null;
                 menuType = MenuType.leave;
             }

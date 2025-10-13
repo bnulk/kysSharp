@@ -16,5 +16,36 @@ namespace kysSharp
             }
             str = big5.GetString(tmpByte);
         }
+
+        /////////////////////////////////////////////////////////////////////////
+        // 函数：Cp950ToCp936
+        // 功能：将台湾繁体编码（CP950）转换为简体中文（CP936/GBK）
+        /////////////////////////////////////////////////////////////////////////
+        public static string Cp950ToCp936(byte[] data, int startIndex,int length)
+        {
+            /*
+            int end = startIndex;
+            while (end < data.Length && data[end] != 0) end++;
+            byte[] sub = new byte[end - startIndex];
+            Array.Copy(data, startIndex, sub, 0, sub.Length);
+            string text = Encoding.GetEncoding("big5").GetString(sub);
+            return text;
+            */
+
+            // 安全性检查
+            if (data == null || data.Length == 0)
+                return string.Empty;
+
+            if (startIndex < 0 || length <= 0 || startIndex + length > data.Length)
+                return string.Empty;
+
+            // 从指定位置复制字节
+            byte[] subData = new byte[length];
+            Buffer.BlockCopy(data, startIndex, subData, 0, length);
+
+            // 转换为字符串（UTF-8）
+            string text = Encoding.GetEncoding("big5").GetString(subData);
+            return text;
+        }
     }
 }
