@@ -192,6 +192,13 @@ namespace kysSharp
                 i += n + 1;
             }
 
+            void VOID0(Action func)
+            {
+                PRINT_E(0);
+                func();
+                i += 1;
+            }
+
             void VOID1(Action<int> func)
             {
                 PRINT_E(1);
@@ -219,6 +226,74 @@ namespace kysSharp
                 func(e[i + 1], e[i + 2], e[i + 3], e[i + 4]);
                 i += 5;
             }
+
+            void VOID5(Action<int, int, int, int, int> func)
+            {
+                PRINT_E(5);
+                func(e[i + 1], e[i + 2], e[i + 3], e[i + 4], e[i + 5]);
+                i += 6;
+            }
+
+            void VOID6(Action<int, int, int, int, int, int> func)
+            {
+                PRINT_E(6);
+                func(e[i + 1], e[i + 2], e[i + 3], e[i + 4], e[i + 5], e[i + 6]);
+                i += 7;
+            }
+
+            void VOID7(Action<int, int, int, int, int, int, int> func)
+            {
+                PRINT_E(7);
+                func(e[i + 1], e[i + 2], e[i + 3], e[i + 4], e[i + 5], e[i + 6], e[i + 7]);
+                i += 8;
+            }
+
+            void VOID8(Action<int, int, int, int, int, int, int, int> func)
+            {
+                PRINT_E(8);
+                func(e[i + 1], e[i + 2], e[i + 3], e[i + 4], e[i + 5], e[i + 6], e[i + 7], e[i + 8]);
+                i += 9;
+            }
+
+            void VOID9(Action<int, int, int, int, int, int, int, int, int> func)
+            {
+                PRINT_E(9);
+                func(e[i + 1], e[i + 2], e[i + 3], e[i + 4], e[i + 5], e[i + 6], e[i + 7], e[i + 8], e[i + 9]);
+                i += 10;
+            }
+
+            void VOID10(Action<int, int, int, int, int, int, int, int, int, int> func)
+            {
+                PRINT_E(10);
+                func(e[i + 1], e[i + 2], e[i + 3], e[i + 4], e[i + 5], e[i + 6], e[i + 7], e[i + 8], e[i + 9], e[i + 10]);
+                i += 11;
+            }
+
+            void VOID11(Action<int, int, int, int, int, int, int, int, int, int, int> func)
+            {
+                PRINT_E(11);
+                func(e[i + 1], e[i + 2], e[i + 3], e[i + 4], e[i + 5], e[i + 6], e[i + 7], e[i + 8], e[i + 9], e[i + 10], e[i + 11]);
+                i += 12;
+            }
+
+            void VOID12(Action<int, int, int, int, int, int, int, int, int, int, int, int> func)
+            {
+                PRINT_E(12);
+                func(e[i + 1], e[i + 2], e[i + 3], e[i + 4], e[i + 5], e[i + 6], e[i + 7], e[i + 8], e[i + 9], e[i + 10], e[i + 11], e[i + 12]);
+                i += 13;
+            }
+
+            void VOID13(Action<int, int, int, int, int, int, int, int, int, int, int, int, int> func)
+            {
+                PRINT_E(13);
+                func(e[i + 1], e[i + 2], e[i + 3], e[i + 4], e[i + 5], e[i + 6], e[i + 7], e[i + 8], e[i + 9], e[i + 10], e[i + 11], e[i + 12], e[i + 13]);
+                i += 14;
+            }
+
+            ///////////////////////////////////////////////////////////////////////////
+            // BOOL 系列函数（对应 C 宏版本）
+            // 布尔函数返回 true / false，决定跳转逻辑
+            ///////////////////////////////////////////////////////////////////////////
 
             void BOOL(Func<bool> func)
             {
@@ -250,6 +325,46 @@ namespace kysSharp
                 i += 5;
             }
 
+            void BOOL2_2(Func<int, int, bool> func)
+            {
+                PRINT_E(2);
+                if (func(e[i + 1], e[i + 4]))
+                    i += e[i + 2];
+                else
+                    i += e[i + 3];
+                i += 5;
+            }
+
+            void BOOL3(Func<int, int, int, bool> func)
+            {
+                PRINT_E(3);
+                if (func(e[i + 1], e[i + 2], e[i + 3]))
+                    i += e[i + 4];
+                else
+                    i += e[i + 5];
+                i += 6;
+            }
+
+            void BOOL4(Func<int, int, int, int, bool> func)
+            {
+                PRINT_E(4);
+                if (func(e[i + 1], e[i + 2], e[i + 3], e[i + 4]))
+                    i += e[i + 5];
+                else
+                    i += e[i + 6];
+                i += 7;
+            }
+
+            void BOOL5(Func<int, int, int, int, int, bool> func)
+            {
+                PRINT_E(5);
+                if (func(e[i + 1], e[i + 2], e[i + 3], e[i + 4], e[i + 5]))
+                    i += e[i + 6];
+                else
+                    i += e[i + 7];
+                i += 8;
+            }
+
             void RUN_INSTRUCT(string name, Action instructAction)
             {
                 Console.Write($"{name}: ");
@@ -272,9 +387,9 @@ namespace kysSharp
                     // RUN_INSTRUCT("addItem", () => VOID2(addItem));
                     // break;
 
-                    // case 3: /* 修改事件（13个参数） */
-                    // RUN_INSTRUCT("modifyEvent", () => VOID13(modifyEvent));
-                    // break;
+                    case 3: /* 修改事件（13个参数） */
+                    RUN_INSTRUCT("modifyEvent", () => VOID13(modifyEvent));
+                    break;
 
                     // case 4: /* 检查是否正在使用物品（1个参数，返回布尔值） */
                     // RUN_INSTRUCT("isUsingItem", () => BOOL1(isUsingItem));
@@ -360,9 +475,9 @@ namespace kysSharp
                     // RUN_INSTRUCT("add3EventNum", () => VOID5(add3EventNum));
                     // break;
 
-                    // case 27: /* 播放动画（3个参数） */
-                    // RUN_INSTRUCT("playAnimation", () => VOID3(playAnimation));
-                    // break;
+                    case 27: /* 播放动画（3个参数） */
+                    RUN_INSTRUCT("playAnimation", () => VOID3(playAnimation));
+                    break;
 
                     // case 28: /* 检查角色道德（3个参数，返回布尔值） */
                     // RUN_INSTRUCT("checkRoleMorality", () => BOOL3(checkRoleMorality));

@@ -64,6 +64,7 @@ namespace kysSharp
         //注意视角和主角的位置可能不一样
         public void setViewPosition(int x, int y) { view_x_ = x; view_y_ = y; }
         public void setManViewPosition(int x, int y) { setManPosition(x, y); setViewPosition(x, y); }
+        public void forceManPic(int pic) { force_man_pic_ = pic; }
 
         public override void draw()
         {
