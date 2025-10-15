@@ -577,9 +577,9 @@ namespace kysSharp
                     // }
                     // break;
 
-                    // case 51: /* 询问软星（无参数） */
-                    // RUN_INSTRUCT("askSoftStar", () => VOID(() => askSoftStar(), 0));
-                    // break;
+                    case 51: /* 询问软星（无参数） */
+                    RUN_INSTRUCT("askSoftStar", () => VOID(() => askSoftStar(), 0));
+                    break;
 
                     // case 52: /* 显示道德值（无参数） */
                     // RUN_INSTRUCT("showMorality", () => VOID(() => showMorality(), 0));

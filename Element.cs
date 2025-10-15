@@ -13,7 +13,7 @@ namespace kysSharp
     {
         private static List<Element> root_ = new List<Element>();   //所有需要绘制的内容都存储在这个静态向量中
         private static int prev_present_ticks_;
-        private const int max_delay_ = 10;
+        private const int max_delay_ = 30;
 
         protected List<Element> childs_= new List<Element>();
         protected bool visible_ = true;

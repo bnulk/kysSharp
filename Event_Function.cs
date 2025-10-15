@@ -222,6 +222,11 @@ namespace kysSharp
             }  
         }
 
+        public void askSoftStar()
+        {
+            Random random = new Random();
+            oldTalk(2547 + random.Next(18), 114, 0);
+        }
 
 
 

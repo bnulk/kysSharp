@@ -84,6 +84,16 @@ namespace kysSharp
         {
             int k = 0;
 
+            ///////////////////////////////////////////////////////////////////////
+            /// 设置辅助渲染纹理并清空画面
+            /// --------------------------------------------------------------
+            /// 本步骤将渲染目标切换到辅助纹理（RenderAssistTexture），
+            /// 所有后续绘制操作都将在离屏纹理上进行，而非直接显示到窗口。
+            /// fillColor 用于清空离屏缓冲区，作为新一帧的绘制起点。
+            ///////////////////////////////////////////////////////////////////////
+            Engine.getInstance().setRenderAssistTexture();
+            Engine.getInstance().fillColor(new SDL_Color() { r = 0, g = 0, b = 0, a = 255 }, 0, 0, render_center_x_ * 2, render_center_y_ * 2);
+
             Dictionary<int, DrawInfo> map = new Dictionary<int, DrawInfo>();
             DrawInfo tmpDrawInfo = new DrawInfo();
 
@@ -199,6 +209,9 @@ namespace kysSharp
                 c.draw();
             }
 
+            ///////////////////////////////////////////////////////////////////////
+            /// 恢复默认渲染目标并显示画面
+            ///////////////////////////////////////////////////////////////////////
             Engine.getInstance().renderAssistTextureToWindow();
         }
 
