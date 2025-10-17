@@ -218,6 +218,16 @@ namespace kysSharp
                 total_step_ = 0;
             }
 
+            if(e.type == (uint)SDL_EventType.SDL_EVENT_KEY_UP && (e.key.key == SDL_Keycode.SDLK_RETURN || e.key.key==SDL_Keycode.SDLK_SPACE))
+            {
+
+                if (checkEvent1(x, y, towards_))
+                {
+                    clearEvent(e);
+                    step_ = 0;
+                }
+            }
+
         }
 
         public override void onEntrance()

@@ -301,6 +301,13 @@ namespace kysSharp
             }
 
             rest_time_++;
+
+            if (pressed!=0 && checkEntrance(x, y))
+            {
+                way_que_.Clear();
+                clearEvent(e);
+                total_step_ = 0;
+            }
         }
 
         /// <summary>
@@ -381,10 +388,9 @@ namespace kysSharp
 
         public bool checkEntrance(int x, int y, bool only_check = false)
         {
-            /*
-            for (int i = 0; i < Save.GetInstance().GetSubMapInfos().Count; i++)
+            for (int i = 0; i < Save.getInstance().GetSubMapInfos().Count; i++)
             {
-                var s = Save.GetInstance().GetSubMapInfo(i);
+                var s = Save.getInstance().GetSubMapInfo(i);
                 if (x == s.MainEntranceX1 && y == s.MainEntranceY1 || x == s.MainEntranceX2 && y == s.MainEntranceY2)
                 {
                     bool can_enter = false;
@@ -395,9 +401,9 @@ namespace kysSharp
                     else if (s.EntranceCondition == 2)
                     {
                         //注意进入条件2的设定
-                        foreach (var r in Save.GetInstance().protagonistInformation.Team)
+                        foreach (var r in Save.getInstance().protagonistInformation.Team)
                         {
-                            if (Save.GetInstance().GetRole(r).Speed >= 70)
+                            if (Save.getInstance().GetRole(r).Speed >= 70)
                             {
                                 can_enter = true;
                                 break;
@@ -414,14 +420,13 @@ namespace kysSharp
                         //这里看起来要主动多画一帧，待修
                         //DrawAndPresent();
                         var sub_map = new SubScene(i);
-                        sub_map.SetManViewPosition(s.EntranceX, s.EntranceY);
-                        sub_map.Run();
+                        sub_map.setManViewPosition(s.EntranceX, s.EntranceY);
+                        sub_map.run();
                         towards_ = sub_map.towards_;
                         return true;
                     }
                 }
             }
-            */
             return false;
         }
 
