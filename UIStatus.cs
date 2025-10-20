@@ -299,7 +299,7 @@ namespace kysSharp
                 font.draw("輕功+" + equip1.AddSpeed.ToString(), 18, x + 90, y + 95, select_color2(equip1.AddSpeed));
             }
         }
-
+        
         public override void onPressedOK()
         {
             if (role_ == null) { return; }
@@ -308,27 +308,38 @@ namespace kysSharp
             {
                 Event.getInstance().CallLeaveEvent(role_);
                 role_ = null;
-                menuType = MenuType.leave;
             }
             else if (button_medcine_.getState() == State.Press)
             {
-                team_menu_ = new TeamMenu();
-                team_menu_.setText(GameUtil.EraseModredundantChar(role_.strName).PadLeft(7) + "要為誰醫療");
-                team_menu_.run();
-                button_medcine_.setState(State.Normal);
-                menuType = MenuType.medcine;
+                var teamMenu = new TeamMenu();
+                teamMenu.setText(string.Format("{0}要為誰醫療", GameUtil.EraseModredundantChar(role_.strName)));
+                teamMenu.run();
+                var role = teamMenu.GetRole();
+                if (role != null)
+                {
+                    var r = (Role)role;
+                    GameUtil.Medicine(ref role_, ref role);
+                    var df = new ShowRoleDifference(r, role);
+                    df.setText(string.Format("{0}接受{1}醫療", GameUtil.EraseModredundantChar(role.strName), GameUtil.EraseModredundantChar(role_.strName)));
+                    df.run();
+                }
             }
             else if (button_detoxification_.getState() == State.Press)
             {
-                team_menu_ = new TeamMenu();
-                team_menu_.setText(GameUtil.EraseModredundantChar(role_.strName).PadLeft(7) + "要為誰解毒");
-                team_menu_.run();
-                button_detoxification_.setState(State.Normal);
-                menuType = MenuType.detoxification;
+                var teamMenu = new TeamMenu();
+                teamMenu.setText(string.Format("{0}要為誰解毒", GameUtil.EraseModredundantChar(role_.strName)));
+                teamMenu.run();
+                var role = teamMenu.GetRole();
+                if (role != null)
+                {
+                    var r = (Role)role;
+                    GameUtil.Detoxification(ref role_, ref role);
+                    var df = new ShowRoleDifference(r, role);
+                    df.setText(string.Format("{0}接受{1}解毒", GameUtil.EraseModredundantChar(role.strName), GameUtil.EraseModredundantChar(role_.strName)));
+                    df.run();
+                }
             }
         }
-
-
       
 
 

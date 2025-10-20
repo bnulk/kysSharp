@@ -445,7 +445,7 @@ namespace kysSharp
         /// <param name="r1">角色1</param>
         /// <param name="r2">角色2</param>
         /// <returns>医疗值</returns>
-        public static int Medcine(ref Role r1, ref Role r2)
+        public static int Medicine(ref Role r1, ref Role r2)
         {
             if (r1.ID == 0 || r2.ID == 0) { return 0; }
             var temp = r2.HP;

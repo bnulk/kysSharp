@@ -102,7 +102,15 @@ namespace kysSharp
             color_press_ = c3;
         }
 
+        public override void onPressedOK()
+        {
+            ExitWithResult(0);
+        }
 
+        public override void onPressedCancel()
+        {
+            ExitWithResult(-1);
+        }
 
 
 

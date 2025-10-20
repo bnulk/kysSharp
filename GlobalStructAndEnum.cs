@@ -12,7 +12,7 @@ namespace kysSharp
 
     public enum Align
     {
-       Left,
+        Left,
         Center,
         Right,
     };

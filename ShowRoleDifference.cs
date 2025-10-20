@@ -1,5 +1,6 @@
-﻿using SDL;
-using kysSharp.Types;
+﻿using kysSharp.Types;
+using SDL;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace kysSharp
 {
@@ -31,7 +32,7 @@ namespace kysSharp
         public ShowRoleDifference(Role r1, Role r2)
         {
             head1_ = new Head(r1);
-            
+
             addChild(head1_);
             head2_ = new Head(r2);
             addChild(head2_, 400, 0);
@@ -42,23 +43,29 @@ namespace kysSharp
             SetTwinRole(r1, r2);
         }
 
+        /////////////////////////////////////////////////////////////////////////
+        // 绘制方法：比较两个角色的属性并绘制差异
+        /////////////////////////////////////////////////////////////////////////
         public override void draw()
         {
-            if (role1_ == null || role2_ == null) { return; }
+            if (role1_ == null || role2_ == null)
+                return;
 
             if (black_screen_)
             {
-                Engine.getInstance().fillColor(new SDL_Color() { r=0,g=0,b=0,a=192}, 0, 0, -1, -1);
+                Engine.getInstance().fillColor(new SDL_Color() { r = 0, g = 0, b = 0, a = 192 }, 0, 0, -1, -1);
             }
+
             head1_.SetRole(ref role1_);
             head2_.SetRole(ref role2_);
             head1_.setState(State.Press);
             head2_.setState(State.Press);
-            
-            if (role1_!=null && role2_!=null && role1_.ID == role2_.ID)
+
+            // 如果是同一角色，仅显示一个头像
+            if (role1_ != null && role2_ != null && role1_.ID == role2_.ID)
             {
                 head1_.SetRole(ref role2_);
-                head1_.setPosition(200, 20);
+                head1_.setPosition(200, 50);
                 Role tmpRole = new Role();
                 head2_.SetRole(ref tmpRole);
             }
@@ -68,78 +75,93 @@ namespace kysSharp
 
             var font = GameFont.getInstance();
             SDL_Color color = new SDL_Color() { r = 255, g = 255, b = 255, a = 255 };
-            const int font_size = 25;
-            int x = x_, y = y_;
+            const int fontSize = 25;
+            int x = x_;
+            int y = y_;
 
             string str;
 
-            ShowDifference(20, color, x, y);
-            
-            //showOneDifference(role1_->Name, "姓名 %-7s  -> %-7s", 20, color, x, y);
-            //ShowOneDifference("Level", "等級 {0}   -> {1}", 20, color, x, y);
-                /*
-            showOneDifference(role1_->Exp, "經驗 %7d   -> %7d", 20, color, x, y);
+            /////////////////////////////////////////////////////////////////////////
+            // 基础属性差异显示
+            /////////////////////////////////////////////////////////////////////////
+            ShowOneDifference(role1_ => role1_.Level, "等級 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.Exp, "經驗 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.PhysicalPower, "體力 {0,7}   -> {1,7}", 20, color, ref x, ref y);
 
-            showOneDifference(role1_->PhysicalPower, "體力 %7d   -> %7d", 20, color, x, y);
-
-            if (role1_->HP != role2_->HP || role1_->MaxHP != role2_->MaxHP)
+            if (role1_.HP != role2_.HP || role1_.MaxHP != role2_.MaxHP)
             {
-                str = convert::formatString("生命 %3d/%3d   -> %3d/%3d", role1_->HP, role1_->MaxHP, role2_->HP, role2_->MaxHP);
-                showOneDifference(role1_->HP, str, 20, color, x, y, 1);
-            }
-            if (role1_->MP != role2_->MP || role1_->MaxMP != role2_->MaxMP)
-            {
-                str = convert::formatString("內力 %3d/%3d   -> %3d/%3d", role1_->MP, role1_->MaxMP, role2_->MP, role2_->MaxMP);
-                showOneDifference(role1_->MP, str, 20, color, x, y, 1);
+                str = string.Format("生命 {0,3}/{1,3}   -> {2,3}/{3,3}",
+                    role1_.HP, role1_.MaxHP, role2_.HP, role2_.MaxHP);
+                ShowOneDifference(role1_ => role1_.HP, str, 20, color, ref x, ref y, 1);
             }
 
-            showOneDifference(role1_->Attack, "攻擊 %7d   -> %7d", 20, color, x, y);
-            showOneDifference(role1_->Defence, "防禦 %7d   -> %7d", 20, color, x, y);
-            showOneDifference(role1_->Speed, "輕功 %7d   -> %7d", 20, color, x, y);
+            if (role1_.MP != role2_.MP || role1_.MaxMP != role2_.MaxMP)
+            {
+                str = string.Format("內力 {0,3}/{1,3}   -> {2,3}/{3,3}",
+                    role1_.MP, role1_.MaxMP, role2_.MP, role2_.MaxMP);
+                ShowOneDifference(role1_ => role1_.MP, str, 20, color, ref x, ref y, 1);
+            }
 
-            showOneDifference(role1_->Medcine, "醫療 %7d   -> %7d", 20, color, x, y);
-            showOneDifference(role1_->UsePoison, "用毒 %7d   -> %7d", 20, color, x, y);
-            showOneDifference(role1_->Detoxification, "解毒 %7d   -> %7d", 20, color, x, y);
-            showOneDifference(role1_->AntiPoison, "抗毒 %7d   -> %7d", 20, color, x, y);
-            showOneDifference(role1_->AttackWithPoison, "帶毒 %7d   -> %7d", 20, color, x, y);
+            /////////////////////////////////////////////////////////////////////////
+            // 战斗与技能属性
+            /////////////////////////////////////////////////////////////////////////
+            ShowOneDifference(role1_ => role1_.Attack, "攻擊 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.Defence, "防禦 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.Speed, "輕功 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.Medcine, "醫療 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.UsePoison, "用毒 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.Detoxification, "解毒 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.AntiPoison, "抗毒 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.AttackWithPoison, "帶毒 {0,7}   -> {1,7}", 20, color, ref x, ref y);
 
-            showOneDifference(role1_->Fist, "拳掌 %7d   -> %7d", 20, color, x, y);
-            showOneDifference(role1_->Sword, "御劍 %7d   -> %7d", 20, color, x, y);
-            showOneDifference(role1_->Knife, "耍刀 %7d   -> %7d", 20, color, x, y);
-            showOneDifference(role1_->Unusual, "特殊 %7d   -> %7d", 20, color, x, y);
-            showOneDifference(role1_->HiddenWeapon, "暗器 %7d   -> %7d", 20, color, x, y);
+            ShowOneDifference(role1_ => role1_.Fist, "拳掌 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.Sword, "御劍 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.Knife, "耍刀 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.Unusual, "特殊 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.HiddenWeapon, "暗器 {0,7}   -> {1,7}", 20, color, ref x, ref y);
 
-            showOneDifference(role1_->Poison, "中毒 %7d   -> %7d", 20, color, x, y);
+            ShowOneDifference(role1_ => role1_.Poison, "中毒 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.Morality, "道德 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.Fame, "聲望 {0,7}   -> {1,7}", 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.IQ, "資質 {0,7}   -> {1,7}", 20, color, ref x, ref y);
 
-            showOneDifference(role1_->Morality, "道德 %7d   -> %7d", 20, color, x, y);
-            showOneDifference(role1_->Fame, "聲望 %7d   -> %7d", 20, color, x, y);
-            showOneDifference(role1_->IQ, "資質 %7d   -> %7d", 20, color, x, y);
-
+            /////////////////////////////////////////////////////////////////////////
+            // 內力陰陽
+            /////////////////////////////////////////////////////////////////////////
             str = "內力陰陽調和";
-            if (role2_->MPType == 0) { str = "內力陰"; }
-            if (role2_->MPType == 1) { str = "內力陽"; }
-            showOneDifference(role1_->MPType, str, 20, color, x, y);
-            showOneDifference(role1_->AttackTwice, "雙擊", 20, color, x, y);
+            if (role2_.MPType == 0) str = "內力陰";
+            if (role2_.MPType == 1) str = "內力陽";
+            ShowOneDifference(role1_ => role1_.MPType, str, 20, color, ref x, ref y);
+            ShowOneDifference(role1_ => role1_.AttackTwice, "雙擊", 20, color, ref x, ref y);
 
-            for (int i = 0; i < ROLE_MAGIC_COUNT; i++)
+            /////////////////////////////////////////////////////////////////////////
+            // 武學修為變化
+            /////////////////////////////////////////////////////////////////////////
+            for (int i = 0; i < Constant.ROLE_MAGIC_COUNT; i++)
             {
-                if (role2_->MagicID[i] > 0 && role1_->getRoleShowLearnedMagicLevel(i) != role2_->getRoleShowLearnedMagicLevel(i))
+                if (role2_.MagicID[i] > 0 &&
+                    role1_.GetRoleShowLearnedMagicLevel(i) != role2_.GetRoleShowLearnedMagicLevel(i))
                 {
-                    str = convert::formatString("武學%s目前修為%d",
-                        Save::getInstance()->getMagic(role2_->MagicID[i])->Name, role2_->getRoleShowLearnedMagicLevel(i));
-                    showOneDifference(role1_->MagicLevel[i], str, 20, color, x, y);
+                    str = string.Format("武學 {0} 目前修為 {1}",
+                        Save.getInstance().GetMagic(role2_.MagicID[i]).Name,
+                        role2_.GetRoleShowLearnedMagicLevel(i));
+                    ShowOneDifference(role1_ => role1_.MagicLevel[i], str, 20, color, ref x, ref y);
                 }
             }
 
+            /////////////////////////////////////////////////////////////////////////
+            // 若沒有任何變化，顯示提示文字
+            /////////////////////////////////////////////////////////////////////////
             if (y == y_)
             {
-                Font::getInstance()->draw("無明显效果", 20, x, y, color);
+                GameFont.getInstance().draw("無明显效果", 20, x, y, color);
             }
-            //showOneDifference(role1_->Level, "御劍 %7d   -> %7d", 20, color, x, y);
-            */
+
             base.draw();
-            
         }
+
+
+
 
 
         public void SetTwinRole(Role r1, Role r2) { role1_ = r1; role2_ = r2; }
@@ -149,8 +171,8 @@ namespace kysSharp
         public void SetBlackScreen(bool b) { black_screen_ = b; }
 
         public override void onPressedOK()
-        { 
-            exitWithResult(0); 
+        {
+            exitWithResult(0);
         }
 
         public override void onPressedCancel()
@@ -217,11 +239,33 @@ namespace kysSharp
                     if (role1_.MagicLevel[i] != role2_.MagicLevel[i]) isEqual = false;
                 }
             }
-
-
             return isEqual;
         }
 
+        public void ShowOneDifference<T>(
+            Func<Role, T> selector,
+            string formatStr,
+            int size,
+            SDL_Color color,
+            ref int x,
+            ref int y,
+            int force = 0)
+            where T : IComparable
+        {
+            if (role1_ == null || role2_ == null)
+                return;
+
+            T value1 = selector(role1_);
+            T value2 = selector(role2_);
+
+            // 仅在不同或强制显示时绘制
+            if (value1.CompareTo(value2) != 0 || force != 0)
+            {
+                string str = string.Format(formatStr, value1, value2);
+                GameFont.getInstance().draw(str, size, x, y, color);
+                y += size + 5;
+            }
+        }
 
 
 

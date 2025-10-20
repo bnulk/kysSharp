@@ -34,6 +34,9 @@ namespace kysSharp
 
         public State state_ = State.Normal;
 
+        //调试用
+        public int debug = 0;
+
         public Element()
         {
             prev_present_ticks_ = 0;
@@ -53,8 +56,14 @@ namespace kysSharp
         public virtual void onEntrance() { }                               //进入本节点的事件，例如亮屏等
         public virtual void onExit() { }                                   //离开本节点的事件，例如黑屏等
 
-        public virtual void onPressedOK() { }                             //按下回车或鼠标左键的事件，子类视情况继承或者留空
-        public virtual void onPressedCancel() { }                         //按下esc或鼠标右键的事件，子类视情况继承或者留空
+        public virtual void onPressedOK()                         //按下回车或鼠标左键的事件，子类视情况继承或者留空
+        {
+            ExitWithResult(0);
+        }                             
+        public virtual void onPressedCancel()                     //按下esc或鼠标右键的事件，子类视情况继承或者留空
+        {
+            ExitWithResult(-1);
+        }                         
 
         public static void drawAll()
         {
@@ -358,7 +367,7 @@ namespace kysSharp
             switch (e.type)
             {
                 case (uint)SDL_EventType.SDL_EVENT_QUIT:
-                    //UISystem::askExit();
+                    UISystem.Instance.AskExit();
                     break;
                 default:
                     break;
@@ -523,7 +532,12 @@ namespace kysSharp
             return null; // 没有找到
         }
 
-
+        protected void ExitWithResult(int r)
+        {
+            // 对应 C++ 的 exitWithResult
+            // 执行退出逻辑，比如关闭UI、返回值等
+            setExit(true); result_ = r;
+        }
 
 
 

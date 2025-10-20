@@ -126,12 +126,15 @@ namespace kysSharp
                 new SDL_Color() { r=250,g=200,b=50,a=255});
         }
 
+        public override void onPressedOK()
+        {
+            ExitWithResult(0);
+        }
 
-
-
-
-
-
+        public override void onPressedCancel()
+        {
+            ExitWithResult(-1);
+        }        
 
     }
 }

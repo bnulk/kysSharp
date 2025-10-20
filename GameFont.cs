@@ -134,7 +134,7 @@ namespace kysSharp
             SDL_Rect r;
             r.x = x - 10;
             r.y = y - 3;
-            r.w = size * text.Length / 2 + 20;
+            r.w = size * text.Length + 20;
             r.h = size + 6;
             TextureManager.getInstance().renderTexture("title", 
                 126, 

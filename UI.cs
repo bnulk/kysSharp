@@ -65,13 +65,7 @@ namespace kysSharp
 
         public override void draw()
         {
-            SetUIBackground();
-            //Engine.GetInstance().FillColor(Color.FromArgb(192, 0, 0, 0), 0, 0, -1, -1);
-        }
-
-        public void SetUIBackground()
-        {
-            //TextureManager.GetInstance().RenderTexture("title", 0, 0, 0);
+            Engine.getInstance().fillColor(new SDL_Color() { r=0,g=0,b=0,a=192}, 0, 0, -1, -1);
         }
 
         public override void onEntrance()

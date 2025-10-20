@@ -5,6 +5,8 @@ namespace kysSharp
     class UISystem : Element
     {
         public MenuText? title_ = null;
+        private static UISystem? _instance;
+        public static UISystem Instance => _instance ??= new UISystem();
 
         public UISystem()
         {

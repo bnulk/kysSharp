@@ -248,6 +248,7 @@ namespace kysSharp
 
         public override void dealEvent(SDL_Event e)
         {
+            /*
             //强制进入，通常用于开始
             if (force_submap_ >= 0)
             {
@@ -259,6 +260,7 @@ namespace kysSharp
                 force_submap_ = -1;
                 setVisible(true);
             }
+            */
 
             int x = man_x_, y = man_y_;
 

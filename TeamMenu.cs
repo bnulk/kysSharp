@@ -3,12 +3,13 @@ using SDL;
 
 namespace kysSharp
 {
+    //用于选择队伍中的角色，可以传入一个item作为过滤，为空会显示所有人
     class TeamMenu : Menu
     {
         private List<Head> heads_ = new List<Head>();
         //std::set<int> selected_;
         private Role? role_ = new Role();
-        private Item item_ = new Item();
+        private Item? item_;
         private int mode_ = 0;   //为0是单选，为1是多选
 
         private Button button_all_;
@@ -17,17 +18,15 @@ namespace kysSharp
 
         public TeamMenu()
         {
+            item_ = null;
+
+
             for (int i = 0; i < Constant.TEAMMATE_COUNT; i++)
             {
                 var h = new Head();
                 h.setHaveBox(false);
                 heads_.Add(h);
-
-                addChild(h, i % 2 * 250, i / 2 * 100);
-
-                //h->setOnlyHead(true);
-
-                //selected_.push_back(0);
+                addChild(heads_[i], i % 2 * 250, i / 2 * 100);
             }
             button_all_ = new Button();
             button_all_.setText("全選");
@@ -44,14 +43,14 @@ namespace kysSharp
 
         public override void onEntrance()
         {
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < Constant.TEAMMATE_COUNT; i++)
             {
                 var r = Save.getInstance().GetTeamMate(i);
 
                 if (r != null)
                 {
                     heads_[i].SetRole(ref r);
-                    if (mode_ == 0 && item_.strName != null)
+                    if (mode_ == 0 && item_!=null && item_.strName != null)
                     {
                         if (!GameUtil.CanUseItem(r, item_))
                         {
@@ -96,10 +95,7 @@ namespace kysSharp
 
         public override void draw()
         {
-            //Engine.GetInstance().FillColor(Color.FromArgb(128,0, 0, 0), 0, 0, -1, -1);
-            //GameTextBox gameTextBox = this as TeamMenu;
-            //gameTextBox.Draw();
-
+            Engine.getInstance().fillColor(new SDL_Color() { r = 0, g = 0, b = 0, a = 192 }, 0, 0, -1, -1);
             base.draw();
         }
 
@@ -118,6 +114,7 @@ namespace kysSharp
                 if (role_ != null)
                 {
                     result_ = 0;
+                    setExit(true);
                 }
             }
             if (mode_ == 1)
