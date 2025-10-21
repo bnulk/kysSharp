@@ -217,6 +217,8 @@ namespace kysSharp
 
         public override void onEntrance()
         {
+            Audio.getInstance().StopMusic();
+
             calViewRegion();
 
             //云的贴图

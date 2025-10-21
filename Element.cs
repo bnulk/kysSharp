@@ -179,7 +179,7 @@ namespace kysSharp
             x_ = x; y_ = y;
         }
         public void setSize(int w, int h) { w_ = w; h_ = h; }
-        public void getPosition(int x, int y) { x = x_; y = y_; }
+        public void getPosition(ref int x, ref int y) { x = x_; y = y_; }
         public void getSize(int w, int h) { w = w_; h = h_; }
 
         public bool inSide(int x, int y)

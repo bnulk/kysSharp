@@ -243,7 +243,7 @@ namespace kysSharp
             var magic = Save.getInstance().GetMagic(item.MagicID);
             if (magic != null)
             {
-                string strTmpMagic = "習得武學" + magic.strName;
+                string strTmpMagic = "習得武學" + GameUtil.EraseModredundantChar(magic.strName);
                 ShowOneProperty(1, str, size, c, ref x, ref y);
             }
 
@@ -263,7 +263,7 @@ namespace kysSharp
             var role = Save.getInstance().GetRole(item.OnlySuitableRole);
             if (role != null)
             {
-                string strTmpRoll = "僅適合" + role.strName;
+                string strTmpRoll = "僅適合" + GameUtil.EraseModredundantChar(role.strName);
                 ShowOneProperty(1, str, size, c, ref x, ref y);
                 return;
             }
@@ -305,23 +305,42 @@ namespace kysSharp
             }
         }
 
-        /*
-        public void DealMouseMoveEvent(object sender, MouseEventArgs e)
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        // UIItem.dealEvent(BP_Event e)
+        // 说明：处理物品栏事件，包括鼠标滚轮滚动、物品刷新、光标显示等。
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        public override void dealEvent(SDL_Event e)
         {
-            //强制停留在某类物品
-            if (force_item_type_ >= 0) { title_.SetResult(force_item_type_); }
+            /////////////////////////////////////////////////////////////////////////////////
+            // 1. 如果强制显示某一类物品（如仅显示药品），则设置类型选择结果
+            /////////////////////////////////////////////////////////////////////////////////
+            if (force_item_type_ >= 0)
+            {
+                title_?.setResult(force_item_type_);
+            }
 
-            GetItemsByType(title_.GetPassChild());
-            int type_item_count = available_items_.Count;
+            /////////////////////////////////////////////////////////////////////////////////
+            // 2. 按类别筛选物品
+            /////////////////////////////////////////////////////////////////////////////////
+            int type_item_count = 0;
+            if (title_!=null)
+            {
+                getItemsByType(title_.getPassChild());
+                type_item_count = available_items_.Count;
+            }
 
-            //从这里计算出左上角可以取的最大值
-            //计算方法：先计算出总行数，减去可见行数，乘以每行成员数
-            int max_leftup = ((type_item_count + item_each_line_ - 1) / item_each_line_ - line_count_) * item_each_line_;
-            if (max_leftup < 0) { max_leftup = 0; }
+            /////////////////////////////////////////////////////////////////////////////////
+            // 3. 计算左上角可显示的最大索引位置
+            //    算法： (总行数 - 可见行数) * 每行物品数
+            /////////////////////////////////////////////////////////////////////////////////
+            int total_rows = (type_item_count + item_each_line_ - 1) / item_each_line_;
+            int max_leftup = (total_rows - line_count_) * item_each_line_;
+            if (max_leftup < 0) max_leftup = 0;
 
-
-
-            if (e.type == BP_MOUSEWHEEL)
+            /////////////////////////////////////////////////////////////////////////////////
+            // 4. 鼠标滚轮事件
+            /////////////////////////////////////////////////////////////////////////////////
+            if (e.type == (uint)SDL_EventType.SDL_EVENT_MOUSE_WHEEL)
             {
                 if (e.wheel.y > 0)
                 {
@@ -332,125 +351,168 @@ namespace kysSharp
                     leftup_index_ += item_each_line_;
                 }
             }
-            leftup_index_ = GameUtil::limit(leftup_index_, 0, max_leftup);
 
+            // 限制索引范围
+            leftup_index_ = GameUtil.limit(leftup_index_, 0, max_leftup);
 
-            if(isForceItem==false)
+            /////////////////////////////////////////////////////////////////////////////////
+            // 5. 更新每个物品按钮的显示状态
+            /////////////////////////////////////////////////////////////////////////////////
+            for (int i = 0; i < item_buttons_.Length; i++)
             {
-                //计算当前指向的物品
-                for (int i = 0; i < item_buttons_.Length; i++)
+                var button = item_buttons_[i];
+                int index = i + leftup_index_;
+                var item = getAvailableItem(index);
+
+                if (item != null)
                 {
-                    var button = item_buttons_[i];
-                    int index = i + leftup_index_;
-                    var item = GetAvailableItem(index);
-                    if (item != null)
+                    button.setTexture("item", item.ID);
+
+                    if (button.getState() == State.Pass || button.getState() == State.Press)
                     {
-                        button.SetTexture("item", item.ID);
-
-                        button.DealMouseMove(sender, e);
-                        if (e.LeftButton == MouseButtonState.Pressed)
-                        {
-                            button.DealMouseLeftButtonDown(sender, e);
-                        }
-
-                        if (button.GetState() == State.Pass || button.GetState() == State.Press)
-                        {
-                            current_item_ = item;
-                            current_button_ = button;
-                            //result_ = current_item_.ID;       原始程序注释
-                        }
-
-                        if (button.GetState() == State.Press)
-                        {
-                            current_item_ = item;
-                            current_button_ = button;
-                            OnPressedOK();
-                        }
+                        current_item_ = item;
+                        current_button_ = button;
                     }
-                    else
-                    {
-                        button.SetTexture("item", -1);
-                    }
-                }
-
-                //让光标显示出来
-                if (current_button_ != null)
-                {
-                    int x = 0, y = 0;
-                    current_button_.GetPosition(ref x, ref y);
-                    cursor_.SetPosition(x, y);
-                    cursor_.SetVisible(true);
                 }
                 else
                 {
-                    cursor_.SetVisible(false);
+                    button.setTexture("item", -1);
                 }
             }
-            
-        }*/
 
+            /////////////////////////////////////////////////////////////////////////////////
+            // 6. 更新光标显示位置
+            /////////////////////////////////////////////////////////////////////////////////
+            if (current_button_ != null)
+            {
+                int x = 0, y = 0;
+                current_button_.getPosition(ref x, ref y);
+                cursor_.setPosition(x, y);
+                cursor_.setVisible(true);
+            }
+            else
+            {
+                cursor_.setVisible(false);
+            }
+        }
+
+        /////////////////////////////////////////////////////////////////////////
+        // 函数名称：OnPressedOK
+        // 函数功能：处理物品菜单中按下“确定”键后的逻辑
+        // 翻译来源：C++ void UIItem::onPressedOK()
+        // 主要功能：
+        //   1. 检查当前按下的物品按钮
+        //   2. 判断所选物品类型，执行不同逻辑（使用、装备、修炼等）
+        //   3. 可能调用 TeamMenu、ShowRoleDifference 等界面
+        //   4. 设置退出标志
+        /////////////////////////////////////////////////////////////////////////
         public override void onPressedOK()
         {
-            if (title_ == null)
+            /////////////////////////////////////////////////////////////////////////
+            // 【步骤1】初始化当前选中物品为空
+            /////////////////////////////////////////////////////////////////////////
+            current_item_ = null;
+
+            /////////////////////////////////////////////////////////////////////////
+            // 【步骤2】遍历所有物品按钮，检查哪个按钮处于 Press 状态
+            // 如果发现被按下的按钮，则通过索引计算出对应的物品对象
+            /////////////////////////////////////////////////////////////////////////
+            for (int i = 0; i < item_buttons_.Length; i++)
+            {
+                var button = item_buttons_[i];
+                if (button.getState() == State.Press)
+                {
+                    var item = getAvailableItem(i + leftup_index_);
+                    current_item_ = item;
+                }
+            }
+
+            /////////////////////////////////////////////////////////////////////////
+            // 【步骤3】若没有选中任何物品，则直接返回，不进行后续处理
+            /////////////////////////////////////////////////////////////////////////
+            if (current_item_ == null)
                 return;
 
-            //强制停留在某类物品
-            if (force_item_type_ >= 0) { title_.setResult(force_item_type_); }
-
-            if (current_item_ == null) { return; }
-
-            //在使用剧情物品的时候，返回一个结果，主UI判断此时可以退出
+            /////////////////////////////////////////////////////////////////////////
+            // 【步骤4】若物品类型为0（剧情物品），则将物品ID作为结果值返回
+            // 此结果可能被主UI用于判断剧情触发
+            /////////////////////////////////////////////////////////////////////////
             if (current_item_.ItemType == 0)
             {
                 result_ = current_item_.ID;
             }
 
+            /////////////////////////////////////////////////////////////////////////
+            // 【步骤5】若当前操作要求选择使用者（例如药品、装备、修炼等）
+            /////////////////////////////////////////////////////////////////////////
             if (select_user_)
             {
+                /////////////////////////////////////////////////////////////////////
+                // 【分支1】ItemType == 3 ：药品或可使用类物品
+                // 逻辑：弹出队伍选择菜单 -> 选择角色 -> 使用物品 -> 显示效果
+                /////////////////////////////////////////////////////////////////////
                 if (current_item_.ItemType == 3)
                 {
-                    team_menu_ = new TeamMenu();
-                    team_menu_.SetItem(current_item_);
-                    team_menu_.setText("誰要使用" + GameUtil.EraseModredundantChar(current_item_.strName));
-                    team_menu_.run();
+                    var teamMenu = new TeamMenu();
+                    teamMenu.SetItem(current_item_);
+                    teamMenu.setText($"谁要使用 {GameUtil.EraseModredundantChar(current_item_.strName)}");
+                    teamMenu.run();
 
-                    /*
-                    role_ = null;
-                    role_ = team_menu_.GetRole();
-                    
-                    if(role_!=null)
+                    var role = teamMenu.GetRole();
+                    if (role != null)
                     {
-                        isDisposeTeamMenu = true;
+                        // 复制角色状态以对比使用前后差异
+                        var r = role.Clone();
+
+                        // 执行物品使用逻辑
+                        GameUtil.UseItem(ref role, ref current_item_);
+
+                        // 显示角色能力变化界面
+                        var df = new ShowRoleDifference(r, role);
+                        df.setText($"{GameUtil.EraseModredundantChar(role.strName)} 服用 {GameUtil.EraseModredundantChar(current_item_.strName)}");
+                        df.run();
+
+                        // 减少该物品数量（无提示）
+                        Event.getInstance().AddItemWithoutHint(current_item_.ID, -1);
                     }
-                    */
-                    
                 }
-                
+
+                /////////////////////////////////////////////////////////////////////
+                // 【分支2】ItemType == 1 或 2 ：装备类或修炼类物品
+                // 逻辑：弹出队伍选择菜单 -> 选择角色 -> 装备或修炼
+                /////////////////////////////////////////////////////////////////////
                 else if (current_item_.ItemType == 1 || current_item_.ItemType == 2)
                 {
-                    team_menu_ = new TeamMenu();
-                    team_menu_.SetItem(current_item_);
-                    var format_str = "誰要修煉";
-                    if (current_item_.ItemType == 1) { format_str = "誰要裝備"; }
-                    team_menu_.setText(format_str + GameUtil.EraseModredundantChar(current_item_.strName));
-                    team_menu_.run();
-                    var role = team_menu_.GetRole();
-                    if (role == null)
-                        return;
-                    if (role.strName != null)
+                    var teamMenu = new TeamMenu();
+                    teamMenu.SetItem(current_item_);
+
+                    string formatStr = current_item_.ItemType == 1 ? "谁要装备 {0}" : "谁要修炼 {0}";
+                    teamMenu.setText(string.Format(formatStr, GameUtil.EraseModredundantChar(current_item_.strName)));
+                    teamMenu.run();
+
+                    var role = teamMenu.GetRole();
+                    if (role != null)
                     {
                         GameUtil.Equip(ref role, ref current_item_);
                     }
-
-                    isDisposeTeamMenu = true;
                 }
+
+                /////////////////////////////////////////////////////////////////////
+                // 【分支3】ItemType == 4 ：可能为特殊物品，此处暂不处理
+                /////////////////////////////////////////////////////////////////////
                 else if (current_item_.ItemType == 4)
                 {
-                    //似乎不需要特殊处理
+                    // 似乎不需要特殊处理
                 }
-                
             }
-            setExit(true);   //用于战斗时。平时物品栏不是以根节点运行，设置这个没有作用
+
+            /////////////////////////////////////////////////////////////////////////
+            // 【步骤6】设置退出标志，用于战斗时的物品使用逻辑
+            // 注意：平时物品栏并非根节点运行，因此该标志可能无效
+            /////////////////////////////////////////////////////////////////////////
+            setExit(true);
+
+            exitWithResult(0);
         }
 
         public override void onPressedCancel()

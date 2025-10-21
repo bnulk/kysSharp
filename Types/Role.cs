@@ -260,6 +260,10 @@ namespace kysSharp.Types
             return Auto != 0 || Team != 0;
         }
 
+        public Role Clone()
+        {
+            return (Role)this.MemberwiseClone();
+        }
 
     }
 }

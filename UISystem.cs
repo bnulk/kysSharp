@@ -45,6 +45,8 @@ namespace kysSharp
                 result_ = AskExit();
             }
             title_.setResult(-1);
+
+            exitWithResult(0);
         }
 
         public int AskExit()
@@ -75,8 +77,10 @@ namespace kysSharp
             return ret;
         }
 
-
-
+        public override void onPressedCancel()
+        {
+            exitWithResult(-1);
+        }
 
 
 

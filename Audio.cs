@@ -191,6 +191,12 @@ namespace kysSharp
 
         public void playMusic(int num)
         {
+            tracks = new List<nint>();
+            tracks.Add((IntPtr)SDL3_mixer.MIX_CreateTrack((MIX_Mixer*)mixer));
+            SDL3_mixer.MIX_SetTrackAudio((MIX_Track*)tracks[0], (MIX_Audio*)music[num]);
+            SDL3_mixer.MIX_PlayTrack((MIX_Track*)tracks[0], 0 /* options */);
+
+            /*
             if (!SDL3_mixer.MIX_PlayAudio((MIX_Mixer*)mixer, (MIX_Audio*)music[num]))
             {
                 Console.WriteLine($"播放失败：{SDL3.SDL_GetError()}");
@@ -199,6 +205,7 @@ namespace kysSharp
             {
                 Console.WriteLine("播放中…");
             }
+            */
         }
 
         public void playAsound(int num)
@@ -225,7 +232,17 @@ namespace kysSharp
             }
         }
 
-
+        public void StopMusic()
+        {
+            if (tracks.Count == 0)
+            {
+                return;
+            }
+            for (int i=0;i<tracks.Count;i++)
+            {
+                SDL3_mixer.MIX_StopTrack((MIX_Track*)tracks[i], 0 /* fade-out ms */);
+            }
+        }
 
         public void Dispose()
         {
