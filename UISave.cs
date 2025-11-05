@@ -1,92 +1,151 @@
-﻿using Microsoft.VisualBasic;
+﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
+// UISave.cs
+// 功能：存档/读档界面
+// 说明：C# 等价转换自 C++ 版本 UISave.cpp
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+using kysSharp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Intrinsics.Arm;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace kysSharp
+public class UISave : MenuText // 假设 Menu 继承自 TextBox（保持原结构）
 {
-    internal class UISave: MenuText
+    private int mode_ = 0; // 0 = 读取模式，1 = 存档模式
+    private const int AUTO_SAVE_ID = 11;
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 构造函数：初始化存档选项列表
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    public UISave()
     {
-        private enum MyIds
+        List<string> strings = new List<string>();
+
+        for (int i = 0; i <= 10; i++)
         {
-            AUTO_SAVE_ID = 11
+            string filename = Save.GetFilename(i, 'r');
+            string timeStr = GameFile.GetFileTime(filename);
+            string line = ConvertLibs.FormatString("進度{0:00}  {1}", i, timeStr);
+            strings.Add(line);
         }
-        private int mode_ = 0;  //0为读档，1为存档
 
+        string autoFilename = Save.GetFilename(AUTO_SAVE_ID, 'r');
+        string autoTime = GameFile.GetFileTime(autoFilename);
+        strings.Add(ConvertLibs.FormatString("自動檔  {0}", autoTime));
 
-        public UISave()
+        setStrings(strings);
+
+        // 屏蔽第0个存档
+        childs_[0].setVisible(false);
+
+        arrange(0, 0, 0, 28);
+    }
+
+    public void setMode(int m) { mode_ = m; }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 析构函数（C# 不需要手动释放）
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ~UISave() { }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 进入界面时触发
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    public override void onEntrance()
+    {
+        // 存档时屏蔽自动档
+        if (mode_ == 1)
         {
-            // 创建一个字符串列表（相当于 C++ 的 std::vector<std::string>）
-            List<string> strings = new List<string>();
+            childs_[childs_.Count - 1].setVisible(false);
+        }
+    }
 
-            // 遍历 0~10 的存档
-            for (int i = 0; i <= 10; i++)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 按下确认键时触发
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    public override void onPressedOK()
+    {
+        pressToResult();
+
+        if (result_ >= 0)
+        {
+            // 读取模式
+            if (mode_ == 0 && Save.CheckSaveFileExist(result_))
             {
-                // 生成字符串，相当于 C++ 的 convert::formatString()
-                //string filename = Save.getFilename(i, 'r');
-                //string fileTime = FileUtil.getFileTime(filename);
-                string fileTime ="fileTime";
-
-                string str = string.Format("進度{0:00}  {1}", i, fileTime);
-
-                // 加入到列表
-                strings.Add(str);
+                Load(result_);
+                setExit(true);
             }
 
-            // 生成自动存档信息
-            //string autoFile = Save.getFilename(AUTO_SAVE_ID, 'r');
-            //string autoTime = FileUtil.getFileTime(autoFile);
-
-            //string autoStr = string.Format("自動檔  {0}", autoTime);
-            //strings.Add(autoStr);
-
-            // 设置 UI 上的显示字符串
-            setStrings(strings);
-
-            // 屏蔽进度0 (假设 childs_ 是 UI 控件列表)
-            if (childs_.Count > 0)
-            {
-                childs_[0].setVisible(false);
-            }
-
-            // 布局 UI
-            arrange(0, 0, 0, 28);
-        }
-        public void setMode(int m) { mode_ = m; }
-        public override void onEntrance()
-        {
-            //存档时屏蔽自动档
+            // 存档模式
             if (mode_ == 1)
             {
-                childs_[childs_.Count-1].setVisible(false);
+                SaveGame(result_);
+                setExit(true);
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 读取存档
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void Load(int r)
+    {
+        var subScene = getPointerFromRoot<SubScene>();
+        var save = Save.getInstance();
+        var mainScene = MainScene.getInstance();
+
+        save.load(r);
+
+        if (save == null)
+            return;
+
+        mainScene.setManPosition(save.protagonistInformation.MainMapX, save.protagonistInformation.MainMapY);
+
+
+        if (save.protagonistInformation.InSubMap >= 0)
+        {
+            if (subScene != null)
+            {
+                subScene.forceJumpSubScene(save.protagonistInformation.InSubMap, save.protagonistInformation.SubMapX, save.protagonistInformation.SubMapY);
+            }
+            else
+            {
+                mainScene.ForceEnterSubScene(save.protagonistInformation.InSubMap, save.protagonistInformation.SubMapX, save.protagonistInformation.SubMapY);
+            }
+        }
+        else
+        {
+            if (subScene != null)
+            {
+                subScene.forceExit();
+            }
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 存储存档
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void SaveGame(int r)
+    {
+        var subScene = getPointerFromRoot<SubScene>();
+        var save = Save.getInstance();
+        var mainScene = MainScene.getInstance();
+
+        mainScene.getManPosition(ref save.protagonistInformation.MainMapX, ref save.protagonistInformation.MainMapY);
+
+        if (subScene != null)
+        {
+            subScene.getManPosition(ref save.protagonistInformation.SubMapX, ref save.protagonistInformation.SubMapY);
+            save.protagonistInformation.InSubMap = subScene.getMapInfo().ID;
+        }
+        else
+        {
+            save.protagonistInformation.InSubMap = -1;
+        }
+
+        save.SaveGame(r);
+    }
+
+
+
+
 }

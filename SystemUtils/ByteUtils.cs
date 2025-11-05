@@ -2,6 +2,7 @@
 {
     class ByteUtils
     {
+        /*
         /// <summary>
         /// 把byte数组转变为整型数组
         /// </summary>
@@ -30,6 +31,7 @@
                 return s;
             }
         }
+        */
 
         /// <summary>
         /// 把byte数组转变为16位整型数组
@@ -60,6 +62,7 @@
             }
         }
 
+        /*
         /// <summary>
         /// 把byte型数组变为sbyte型数组。
         /// 当 byte 小于 128 时其值保持不变，大于等于 128 时就将其减去 256
@@ -82,6 +85,65 @@
             }
             return s;
         }
+        */
+
+        /*
+        ///////////////////////////////////////////////////////////////////////
+        // 将 int[] 转为 byte[]，保持与 ByteToInt32 对应的字节序
+        ///////////////////////////////////////////////////////////////////////
+        public static byte[] Int32ToByte(int[] values)
+        {
+            byte[] bytes = new byte[values.Length * 4];
+            for (int i = 0; i < values.Length; i++)
+            {
+                byte[] b = BitConverter.GetBytes(values[i]);
+                Array.Copy(b, 0, bytes, i * 4, 4);
+            }
+            return bytes;
+        
+        */
+
+        public static sbyte[] ByteToSbyte(byte[] bytes)
+        {
+            sbyte[] sbytes = new sbyte[bytes.Length];
+            Buffer.BlockCopy(bytes, 0, sbytes, 0, bytes.Length);
+            return sbytes;
+        }
+
+        public static byte[] SbyteToByte(sbyte[] sbytes)
+        {
+            byte[] bytes = new byte[sbytes.Length];
+            Buffer.BlockCopy(sbytes, 0, bytes, 0, sbytes.Length);
+            return bytes;
+        }
+
+        public static int[] ByteToInt32(byte[] bytes, int offset, int length)
+        {
+            int[] result = new int[length / 4];
+            for (int i = 0; i < result.Length; i++)
+                result[i] = BitConverter.ToInt32(bytes, offset + i * 4);
+            return result;
+        }
+
+        public static byte[] Int32ToByte(int[] values)
+        {
+            byte[] bytes = new byte[values.Length * 4];
+            for (int i = 0; i < values.Length; i++)
+            {
+                byte[] b = BitConverter.GetBytes(values[i]);
+                Array.Copy(b, 0, bytes, i * 4, 4);
+            }
+            return bytes;
+        }
+
+
+
+
+
+
+
+
+
 
 
     }

@@ -9,9 +9,20 @@
         public const int SUBMAP_COORD_COUNT = 64;
         public const int SUBMAP_LAYER_COUNT = 6;
         public const int MAINMAP_COORD_COUNT = 480;
-        public const int SUBMAP_EVENT_COUNT = 200;                          //单场景最大事件数
-        public const int ITEM_IN_BAG_COUNT = 200;                           //最大物品数
         public const int TEAMMATE_COUNT = 6;                                //最大队伍人员数
+        public const int SUBMAP_EVENT_COUNT = 200;                          //单场景最大事件数
+
+        public const int ITEM_IN_BAG_COUNT = 200;                           //包裹最大物品数
+        public const int ROLE_COUNT = 320;                                  //角色数目
+        public const int ROLE_INFORMATION_LENGTHEN = 364;                   //每个角色的信息长度（个数）
+        public const int ITEM_COUNT = 200;                                  //最大物品数
+        public const int ITEM_INFORMATION_LENGTHEN = 95;                    //每个物品的信息长度（个数）
+        public const int SUBMAPINFO_COUNT = 84;                             //最大子地图数
+        public const int SUBMAPINFO_INFORMATION_LENGTHEN = 51;              //每个子地图事件信息长度（个数）
+        public const int MAGIC_COUNT = 93;                                  //最大武功数
+        public const int MAGIC_INFORMATION_LENGTHEN = 68;                   //每个武功信息长度（个数）
+        public const int SHOP_COUNT = 5;                                    //最大商品数
+        public const int SHOP_INFORMATION_LENGTHEN = 15;                    //每个商品信息长度（个数）
 
 
         public const int ROLE_MAGIC_COUNT = 10;

@@ -1,4 +1,5 @@
 ﻿global using MAP_INT = System.Int16;
+using System.Runtime.InteropServices;
 
 namespace kysSharp
 {
@@ -26,6 +27,7 @@ namespace kysSharp
         None
     };
 
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct ItemList
     {
         public int item_id;

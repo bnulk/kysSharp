@@ -30,7 +30,6 @@ namespace kysSharp
                 ui_save.setMode(0);
                 ui_save.setFontSize(22);
                 result_ = ui_save.runAtPosition(400, 100);
-                ui_save = new UISave();
             }
             else if (title_.getResult() == 1)
             {
@@ -38,15 +37,12 @@ namespace kysSharp
                 ui_save.setMode(1);
                 ui_save.setFontSize(22);
                 result_ = ui_save.runAtPosition(464, 100);
-                ui_save = new UISave();
             }
             else if (title_.getResult() == 2)
             {
                 result_ = AskExit();
             }
             title_.setResult(-1);
-
-            exitWithResult(0);
         }
 
         public int AskExit()

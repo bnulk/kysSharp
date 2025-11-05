@@ -47,5 +47,35 @@ namespace kysSharp
             string text = Encoding.GetEncoding("big5").GetString(subData);
             return text;
         }
+
+        /// <summary>
+        /// 二进制数据（字节数组）转换为 CP936 编码的字符串
+        /// </summary>
+        /// <param name="binaryData">二进制数据（字节数组）</param>
+        /// <returns></returns>
+        public static void ConvertToStringCP936(byte[] binaryData, ref string result)
+        {
+            // 获取CP936编码器
+            Encoding cp936 = Encoding.GetEncoding(936);
+
+            // 使用CP936编码器将字节数组转换为字符串
+            result = cp936.GetString(binaryData);
+        }
+
+        public static void ConvertToStringCP936(sbyte[] sbyteData, ref string result)
+        {
+            // 将 sbyte[] 转换为 byte[]
+            byte[] byteData = new byte[sbyteData.Length];
+            for (int i = 0; i < sbyteData.Length; i++)
+            {
+                byteData[i] = (byte)(sbyteData[i] & 0xFF); // 将 sbyte 转换为 byte
+            }
+
+            // 获取 CP936 编码器
+            Encoding cp936 = Encoding.GetEncoding(936);
+
+            // 使用 CP936 编码器将字节数组转换为字符串
+            result = cp936.GetString(byteData);
+        }
     }
 }

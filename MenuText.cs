@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace kysSharp
 {
-    internal class MenuText : Menu
+    public class MenuText : Menu
     {
         public List<string> strings_ = new List<string>();
         public Dictionary<string, Element> childs_text_ = new Dictionary<string, Element>();

@@ -7,6 +7,9 @@ namespace kysSharp.Types
     [Serializable]
     public class Role : RoleSave
     {
+        public string strName = "";
+        public string strNick = "";
+
         public int Team;
         public int FaceTowards, Dead, Step;
         public int Pic, BattleSpeed;

@@ -243,8 +243,135 @@ namespace kysSharp
             return true;
         }
 
+        public static string GetFileTime(string filename)
+        {
+            try
+            {
+                if (!File.Exists(filename))
+                    return "--------------------"; // 文件不存在则返回固定长度占位符
 
+                DateTime fileTime = File.GetLastWriteTime(filename);
 
+                // 格式化输出，与C++版"%Y-%m-%d  %H:%M:%S"完全一致
+                string formatted = fileTime.ToString("yyyy-MM-dd  HH:mm:ss");
+
+                // 输出调试信息，对应 C++ 的 printf
+                Console.WriteLine($"{filename}:{formatted}");
+
+                return formatted;
+            }
+            catch
+            {
+                return "--------------------";
+            }
+        }
+
+        /////////////////////////////////////////////////////////////////////////
+        // 函数名称：WriteFile
+        // 功能说明：安全写入文件（支持异常捕获与路径自动创建）
+        // 参数说明：
+        //   filename —— 文件路径（string）
+        //   data     —— 要写入的字节数组
+        //   length   —— 要写入的字节数
+        // 返回值：
+        //   true  —— 写入成功
+        //   false —— 写入失败（异常已捕获）
+        /////////////////////////////////////////////////////////////////////////
+        public static bool WriteFile(string filename, byte[] data, int length)
+        {
+            try
+            {
+                /////////////////////////////////////////////////////////////////////////
+                // 1️⃣ 参数合法性检查
+                /////////////////////////////////////////////////////////////////////////
+                if (data == null)
+                {
+                    Console.Error.WriteLine("WriteFile Error: data buffer is null.");
+                    return false;
+                }
+
+                if (length <= 0 || length > data.Length)
+                {
+                    Console.Error.WriteLine($"WriteFile Error: invalid length ({length}).");
+                    return false;
+                }
+
+                /////////////////////////////////////////////////////////////////////////
+                // 2️⃣ 自动创建目录（若目录不存在）
+                /////////////////////////////////////////////////////////////////////////
+                string? dir = Path.GetDirectoryName(filename);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                /////////////////////////////////////////////////////////////////////////
+                // 3️⃣ 文件写入（覆盖模式）
+                /////////////////////////////////////////////////////////////////////////
+                using (FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    fs.Seek(0, SeekOrigin.Begin);
+                    fs.Write(data, 0, length);
+                }
+
+                /////////////////////////////////////////////////////////////////////////
+                // 4️⃣ 写入成功
+                /////////////////////////////////////////////////////////////////////////
+                return true;
+            }
+            catch (Exception ex)
+            {
+                /////////////////////////////////////////////////////////////////////////
+                // 5️⃣ 错误处理（防止程序崩溃）
+                /////////////////////////////////////////////////////////////////////////
+                string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                Console.Error.WriteLine($"[{time}] WriteFile Failed: {filename}");
+                Console.Error.WriteLine($"Reason: {ex.Message}");
+                return false;
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        // 函数：WriteFile
+        // 功能：将 short[] 数据以二进制形式写入指定文件。
+        // 参数：
+        //   filename  —— 目标文件路径
+        //   data      —— 要写入的 short 数组
+        //   length    —— 要写入的 short 元素数量
+        // 返回值：
+        //   无（写入失败会抛出异常）
+        // 说明：
+        //   每个 short 占 2 字节，以 Little-Endian 顺序写入。
+        //   如果文件不存在，会自动创建；若存在，则覆盖。
+        ///////////////////////////////////////////////////////////////////////
+        public static void WriteFile(string filename, short[] data, int length)
+        {
+            try
+            {
+                // 检查参数有效性
+                if (data == null)
+                    throw new ArgumentNullException(nameof(data), "输入数据不能为空。");
+
+                if (length > data.Length)
+                    throw new ArgumentOutOfRangeException(nameof(length), "写入长度超过数组大小。");
+
+                // 将 short 数组转为字节数组（每个 short 两字节）
+                byte[] bytes = new byte[length * 2];
+                Buffer.BlockCopy(data, 0, bytes, 0, bytes.Length);
+
+                // 打开文件（覆盖写入）
+                using (FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    fs.Write(bytes, 0, bytes.Length);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GameFile.WriteFile] 写入文件失败：{filename}");
+                Console.WriteLine($"错误信息：{ex.Message}");
+                throw; // 让上层处理错误（可根据需要去掉）
+            }
+        }
 
 
 

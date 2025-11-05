@@ -93,6 +93,120 @@ namespace kysSharp
             return n;
         }
 
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 将字符串写入文件
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        public static void WriteStringToFile(string str, string filename)
+        {
+            try
+            {
+                File.WriteAllText(filename, str, Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error writing file {filename}: {ex.Message}");
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 替换字符串中第一个匹配项
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        public static int ReplaceString(ref string s, string oldString, string newString, int pos0 = 0)
+        {
+            int pos = s.IndexOf(oldString, pos0);
+            if (pos >= 0)
+            {
+                s = s.Remove(pos, oldString.Length).Insert(pos, newString);
+                return pos + newString.Length;
+            }
+            return -1;
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 替换字符串中所有匹配项
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        public static int ReplaceAllString(ref string s, string oldString, string newString)
+        {
+            s = s.Replace(oldString, newString);
+            return s.Length;
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 替换文件中第一个匹配项
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        public static void ReplaceStringInFile(string oldFilename, string newFilename, string oldString, string newString)
+        {
+            string s = ReadStringFromFile(oldFilename);
+            if (s.Length <= 0) return;
+            ReplaceString(ref s, oldString, newString);
+            WriteStringToFile(s, newFilename);
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 替换文件中所有匹配项
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        public static void ReplaceAllStringInFile(string oldFilename, string newFilename, string oldString, string newString)
+        {
+            string s = ReadStringFromFile(oldFilename);
+            if (s.Length <= 0) return;
+            ReplaceAllString(ref s, oldString, newString);
+            WriteStringToFile(s, newFilename);
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 格式化字符串（相当于 C++ 的 sprintf）
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        public static string FormatString(string format, params object[] args)
+        {
+            return string.Format(format, args);
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 在字符串后追加格式化内容
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        public static void FormatAppendString(ref string str, string format, params object[] args)
+        {
+            str += string.Format(format, args);
+        }
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 查找最后一次出现的位置
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        public static int FindTheLast(string s, string content)
+        {
+            return s.LastIndexOf(content, StringComparison.Ordinal);
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 分割字符串
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        public static List<string> SplitString(string str, string pattern)
+        {
+            var result = new List<string>();
+            if (pattern == "") { result.Add(str); return result; }
+
+            string[] parts = str.Split(new string[] { pattern }, StringSplitOptions.None);
+            result.AddRange(parts);
+            return result;
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 判断是否是英文字母、数字或括号字符
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        public static bool IsProChar(char c)
+        {
+            return (c >= '0' && c <= '9') ||
+                   (c >= 'A' && c <= 'z') ||
+                   (c >= '(' && c <= ')');
+        }
+
+
+
+
+
+
+
+
 
 
 

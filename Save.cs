@@ -1,6 +1,7 @@
 ﻿using kysSharp.Types;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace kysSharp
 {
@@ -88,7 +89,7 @@ namespace kysSharp
         public List<SubMapInfo> GetSubMapInfos() { return save_.submap_infos_; }
         public List<Shop> GetShops() { return save_.shops_; }
 
-        public string GetFilename(int i, char c)
+        public static string GetFilename(int i, char c)
         {
             string filename = "";
             if (i > 0)
@@ -114,7 +115,7 @@ namespace kysSharp
             return filename;
         }
 
-        public bool CheckSaveFileExist(int num)
+        public static bool CheckSaveFileExist(int num)
         {
             return System.IO.File.Exists(GetFilename(num, 'r'))
                 && System.IO.File.Exists(GetFilename(num, 's'))
@@ -151,25 +152,51 @@ namespace kysSharp
             ReadDataToSubmapLayerData(sdata, ref submap_infos_);
             ReadDataToSubmapEvent(ddata, ref submap_infos_);
 
-            foreach (var i in roles_)
+            if(protagonistInformation.Encode!=936)
             {
-                PotConv.FromCP950ToString(i.Name, ref i.strName);
-                PotConv.FromCP950ToString(i.Nick, ref i.strNick);
-            }
-            foreach (var i in items_)
-            {
-                PotConv.FromCP950ToString(i.Name, ref i.strName);
-                PotConv.FromCP950ToString(i.Introduction, ref i.strIntroduction);
-            }
-            foreach (var i in magics_)
-            {
-                PotConv.FromCP950ToString(i.Name, ref i.strName);
-            }
-            foreach (var i in submap_infos_)
-            {
-                PotConv.FromCP950ToString(i.Name, ref i.strName);
-            }
+                protagonistInformation.Encode = 936;
 
+                foreach (var i in roles_)
+                {
+                    PotConv.FromCP950ToString(i.Name, ref i.strName);
+                    PotConv.FromCP950ToString(i.Nick, ref i.strNick);
+                }
+                foreach (var i in items_)
+                {
+                    PotConv.FromCP950ToString(i.Name, ref i.strName);
+                    PotConv.FromCP950ToString(i.Introduction, ref i.strIntroduction);
+                }
+                foreach (var i in magics_)
+                {
+                    PotConv.FromCP950ToString(i.Name, ref i.strName);
+                }
+                foreach (var i in submap_infos_)
+                {
+                    PotConv.FromCP950ToString(i.Name, ref i.strName);
+                }
+            }
+            else
+            {
+                foreach (var i in roles_)
+                {
+                    PotConv.ConvertToStringCP936(i.Name, ref i.strName);
+                    PotConv.ConvertToStringCP936(i.Nick, ref i.strNick);
+                }
+                foreach (var i in items_)
+                {
+                    PotConv.ConvertToStringCP936(i.Name, ref i.strName);
+                    PotConv.ConvertToStringCP936(i.Introduction, ref i.strIntroduction);
+                }
+                foreach (var i in magics_)
+                {
+                    PotConv.ConvertToStringCP936(i.Name, ref i.strName);
+                }
+                foreach (var i in submap_infos_)
+                {
+                    PotConv.ConvertToStringCP936(i.Name, ref i.strName);
+                }
+            }
+            
             MakeMaps();
 
             return true;
@@ -320,6 +347,7 @@ namespace kysSharp
             return -1;
         }
 
+        
 
     }
 }

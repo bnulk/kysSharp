@@ -175,7 +175,7 @@ namespace kysSharp
 
         public override void onPressedCancel()
         {
-            setExit(true);
+            exitWithResult(-1);
         }
 
 
@@ -195,8 +195,6 @@ namespace kysSharp
 
 
 
-
-       
 
 
     }

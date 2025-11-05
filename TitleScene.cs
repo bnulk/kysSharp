@@ -132,6 +132,10 @@ namespace kysSharp
             Audio.getInstance().playMusic(1);
         }
 
+        public override void onExit()
+        {
+            Audio.getInstance().StopMusic();
+        }
         private void getSdlTextureSize(SDL_Texture* texture, ref int w, ref int h)
         {
             float* pw = stackalloc float[1];

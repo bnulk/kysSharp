@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace kysSharp
 {
-    internal class Menu:TextBox
+    public class Menu:TextBox
     {
         public Menu()
         {

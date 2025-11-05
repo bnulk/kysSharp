@@ -28,8 +28,5 @@ namespace kysSharp.Types
         public int[] MagicLevel = new int[Constant.ROLE_MAGIC_COUNT];
         public int[] TakingItem = new int[Constant.ROLE_TAKING_ITEM_COUNT];
         public int[] TakingItemCount = new int[Constant.ROLE_TAKING_ITEM_COUNT];
-
-        public string strName;
-        public string strNick;
     }
 }

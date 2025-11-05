@@ -21,6 +21,19 @@ namespace kysSharp.Types
             Y_ = y;
         }
 
+        /////////////////////////////////////////////////////////////////////////
+        // 反向访问属性（供写文件使用）
+        /////////////////////////////////////////////////////////////////////////
+        public MAP_INT PosX
+        {
+            get { return X_; }
+        }
+
+        public MAP_INT PosY
+        {
+            get { return Y_; }
+        }
+
         public MAP_INT X()
         {
             return X_;

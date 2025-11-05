@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace kysSharp
 {
     //游戏执行和绘制的基础类，凡需要显示画面或者处理事件的，均继承自此
-    internal class Element: IDisposable
+    public class Element: IDisposable
     {
         private static List<Element> root_ = new List<Element>();   //所有需要绘制的内容都存储在这个静态向量中
         private static int prev_present_ticks_;
@@ -58,7 +58,6 @@ namespace kysSharp
 
         public virtual void onPressedOK()                         //按下回车或鼠标左键的事件，子类视情况继承或者留空
         {
-            ExitWithResult(0);
         }                             
         public virtual void onPressedCancel()                     //按下esc或鼠标右键的事件，子类视情况继承或者留空
         {

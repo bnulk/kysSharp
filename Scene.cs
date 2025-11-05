@@ -43,7 +43,7 @@ namespace kysSharp
         }
 
         public void setManPosition(int x, int y) { man_x_ = x; man_y_ = y; }
-        public void getManPosition(int x, int y) { x = man_x_; y = man_y_; }
+        public void getManPosition(ref int x, ref int y) { x = man_x_; y = man_y_; }
         public void setManPic(int pic) { man_pic_ = pic; }
         public void checkWalk(int x, int y, SDL_Event e)   //一些公共部分，未完成
         {

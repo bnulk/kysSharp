@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace kysSharp
 {
-    internal unsafe class TextBox:Element
+    public unsafe class TextBox:Element
     {
         protected string text_ = "";
         protected int font_size_ = 20;
@@ -104,7 +104,6 @@ namespace kysSharp
 
         public override void onPressedOK()
         {
-            ExitWithResult(0);
         }
 
         public override void onPressedCancel()
