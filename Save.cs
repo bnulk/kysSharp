@@ -152,10 +152,8 @@ namespace kysSharp
             ReadDataToSubmapLayerData(sdata, ref submap_infos_);
             ReadDataToSubmapEvent(ddata, ref submap_infos_);
 
-            if(protagonistInformation.Encode!=936)
+            if(protagonistInformation.Encode ==0 || protagonistInformation.Encode == 950)
             {
-                protagonistInformation.Encode = 936;
-
                 foreach (var i in roles_)
                 {
                     PotConv.FromCP950ToString(i.Name, ref i.strName);

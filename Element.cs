@@ -13,7 +13,7 @@ namespace kysSharp
     {
         private static List<Element> root_ = new List<Element>();   //所有需要绘制的内容都存储在这个静态向量中
         private static int prev_present_ticks_;
-        private const int max_delay_ = 30;
+        private const int max_delay_ = 50;
 
         protected List<Element> childs_= new List<Element>();
         protected bool visible_ = true;
@@ -61,7 +61,6 @@ namespace kysSharp
         }                             
         public virtual void onPressedCancel()                     //按下esc或鼠标右键的事件，子类视情况继承或者留空
         {
-            ExitWithResult(-1);
         }                         
 
         public static void drawAll()
@@ -468,7 +467,7 @@ namespace kysSharp
         /// 设置从begin开始的全部节点状态为退出
         /// </summary>
         /// <param name="begin">begin开始的节点标号</param>
-        public void exitAll(int begin = 0)
+        public static void exitAll(int begin = 0)
         {
             for (int i = begin; i < root_.Count; i++)
             {

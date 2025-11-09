@@ -68,6 +68,8 @@ namespace kysSharp
             return event_;
         }
 
+        public void forceExit() { loop_ = false; }
+
         /////////////////////////////////////////////////////////////////////////
         // 函数：loadEventData
         // 功能：加载对话、事件定义与离队列表数据
@@ -383,69 +385,69 @@ namespace kysSharp
                     RUN_INSTRUCT("oldTalk", () => VOID3(oldTalk));
                     break;
 
-                    // case 2: /* 添加物品（2个参数） */
-                    // RUN_INSTRUCT("addItem", () => VOID2(addItem));
-                    // break;
+                    case 2: /* 添加物品（2个参数） */
+                    RUN_INSTRUCT("addItem", () => VOID2(addItem));
+                    break;
 
                     case 3: /* 修改事件（13个参数） */
                     RUN_INSTRUCT("modifyEvent", () => VOID13(modifyEvent));
                     break;
 
-                    // case 4: /* 检查是否正在使用物品（1个参数，返回布尔值） */
-                    // RUN_INSTRUCT("isUsingItem", () => BOOL1(isUsingItem));
-                    // break;
+                    case 4: /* 检查是否正在使用物品（1个参数，返回布尔值） */
+                    RUN_INSTRUCT("isUsingItem", () => BOOL1(isUsingItem));
+                    break;
 
-                    // case 5: /* 询问是否战斗（无参数，返回布尔值） */
-                    // RUN_INSTRUCT("askBattle", () => BOOL(() => askBattle()));
-                    // break;
+                    case 5: /* 询问是否战斗（无参数，返回布尔值） */
+                    RUN_INSTRUCT("askBattle", () => BOOL(() => askBattle()));
+                    break;
 
-                    // case 6: /* 尝试战斗（2个参数，特殊顺序，返回布尔值） */
-                    // RUN_INSTRUCT("tryBattle", () => BOOL2_2(tryBattle));
-                    // break;
+                    case 6: /* 尝试战斗（2个参数，特殊顺序，返回布尔值） */
+                    RUN_INSTRUCT("tryBattle", () => BOOL2_2(tryBattle));
+                    break;
 
-                    // case 8: /* 更改主地图音乐（1个参数） */
-                    // RUN_INSTRUCT("changeMainMapMusic", () => VOID1(changeMainMapMusic));
-                    // break;
+                    case 8: /* 更改主地图音乐（1个参数） */
+                    RUN_INSTRUCT("changeMainMapMusic", () => VOID1(changeMainMapMusic));
+                    break;
 
-                    // case 9: /* 询问是否加入队伍（无参数，返回布尔值） */
-                    // RUN_INSTRUCT("askJoin", () => BOOL(() => askJoin()));
-                    // break;
+                    case 9: /* 询问是否加入队伍（无参数，返回布尔值） */
+                    RUN_INSTRUCT("askJoin", () => BOOL(() => askJoin()));
+                    break;
 
-                    // case 10: /* 加入队伍（1个参数） */
-                    // RUN_INSTRUCT("join", () => VOID1(join));
-                    // break;
+                    case 10: /* 加入队伍（1个参数） */
+                    RUN_INSTRUCT("join", () => VOID1(join));
+                    break;
 
-                    // case 11: /* 询问是否休息（无参数，返回布尔值） */
-                    // RUN_INSTRUCT("askRest", () => BOOL(() => askRest()));
-                    // break;
+                    case 11: /* 询问是否休息（无参数，返回布尔值） */
+                    RUN_INSTRUCT("askRest", () => BOOL(() => askRest()));
+                    break;
 
-                    // case 12: /* 执行休息（无参数） */
-                    // RUN_INSTRUCT("rest", () => VOID(() => rest(), 0));
-                    // break;
+                    case 12: /* 执行休息（无参数） */
+                    RUN_INSTRUCT("rest", () => VOID(() => rest(), 0));
+                    break;
 
-                    // case 13: /* 场景变亮（无参数） */
-                    // RUN_INSTRUCT("lightScence", () => VOID(() => lightScence(), 0));
-                    // break;
+                    case 13: /* 场景变亮（无参数） */
+                    RUN_INSTRUCT("lightScence", () => VOID(() => lightScence(), 0));
+                    break;
 
-                    // case 14: /* 场景变暗（无参数） */
-                    // RUN_INSTRUCT("darkScence", () => VOID(() => darkScence(), 0));
-                    // break;
+                    case 14: /* 场景变暗（无参数） */
+                    RUN_INSTRUCT("darkScence", () => VOID(() => darkScence(), 0));
+                    break;
 
-                    // case 15: /* 角色死亡（无参数） */
-                    // RUN_INSTRUCT("dead", () => VOID(() => dead(), 0));
-                    // break;
+                    case 15: /* 角色死亡（无参数） */
+                    RUN_INSTRUCT("dead", () => VOID(() => dead(), 0));
+                    break;
 
-                    // case 16: /* 检查是否在队伍中（1个参数，返回布尔值） */
-                    // RUN_INSTRUCT("inTeam", () => BOOL1(inTeam));
-                    // break;
+                    case 16: /* 检查是否在队伍中（1个参数，返回布尔值） */
+                    RUN_INSTRUCT("inTeam", () => BOOL1(inTeam));
+                    break;
 
-                    // case 17: /* 设置子地图层数据（5个参数） */
-                    // RUN_INSTRUCT("setSubMapLayerData", () => VOID5(setSubMapLayerData));
-                    // break;
+                    case 17: /* 设置子地图层数据（5个参数） */
+                    RUN_INSTRUCT("setSubMapLayerData", () => VOID5(setSubMapLayerData));
+                    break;
 
-                    // case 18: /* 检查是否有物品（1个参数，返回布尔值） */
-                    // RUN_INSTRUCT("haveItemBool", () => BOOL1(haveItemBool));
-                    // break;
+                    case 18: /* 检查是否有物品（1个参数，返回布尔值） */
+                    RUN_INSTRUCT("haveItemBool", () => BOOL1(haveItemBool));
+                    break;
 
                     // case 19: /* 设置场景位置（2个参数） */
                     // RUN_INSTRUCT("oldSetScencePosition", () => VOID2(oldSetScencePosition));
@@ -495,9 +497,9 @@ namespace kysSharp
                     // RUN_INSTRUCT("checkEnoughMoney", () => BOOL1(checkEnoughMoney));
                     // break;
 
-                    // case 32: /* 添加物品（无提示，2个参数） */
-                    // RUN_INSTRUCT("addItemWithoutHint", () => VOID2(addItemWithoutHint));
-                    // break;
+                    case 32: /* 添加物品（无提示，2个参数） */
+                    RUN_INSTRUCT("addItemWithoutHint", () => VOID2(addItemWithoutHint));
+                    break;
 
                     // case 33: /* 学习旧魔法（3个参数） */
                     // RUN_INSTRUCT("oldLearnMagic", () => VOID3(oldLearnMagic));
@@ -636,6 +638,13 @@ namespace kysSharp
         }
 
 
+        public SubMapInfo getSubMapRecordFromID(int submap_id)
+        {
+            var submap_record = Save.getInstance().GetSubMapInfo(submap_id);
+            if (submap_record == null) { submap_record = subscene_.getMapInfo(); }
+            return submap_record;
+        }
+
 
         public void CallLeaveEvent(Role role)
         {
@@ -699,19 +708,28 @@ namespace kysSharp
         /// </summary>
         public void ArrangeBag()
         {
-            Dictionary<int, int> item_count = new Dictionary<int, int>();
+            /////////////////////////////////////////////////////////////////////////
+            // 创建一个临时字典，用于统计每种物品的总数量（item_id → count）
+            /////////////////////////////////////////////////////////////////////////
+            var itemCount = new Dictionary<int, int>();
             var save = Save.getInstance();
             for (int i = 0; i < Constant.ITEM_IN_BAG_COUNT; i++)
             {
-                if (save.protagonistInformation.Items[i].item_id >= 0 && save.protagonistInformation.Items[i].count > 0)
+                var item = save.protagonistInformation.Items[i];
+                if (item.item_id >= 0 && item.count > 0)
                 {
-                    item_count[save.protagonistInformation.Items[i].item_id] += save.protagonistInformation.Items[i].count;
+                    if (!itemCount.ContainsKey(item.item_id))
+                        itemCount[item.item_id] = 0;
+                    itemCount[item.item_id] += item.count;
                 }
-                save.protagonistInformation.Items[i].item_id = -1;
-                save.protagonistInformation.Items[i].count = 0;
+
+                // 清空当前背包格子
+                item.item_id = -1;
+                item.count = 0;
+                save.protagonistInformation.Items[i] = item;
             }
             int k = 0;
-            foreach (var i in item_count)
+            foreach (var i in itemCount)
             {
                 save.protagonistInformation.Items[k].item_id = i.Key;
                 save.protagonistInformation.Items[k].count = i.Value;

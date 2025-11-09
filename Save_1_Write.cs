@@ -40,7 +40,7 @@ namespace kysSharp
             // 把数据写入short数组
             WriteSubmapLayerDataToData(sdata, submap_infos_);
             WriteSubmapEventToData(ddata, submap_infos_);
-            
+
             // 最终写入全部grp
             try
             {
@@ -55,7 +55,7 @@ namespace kysSharp
                 return false;
             }
 
-            
+
         }
 
         ///////////////////////////////////////////////////////////////////////

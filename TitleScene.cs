@@ -42,7 +42,7 @@ namespace kysSharp
             menu_.addChild(b, 20, 50);
             b = new Button("title", 5, 25, 25);
             menu_.addChild(b, 20, 100);
-            //menu_load_ = new UISave();
+            menu_load_ = new UISave();
         }
 
         public override void draw()
@@ -112,14 +112,14 @@ namespace kysSharp
             }
             if (r == 1)
             {
-                /*
+                if (menu_load_ == null)
+                    return;
                 if (menu_load_.run() >= 0)
                 {
                     //Save::getInstance()->getRole(0)->MagicLevel[0] = 900;    //测试用
                     //Script::getInstance()->runScript("../game/script/0.lua");
-                    MainScene::getIntance()->run();
+                    MainScene.getInstance().run();
                 }
-                */
             }
             if (r == 2)
             {

@@ -308,23 +308,19 @@ namespace kysSharp
 
         public override bool canWalk(int x, int y)
         {
-            //if (checkEntrance(x, y, true))
-            //{
-            //    return true;
-            //}  这里不需要加，实际上入口都是无法走到的
+            bool ret = true;
 
-            if (isOutLine(x, y))
+            if (isOutLine(x, y) || isBuilding(x, y) || isWater(x, y) || isCannotPassEvent(x, y) || isFall(x, y))
             {
-                return false;
+                ret = false;
             }
-            if (isBuilding(x, y)/*|| checkIsWater(x, y)*/)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+
+            //if (isCanPassEvent(x, y))
+            //{
+            //    ret = true;
+            //}
+
+            return ret;
         }
 
         public bool isBuilding(int x, int y)
@@ -345,27 +341,34 @@ namespace kysSharp
             return false;
         }
 
+        //what is this?
+        public bool isFall(int x, int y)
+        {
+            //if (abs(Save::getInstance()->m_SceneMapData[scene_id_].Data[4][x][y] -
+            //Save::getInstance()->m_SceneMapData[scene_id_].Data[4][Cx][Cy] > 10))
+            //{
+            //    true;
+            //}
+            return false;
+        }
+
         public bool isCanPassEvent(int x, int y)
         {
-            /*
-            var e = submap_info_.GetEventIndex(x, y);
-            if (e && !e.CannotWalk)
+            var e = submap_info_.Event(x, y);
+            if (e != null && e.CannotWalk != 0)
             {
                 return true;
             }
-            */
             return false;
         }
 
         public bool isCannotPassEvent(int x, int y)
         {
-            /*
-            var e = submap_info_.GetEventIndex(x, y);
-            if (e && e.CannotWalk)
+            var e = submap_info_.Event(x, y);
+            if (e != null && e.CannotWalk != 0)
             {
                 return true;
             }
-            */
             return false;
         }
 
@@ -436,7 +439,18 @@ namespace kysSharp
             setManViewPosition(x, y);
         }
 
-
+        public override void onPressedCancel()
+        {
+            UI.getInstance().run();
+            var item = UI.getInstance().GetUsedItem();
+            if (item!=null && item.ItemType == 0)
+            {
+                if (checkEvent2(man_x_, man_y_, towards_, item.ID))
+                {
+                    step_ = 0;
+                }
+            }
+        }
 
 
 
