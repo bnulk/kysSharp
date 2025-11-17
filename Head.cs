@@ -5,7 +5,7 @@ namespace kysSharp
 {
     //绘制带人物头像的简明状态
     //注意，部分类型继承此类，是为了使用role
-    unsafe class Head : TextBox
+    unsafe public class Head : TextBox
     {
         protected Role? role_ = null;
         protected bool only_head_ = false;

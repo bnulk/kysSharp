@@ -1,58 +1,57 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace kysSharp.Types
 {
-    [Serializable]
-    public class MapSquare
+    public class MapSquareRole
     {
-        public MAP_INT[]? data_;
-        public MAP_INT line_;
+        public Role[] data_;
+        public int line_;
 
-        public MAP_INT[]? Data_ { get => data_; set => data_ = value; }
-        public MAP_INT Line_ { get => line_; set => line_ = value; }
+        public Role[] Data_ { get => data_; set => data_ = value; }
+        public int Line_ { get => line_; set => line_ = value; }
 
-        public MapSquare()
+        public MapSquareRole()
         {
-            data_ = new MAP_INT[1];
+            data_ = new Role[0];
             line_ = 0;
         }
 
-        public MapSquare(int size)
+        public MapSquareRole(int size)
         {
-            data_ = new MAP_INT[size * size];
-            line_ = (MAP_INT)size;
+            data_ = new Role[size * size];
+            line_ = size;
         }
 
         //不会保留原始数据
         public void Resize(int x)
         {
-            Data_ = new MAP_INT[x * x];
-            Line_ = (MAP_INT)x;
+            data_ = new Role[x * x];
+            line_ = x;
         }
 
         //原始函数为MAP_INT& data(int x, int y) { return data_[x + line_ * y]; }，接收数据用
-        public void SetData(int x, int y, MAP_INT acceptData)
+        public void SetData(int x, int y, Role acceptData)
         {
             data_[x + line_ * y] = acceptData;
         }
-
-
-        public MAP_INT GetData(int x, int y)
+        public Role GetData(int x, int y)
         {
             return data_[x + line_ * y];
         }
 
-        public MAP_INT GetData(int x)
+        public Role GetData(int x)
         {
             return data_[x];
         }
 
         //原始函数为MAP_INT& data(int x) { return data_[x]; }，接收数据用
-        public void SetData(int x, MAP_INT acceptData)
+        public void SetData(int x, Role acceptData)
         {
             data_[x] = acceptData;
         }
-        public MAP_INT SetData(int x)
+        public Role SetData(int x)
         {
             return data_[x];
         }
@@ -67,22 +66,22 @@ namespace kysSharp.Types
             return Line_ * Line_;
         }
 
-        public void SetAll(int v)
+        public void SetAll(Role v)
         {
-            Data_ = new MAP_INT[SquareSize()];
+            Data_ = new Role[SquareSize()];
             for (int i = 0; i < SquareSize(); i++)
             {
-                Data_[i] = (MAP_INT)v;
+                Data_[i] = (Role)v;
             }
         }
-        public void CopyTo(ref MapSquare ms)
+        public void CopyTo(ref MapSquareRole ms)
         {
             for (int i = 0; i < SquareSize(); i++)
             {
                 ms.data_[i] = data_[i];
             }
         }
-        public void CopyFrom(MapSquare ms)
+        public void CopyFrom(MapSquareRole ms)
         {
             for (int i = 0; i < SquareSize(); i++)
             {
@@ -90,7 +89,4 @@ namespace kysSharp.Types
             }
         }
     }
-
-
-
 }

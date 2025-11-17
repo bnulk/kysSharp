@@ -57,7 +57,7 @@ namespace kysSharp
                 {
                     Audio.getInstance().playMusic(submap_info_.EntranceMusic);
                 }
-                Console.WriteLine("Sub Scene %d, %s\n", submap_id_, submap_info_.Name);
+                Console.WriteLine($"Sub Scene {submap_id_}, {GameUtil.EraseModredundantChar(submap_info_.strName)}");
             }
         }
 
@@ -220,7 +220,6 @@ namespace kysSharp
 
             if(e.type == (uint)SDL_EventType.SDL_EVENT_KEY_UP && (e.key.key == SDL_Keycode.SDLK_RETURN || e.key.key==SDL_Keycode.SDLK_SPACE))
             {
-
                 if (checkEvent1(x, y, towards_))
                 {
                     clearEvent(e);

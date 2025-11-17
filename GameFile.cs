@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace kysSharp
@@ -370,6 +371,57 @@ namespace kysSharp
                 Console.WriteLine($"[GameFile.WriteFile] 写入文件失败：{filename}");
                 Console.WriteLine($"错误信息：{ex.Message}");
                 throw; // 让上层处理错误（可根据需要去掉）
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// 从二进制文件读取内容并填充为结构体列表（等价于 C++: readFileToVector）
+        /// </summary>
+        /// <typeparam name="T">目标结构体类型，必须是不可为 null 的 unmanaged 类型</typeparam>
+        /// <param name="filename">文件路径</param>
+        /// <returns>结构体列表</returns>
+        ///////////////////////////////////////////////////////////////////////
+        public static List<T> ReadFileToList<T>(string filename) where T : unmanaged
+        {
+            List<T> result = new();
+
+            if (!File.Exists(filename))
+                return result;
+
+            // 1️⃣ 读取文件全部字节
+            byte[] buffer = File.ReadAllBytes(filename);
+
+            // 2️⃣ 每个结构体的大小
+            int structSize = Marshal.SizeOf<T>();
+
+            // 3️⃣ 计算总数
+            int count = buffer.Length / structSize;
+
+            // 4️⃣ 依次解析为结构体
+            for (int i = 0; i < count; i++)
+            {
+                int offset = i * structSize;
+                T obj = BytesToStruct<T>(buffer, offset);
+                result.Add(obj);
+            }
+
+            return result;
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// 将字节数组的一部分转换为结构体（等价于 readDataToVector 内部逻辑）
+        /// </summary>
+        ///////////////////////////////////////////////////////////////////////
+        public static T BytesToStruct<T>(byte[] data, int offset) where T : unmanaged
+        {
+            unsafe
+            {
+                fixed (byte* p = &data[offset])
+                {
+                    return *(T*)p;
+                }
             }
         }
 

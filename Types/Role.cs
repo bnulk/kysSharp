@@ -23,15 +23,16 @@ namespace kysSharp.Types
         public int[] ShowColor = new int[4];
 
         public MapSquare position_layer_ = new MapSquare();
+        public MapSquareRole role_position_layer_ = new MapSquareRole();
 
         private int X_, Y_;
         private int prevX_, prevY_;
 
-        int AI_Action = 0;
-        int AI_MoveX, AI_MoveY;
-        int AI_ActionX, AI_ActionY;
-        Magic AI_Magic = new Magic();
-        Item AI_Item = new Item();
+        public int AI_Action = 0;
+        public int AI_MoveX, AI_MoveY;
+        public int AI_ActionX, AI_ActionY;
+        public Magic AI_Magic = new Magic();
+        public Item AI_Item = new Item();
 
         public Role()
         {
@@ -44,6 +45,8 @@ namespace kysSharp.Types
 
         public void SetPoitionLayer(MapSquare l) { position_layer_ = l; }
 
+        public void SetPoitionLayer(MapSquareRole l) { role_position_layer_ = l; }
+
         //设置人物坐标，若输入值为负，相当于从人物层清除
         public void SetPosition(int x, int y)
         {
@@ -51,14 +54,19 @@ namespace kysSharp.Types
             {
                 return;
             }
+
+            // 如果当前坐标有效，先把当前位置清空
             if (X_ >= 0 && Y_ >= 0)
             {
-                position_layer_.SetData(X_, Y_, -1);
+                position_layer_.SetData(x, y, 0);
             }
+
+            // 如果新坐标有效，则设置为 this
             if (x >= 0 && y >= 0)
             {
                 position_layer_.SetData(x, y, (MAP_INT)ID);
             }
+
             X_ = x;
             Y_ = y;
         }

@@ -25,7 +25,7 @@ namespace kysSharp
         private int[] buffer_ = new int[100];
 
 
-        public static Save save_ = new Save();
+        public static Save? save_;
         public static Save getInstance()
         {
             if(save_==null)

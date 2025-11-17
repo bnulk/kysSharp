@@ -203,9 +203,18 @@ namespace kysSharp
 
         public bool tryBattle(int battle_id, int get_exp)
         {
-            /*
             var battle = new BattleScene(battle_id);
-            battle.setHaveFailExp(get_exp);
+
+            // 设置是否失败后获得经验
+            if (get_exp==0)
+            {
+                battle.setHaveFailExp(false);
+            }
+            else
+            {
+                battle.setHaveFailExp(true);
+            }
+
             int result = battle.run();
             //int result = 0;    //测试用
 
@@ -220,8 +229,6 @@ namespace kysSharp
             }           
             
             return result == 0;
-            */
-            return false;
         }
 
         public void changeMainMapMusic(int music_id)
@@ -687,7 +694,7 @@ namespace kysSharp
             //当物品数量为负，需要整理背包
             if (count < 0)
             {
-                ArrangeBag();
+                arrangeBag();
             }
         }
 

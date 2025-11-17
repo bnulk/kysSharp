@@ -293,7 +293,8 @@ namespace kysSharp
             {
                 string str = format_str + " " + v.ToString();
                 //测试是不是出界了
-                int draw_length = size * str.Length / 2 + size;
+                //int draw_length = size * str.Length / 2 + size;
+                int draw_length = size * str.Length + size;
                 int x1 = x + draw_length;
                 if (x1 > 700)
                 {

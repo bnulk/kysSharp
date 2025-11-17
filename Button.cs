@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace kysSharp
 {
-    internal class Button:TextBox
+    public class Button:TextBox
     {
         public Button()
         {

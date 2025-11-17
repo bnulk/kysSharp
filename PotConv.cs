@@ -48,6 +48,102 @@ namespace kysSharp
             return text;
         }
 
+        ////////////////////////////////////////////////////////////////////////
+        // 函数：Cp950ToCp936
+        // 功能：将台湾繁体编码（CP950）转换为简体中文（CP936/GBK）
+        // 参数：
+        //   data        —— 输入的 sbyte[] 数据
+        //   startIndex  —— 起始索引
+        //   length      —— 读取长度
+        // 返回：
+        //   转换后的简体中文字符串
+        ////////////////////////////////////////////////////////////////////////
+        public static string Cp950ToCp936(sbyte[] data, int startIndex, int length)
+        {
+            /////////////////////////////////////////////////////////////////////////
+            // 参数检查
+            /////////////////////////////////////////////////////////////////////////
+            if (data == null || data.Length == 0)
+                return string.Empty;
+
+            if (startIndex < 0 || length <= 0 || startIndex + length > data.Length)
+                return string.Empty;
+
+            /////////////////////////////////////////////////////////////////////////
+            // 将 sbyte[] 转换为 byte[]
+            // 因为 Encoding.GetString() 只接受无符号字节（byte[]）
+            /////////////////////////////////////////////////////////////////////////
+            byte[] byteData = new byte[length];
+            Buffer.BlockCopy(data, startIndex, byteData, 0, length);
+
+            /////////////////////////////////////////////////////////////////////////
+            // 使用 Big5 解码（繁体编码）
+            /////////////////////////////////////////////////////////////////////////
+            string text = Encoding.GetEncoding("big5").GetString(byteData);
+
+            /////////////////////////////////////////////////////////////////////////
+            // 若要进一步转为简体（CP936/GBK），可以使用 Encoding 转码：
+            /////////////////////////////////////////////////////////////////////////
+            byte[] gbkBytes = Encoding.Convert(Encoding.GetEncoding("big5"), Encoding.GetEncoding("gbk"), byteData);
+            string simplified = Encoding.GetEncoding("gbk").GetString(gbkBytes);
+
+            return simplified;
+        }
+
+        ////////////////////////////////////////////////////////////////////////
+        // 函数：Cp950ToCp936
+        // 功能：将台湾繁体编码（CP950）转换为简体中文（CP936/GBK）
+        // 参数：
+        //   data        —— 输入的 sbyte* 指针
+        //   startIndex  —— 起始偏移量
+        //   length      —— 要读取的字节数
+        // 返回：
+        //   转换后的简体中文字符串
+        ////////////////////////////////////////////////////////////////////////
+        public static unsafe string Cp950ToCp936(sbyte* data, int startIndex, int length)
+        {
+            /////////////////////////////////////////////////////////////////////////
+            // 参数检查
+            /////////////////////////////////////////////////////////////////////////
+            if (data == null || length <= 0)
+                return string.Empty;
+
+            /////////////////////////////////////////////////////////////////////////
+            // 分配托管缓冲区（byte[]）
+            /////////////////////////////////////////////////////////////////////////
+            byte[] buffer = new byte[length];
+
+            /////////////////////////////////////////////////////////////////////////
+            // 从非托管指针复制数据到托管数组
+            // 注意：sbyte* 转为 byte* 时只需 reinterpret，不做数值转换
+            /////////////////////////////////////////////////////////////////////////
+            byte* src = (byte*)(data + startIndex);
+            fixed (byte* dst = buffer)
+            {
+                Buffer.MemoryCopy(src, dst, length, length);
+            }
+
+            /////////////////////////////////////////////////////////////////////////
+            // 使用 Big5 编码（CP950）解码为繁体中文字符串
+            /////////////////////////////////////////////////////////////////////////
+            string traditional = Encoding.GetEncoding("big5").GetString(buffer);
+
+            /////////////////////////////////////////////////////////////////////////
+            // 若希望进一步转换为简体中文（CP936 / GBK）
+            /////////////////////////////////////////////////////////////////////////
+            byte[] gbkBytes = Encoding.Convert(
+                Encoding.GetEncoding("big5"),
+                Encoding.GetEncoding("gbk"),
+                buffer
+            );
+
+            string simplified = Encoding.GetEncoding("gbk").GetString(gbkBytes);
+
+            return simplified;
+        }
+
+
+
         /// <summary>
         /// 二进制数据（字节数组）转换为 CP936 编码的字符串
         /// </summary>

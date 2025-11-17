@@ -701,14 +701,14 @@ namespace kysSharp
             //当物品数量为负，需要整理背包
             if (count < 0)
             {
-                //ArrangeBag();
+                arrangeBag();
             }
         }
 
         /// <summary>
         /// 整理物品包
         /// </summary>
-        public void ArrangeBag()
+        public void arrangeBag()
         {
             /////////////////////////////////////////////////////////////////////////
             // 创建一个临时字典，用于统计每种物品的总数量（item_id → count）

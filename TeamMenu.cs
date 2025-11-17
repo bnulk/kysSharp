@@ -4,7 +4,7 @@ using SDL;
 namespace kysSharp
 {
     //用于选择队伍中的角色，可以传入一个item作为过滤，为空会显示所有人
-    class TeamMenu : Menu
+    public class TeamMenu : Menu
     {
         private List<Head> heads_ = new List<Head>();
         //std::set<int> selected_;

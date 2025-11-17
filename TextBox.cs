@@ -104,6 +104,7 @@ namespace kysSharp
 
         public override void onPressedOK()
         {
+            ExitWithResult(-1);
         }
 
         public override void onPressedCancel()

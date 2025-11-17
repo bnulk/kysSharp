@@ -2,7 +2,7 @@
 
 namespace kysSharp
 {
-    internal class Scene : Element
+    public class Scene : Element
     {
         public int render_center_x_ = 0;
         public int render_center_y_ = 0;

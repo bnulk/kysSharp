@@ -415,13 +415,13 @@ namespace kysSharp
             var equip0 = Save.getInstance().GetItem(r.Equip0);
             var equip1 = Save.getInstance().GetItem(r.Equip1);
 
-            if (r0.ID != 0) { r0.PracticeItem = -1; }
+            if (r0!= null) { r0.PracticeItem = -1; }
             i.User = r.ID;
 
             if (i.ItemType == 2)
             {
                 //秘籍        
-                if (book.ID != 0) { book.User = -1; }
+                if (book != null) { book.User = -1; }
                 r.PracticeItem = i.ID;
             }
             if (i.ItemType == 1)
@@ -433,7 +433,7 @@ namespace kysSharp
                 }
                 if (i.EquipType == 1)
                 {
-                    if (equip1.ID != 0) { equip1.User = -1; }
+                    if (equip1 != null) { equip1.User = -1; }
                     r.Equip1 = i.ID;
                 }
             }

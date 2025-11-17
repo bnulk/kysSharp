@@ -3,7 +3,7 @@ using SDL;
 
 namespace kysSharp
 {
-    class UIStatus : Element
+    public class UIStatus : Element
     {
         protected Button button_medcine_;
         protected Button button_detoxification_;
