@@ -19,8 +19,8 @@ namespace kysSharp
     {
         public int[]? select_x_ = null;
         public int[]? select_y_ = null;
-        public MapSquare? select_layer_ = null;
-        public MapSquare? effect_layer_ = null;
+        public MapSquare<MAP_INT> select_layer_ = null;
+        public MapSquare<MAP_INT> effect_layer_ = null;
 
         public Role? role_ = null;
         public Magic? magic_ = null;

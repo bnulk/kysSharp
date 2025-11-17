@@ -27,9 +27,9 @@ namespace kysSharp
         public BattleInfo info_;
 
         //地面层，建筑层，选择层（负值为不可选，0和正值为可选）
-        public MapSquare earth_layer_, building_layer_, select_layer_, effect_layer_;
+        public MapSquare<MAP_INT> earth_layer_, building_layer_, select_layer_, effect_layer_;
         //角色层
-        public MapSquareRole role_layer_;
+        public MapSquare<Role> role_layer_;
 
         public int select_state_ = 0; // 0-其他，1-选移动目标，2-选行动目标role_layer_
         public int select_x_ = 0, select_y_ = 0;
@@ -53,11 +53,11 @@ namespace kysSharp
             full_window_ = true;
             COORD_COUNT = BattleConstant.BATTLEMAP_COORD_COUNT;
 
-            earth_layer_ = new MapSquare(COORD_COUNT);
-            building_layer_ = new MapSquare(COORD_COUNT);
-            select_layer_ = new MapSquare(COORD_COUNT);
-            effect_layer_ = new MapSquare(COORD_COUNT);
-            role_layer_ = new MapSquareRole(COORD_COUNT);
+            earth_layer_ = new MapSquare<MAP_INT>(COORD_COUNT);
+            building_layer_ = new MapSquare<MAP_INT>(COORD_COUNT);
+            select_layer_ = new MapSquare<MAP_INT>(COORD_COUNT);
+            effect_layer_ = new MapSquare<MAP_INT>(COORD_COUNT);
+            role_layer_ = new MapSquare<Role>(COORD_COUNT);
 
             battle_menu_ = new BattleActionMenu();
             battle_menu_.SetBattleScene(this);
@@ -112,7 +112,7 @@ namespace kysSharp
                     p.y += y_;
                     if (!isOutLine(ix, iy))
                     {
-                        int num = earth_layer_.GetData(ix, iy) / 2;
+                        int num = earth_layer_.Data(ix, iy) / 2;
                         SDL_Color color = new SDL_Color() { r=255,g=255,b=255,a=255};
 
                         /*
@@ -385,7 +385,7 @@ namespace kysSharp
         //所在坐标是否有效果
         public bool haveEffect(int x, int y) 
         {
-            return effect_layer_.GetData(x, y) >= 0; 
+            return effect_layer_.Data(x, y) >= 0; 
         }
 
         public int calDistance(Role r1, Role r2)

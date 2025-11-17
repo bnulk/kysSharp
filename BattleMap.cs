@@ -153,7 +153,7 @@ namespace kysSharp
         ////////////////////////////////////////////////////////////////
         // 拷贝地图层数据
         ////////////////////////////////////////////////////////////////
-        public void CopyLayerData(int battleFieldId, int layer, MapSquare output)
+        public void CopyLayerData(int battleFieldId, int layer, MapSquare<MAP_INT> output)
         {
             if (battleFieldId < 0 || battleFieldId >= battleFieldData2.Count)
                 return;

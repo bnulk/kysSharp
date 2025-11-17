@@ -13,8 +13,8 @@ namespace kysSharp
     public class BattleActionMenu : MenuText
     {
         public Role? role_;
-        public BattleScene? battle_scene_;
-        public MapSquare? distance_layer_;
+        public BattleScene battle_scene_;
+        public MapSquare<MAP_INT> distance_layer_;
 
         public BattleActionMenu()
         {
@@ -22,7 +22,7 @@ namespace kysSharp
             // 构造函数
             /////////////////////////////////////////////////////////////////////////
             setStrings(new List<string> { "移動", "武學", "用毒", "解毒", "醫療", "暗器", "藥品", "等待", "狀態", "自動", "結束" });
-            distance_layer_ = new MapSquare(BattleConstant.BATTLEMAP_COORD_COUNT);
+            distance_layer_ = new MapSquare<MAP_INT>(BattleConstant.BATTLEMAP_COORD_COUNT);
         }
 
         ~BattleActionMenu()

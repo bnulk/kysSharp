@@ -9,7 +9,7 @@ namespace kysSharp
     {
         private static MainScene main_scene_ = new MainScene();
 
-        public MapSquare earth_layer_, surface_layer_, building_layer_, build_x_layer_, build_y_layer_, entrance_layer_;
+        public MapSquare<MAP_INT> earth_layer_, surface_layer_, building_layer_, build_x_layer_, build_y_layer_, entrance_layer_;
 
         public bool data_readed_ = false;
 
@@ -50,11 +50,11 @@ namespace kysSharp
 
             if (!data_readed_)
             {
-                earth_layer_ = new MapSquare(COORD_COUNT);
-                surface_layer_ = new MapSquare(COORD_COUNT);
-                building_layer_ = new MapSquare(COORD_COUNT);
-                build_x_layer_ = new MapSquare(COORD_COUNT);
-                build_y_layer_ = new MapSquare(COORD_COUNT);
+                earth_layer_ = new MapSquare<MAP_INT>(COORD_COUNT);
+                surface_layer_ = new MapSquare<MAP_INT>(COORD_COUNT);
+                building_layer_ = new MapSquare<MAP_INT>(COORD_COUNT);
+                build_x_layer_ = new MapSquare<MAP_INT>(COORD_COUNT);
+                build_y_layer_ = new MapSquare<MAP_INT>(COORD_COUNT);
 
                 int length = COORD_COUNT * COORD_COUNT * sizeof(MAP_INT);
 
@@ -112,20 +112,20 @@ namespace kysSharp
                         //共分3层，地面，表面，建筑，主角包括在建筑中
                         //调试模式下不画出地面，图的数量太多占用CPU很大
 
-                        if (earth_layer_.GetData(ix, iy) > 0)
+                        if (earth_layer_.Data(ix, iy) > 0)
                         {
-                            TextureManager.getInstance().renderTexture("mmap", earth_layer_.GetData(ix, iy), p.x, p.y);
+                            TextureManager.getInstance().renderTexture("mmap", earth_layer_.Data(ix, iy), p.x, p.y);
                         }
 
-                        if (surface_layer_.GetData(ix, iy) > 0)
+                        if (surface_layer_.Data(ix, iy) > 0)
                         {
-                            TextureManager.getInstance().renderTexture("mmap", surface_layer_.GetData(ix, iy), p.x, p.y);
+                            TextureManager.getInstance().renderTexture("mmap", surface_layer_.Data(ix, iy), p.x, p.y);
                         }
 
 
-                        if (building_layer_.GetData(ix, iy) > 0)
+                        if (building_layer_.Data(ix, iy) > 0)
                         {
-                            var t = building_layer_.GetData(ix, iy);
+                            var t = building_layer_.Data(ix, iy);
 
                             //根据图片的宽度计算图的中点, 为避免出现小数, 实际是中点坐标的2倍
                             //次要排序依据是y坐标
@@ -230,11 +230,11 @@ namespace kysSharp
             
         }
 
-        public void Divide2(ref MapSquare m)
+        public void Divide2(ref MapSquare<MAP_INT> m)
         {
-            for (int i = 0; i < m.SquareSize(); i++)
+            for (int i = 0; i < m.SquareSize; i++)
             {
-                m.Data_[i] = (MAP_INT)(m.GetData(i) / 2);
+                m.Data_[i] = (MAP_INT)(m.Data(i) / 2);
             }
         }
 
@@ -345,12 +345,12 @@ namespace kysSharp
         }
         public bool IsBuilding(int x, int y)
         {
-            return (building_layer_.GetData(build_x_layer_.GetData(x, y), build_y_layer_.GetData(x, y)) > 0);
+            return (building_layer_.Data(build_x_layer_.Data(x, y), build_y_layer_.Data(x, y)) > 0);
         }
 
         public bool IsWater(int x, int y)
         {
-            var pic = earth_layer_.GetData(x, y);
+            var pic = earth_layer_.Data(x, y);
             if (pic == 419 || pic >= 306 && pic <= 335)
             {
                 return true;

@@ -3,94 +3,74 @@
 namespace kysSharp.Types
 {
     [Serializable]
-    public class MapSquare
+    public class MapSquare<T>
     {
-        public MAP_INT[]? data_;
-        public MAP_INT line_;
-
-        public MAP_INT[]? Data_ { get => data_; set => data_ = value; }
-        public MAP_INT Line_ { get => line_; set => line_ = value; }
+        public T[] data_;
+        public int line_;
 
         public MapSquare()
         {
-            data_ = new MAP_INT[1];
+            data_ = Array.Empty<T>();
             line_ = 0;
         }
 
         public MapSquare(int size)
         {
-            data_ = new MAP_INT[size * size];
-            line_ = (MAP_INT)size;
+            data_ = new T[size * size];
+            line_ = size;
         }
 
-        //不会保留原始数据
-        public void Resize(int x)
+        // 不保留原始数据，完全等价 C++
+        public void Resize(int size)
         {
-            Data_ = new MAP_INT[x * x];
-            Line_ = (MAP_INT)x;
+            data_ = new T[size * size];
+            line_ = size;
         }
 
-        //原始函数为MAP_INT& data(int x, int y) { return data_[x + line_ * y]; }，接收数据用
-        public void SetData(int x, int y, MAP_INT acceptData)
+        // 和 C++ 一样： data[x + line*y]
+        public ref T Data(int x, int y)
         {
-            data_[x + line_ * y] = acceptData;
+            return ref data_[x + line_ * y];
         }
 
-
-        public MAP_INT GetData(int x, int y)
+        public ref T Data(int index)
         {
-            return data_[x + line_ * y];
+            return ref data_[index];
         }
 
-        public MAP_INT GetData(int x)
+        public int Size => line_;
+        public T[] Data_ => data_;
+
+        public int SquareSize => data_.Length;
+
+        public void SetAll(T value)
         {
-            return data_[x];
+            for (int i = 0; i < data_.Length; i++)
+                data_[i] = value;
         }
 
-        //原始函数为MAP_INT& data(int x) { return data_[x]; }，接收数据用
-        public void SetData(int x, MAP_INT acceptData)
+        public void CopyTo(MapSquare<T> ms)
         {
-            data_[x] = acceptData;
-        }
-        public MAP_INT SetData(int x)
-        {
-            return data_[x];
-        }
+            if (ms.data_.Length != data_.Length)
+                ms.Resize(line_);
 
-        public int Size()
-        {
-            return Line_;
-        }
-
-        public int SquareSize()
-        {
-            return Line_ * Line_;
-        }
-
-        public void SetAll(int v)
-        {
-            Data_ = new MAP_INT[SquareSize()];
-            for (int i = 0; i < SquareSize(); i++)
-            {
-                Data_[i] = (MAP_INT)v;
-            }
-        }
-        public void CopyTo(ref MapSquare ms)
-        {
-            for (int i = 0; i < SquareSize(); i++)
-            {
+            for (int i = 0; i < data_.Length; i++)
                 ms.data_[i] = data_[i];
-            }
         }
-        public void CopyFrom(MapSquare ms)
+
+        public void CopyFrom(MapSquare<T> ms)
         {
-            for (int i = 0; i < SquareSize(); i++)
-            {
+            if (data_.Length != ms.data_.Length)
+                Resize(ms.line_);
+
+            for (int i = 0; i < data_.Length; i++)
                 data_[i] = ms.data_[i];
-            }
         }
+
+
+
+
+
+
     }
-
-
-
 }
