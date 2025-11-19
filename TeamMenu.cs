@@ -1,5 +1,6 @@
 ﻿using kysSharp.Types;
 using SDL;
+using System.Threading;
 
 namespace kysSharp
 {
@@ -117,8 +118,9 @@ namespace kysSharp
                     setExit(true);
                 }
             }
+            
             if (mode_ == 1)
-            {
+            {                
                 foreach (var h in heads_)
                 {
                     if (h.getState() == State.Press)
@@ -133,6 +135,7 @@ namespace kysSharp
                         }
                     }
                 }
+
                 if (button_all_.getState() == State.Press)
                 {
                     //如果已经全选，则是清除
@@ -206,6 +209,25 @@ namespace kysSharp
         }
 
        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     }
 }

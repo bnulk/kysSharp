@@ -13,6 +13,7 @@ namespace kysSharp
         public Head(Role? r = null)
         {
             role_ = r;
+            result_ = -1;
             setTextPosition(20, 65);
             setFontSize(20);
             setTextColor(new SDL_Color() { r = 255, b = 255, g = 255, a = 255 });
@@ -128,12 +129,12 @@ namespace kysSharp
 
         public override void onPressedOK()
         {
-            ExitWithResult(0);
+            //ExitWithResult(0);
         }
 
         public override void onPressedCancel()
         {
-            ExitWithResult(-1);
+            //ExitWithResult(-1);
         }        
 
     }
