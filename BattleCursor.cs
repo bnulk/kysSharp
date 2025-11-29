@@ -5,6 +5,7 @@
 
 using kysSharp;
 using kysSharp.Types;
+using SDL;
 using System;
 
 namespace kysSharp
@@ -45,7 +46,7 @@ namespace kysSharp
         }
 
         private BattleScene battle_scene_ = null;
-        public void SetBattleScene(BattleScene b) => battle_scene_ = b;
+        public void setBattleScene(BattleScene b) => battle_scene_ = b;
 
         ///////////////////////////////////////////////////////////////////////
         // 构造与析构
@@ -66,11 +67,10 @@ namespace kysSharp
             // 在 C# 中由 GC 负责内存释放
         }
 
-        /*
         ///////////////////////////////////////////////////////////////////////
         // 设置角色与法术
         ///////////////////////////////////////////////////////////////////////
-        public void SetRoleAndMagic(Role r, Magic? m = null, int l = 0)
+        public void setRoleAndMagic(Role r, Magic? m = null, int l = 0)
         {
             role_ = r;
             magic_ = m;
@@ -78,48 +78,53 @@ namespace kysSharp
             head_selected_.SetRole(ref r);
         }
 
+        public void setMode(int m) { mode_ = m; }
+
         ///////////////////////////////////////////////////////////////////////
         // 事件分发
         ///////////////////////////////////////////////////////////////////////
-        public override void dealEvent(Event e)
+        public override void dealEvent(SDL_Event e)
         {
             if (battle_scene_ == null) return;
 
             int x = -1, y = -1;
 
-            if (!role_.IsAuto())
+            if (role_ == null)
+                return;
+
+            if (!role_.isAuto())
             {
-                if (e.type == BP_EventType.KEYDOWN)
+                if (e.type == (uint)SDL_EventType.SDL_EVENT_KEY_DOWN)
                 {
-                    int tw = battle_scene_.GetTowardsByKey(e.key.keysym.sym);
+                    int tw = (int)battle_scene_.getTowardsByKey(e.key.key);
 
                     // 线型攻击的特殊处理
                     if (magic_ != null && magic_.AttackAreaType == 1)
                     {
-                        Scene.GetTowardsPosition(role_.X, role_.Y, tw, out x, out y);
+                        Scene.getTowardsPosition(role_.X(), role_.Y(), (Towards)tw, ref x, ref y);
                     }
                     else
                     {
-                        Scene.GetTowardsPosition(
+                        Scene.getTowardsPosition(
                             battle_scene_.select_x_,
                             battle_scene_.select_y_,
-                            tw,
-                            out x, out y
+                            (Towards)tw,
+                            ref x, ref y
                         );
                     }
                 }
-                else if (e.type == BP_EventType.MOUSEMOTION)
+                else if (e.type == (uint)SDL_EventType.SDL_EVENT_MOUSE_MOTION)
                 {
                     if (magic_ != null && magic_.AttackAreaType == 1)
                     {
-                        int tw = battle_scene_.GetTowardsByMouse(e.motion.x, e.motion.y);
-                        Scene.GetTowardsPosition(role_.X, role_.Y, tw, out x, out y);
+                        int tw = (int)battle_scene_.getTowardsByMouse((int)e.motion.x, (int)e.motion.y);
+                        Scene.getTowardsPosition(role_.X(), role_.Y(), (Towards)tw, ref x, ref y);
                     }
                     else
                     {
-                        var p = battle_scene_.GetMousePosition(
-                            e.motion.x, e.motion.y,
-                            role_.X, role_.Y
+                        var p = battle_scene_.getMousePosition(
+                            (int)e.motion.x, (int)e.motion.y,
+                            role_.X(), role_.Y()
                         );
                         x = p.x;
                         y = p.y;
@@ -132,28 +137,28 @@ namespace kysSharp
                 {
                     x = role_.AI_MoveX;
                     y = role_.AI_MoveY;
-                    SetResult(0);
-                    SetExit(true);
+                    setResult(0);
+                    setExit(true);
                 }
                 else if (mode_ == Action)
                 {
                     x = role_.AI_ActionX;
                     y = role_.AI_ActionY;
-                    SetResult(0);
-                    SetExit(true);
+                    setResult(0);
+                    setExit(true);
                 }
             }
 
-            if (battle_scene_.CanSelect(x, y))
+            if (battle_scene_.canSelect(x, y))
             {
-                battle_scene_.SetSelectPosition(x, y);
+                battle_scene_.setSelectPosition(x, y);
 
-                if (head_selected_.GetVisible())
+                if (head_selected_.getVisible())
                 {
-                    head_selected_.SetRole(battle_scene_.role_layer_.Data(x, y));
+                    head_selected_.SetRole(ref battle_scene_.role_layer_.Data(x, y));
                 }
 
-                if (ui_status_.GetVisible())
+                if (ui_status_.getVisible())
                 {
                     ui_status_.SetRole(battle_scene_.role_layer_.Data(x, y));
                 }
@@ -165,7 +170,7 @@ namespace kysSharp
             }
             else if (mode_ == Action)
             {
-                battle_scene_.CalEffectLayer(
+                battle_scene_.calEffectLayer(
                     role_,
                     battle_scene_.select_x_,
                     battle_scene_.select_y_,
@@ -178,7 +183,7 @@ namespace kysSharp
         ///////////////////////////////////////////////////////////////////////
         // 移动事件处理
         ///////////////////////////////////////////////////////////////////////
-        public void DealMoveEvent(BP_Event e)
+        public void dealMoveEvent(SDL_Event e)
         {
             // TODO: 未来实现移动模式下的光标处理逻辑
         }
@@ -186,7 +191,7 @@ namespace kysSharp
         ///////////////////////////////////////////////////////////////////////
         // 攻击事件处理
         ///////////////////////////////////////////////////////////////////////
-        public void DealActionEvent(BP_Event e)
+        public void dealActionEvent(SDL_Event e)
         {
             // TODO: 未来实现攻击模式下的光标处理逻辑
         }
@@ -194,19 +199,24 @@ namespace kysSharp
         ///////////////////////////////////////////////////////////////////////
         // 进入时的初始化
         ///////////////////////////////////////////////////////////////////////
-        public override void OnEntrance()
+        public override void onEntrance()
         {
-            Engine.GetInstance().GetPresentSize(out int w, out int h);
-            head_selected_.SetPosition(w - 400, h - 150);
-            battle_scene_.towards_ = role_.FaceTowards;
+            int w = 0;
+            int h = 0;
+            Engine.getInstance().getPresentSize(ref w, ref h);
+            head_selected_.setPosition(w - 400, h - 150);
+            if(role_!=null)
+            {
+                battle_scene_.towards_ = (Towards)role_.FaceTowards;
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////
         // 按键回调
         ///////////////////////////////////////////////////////////////////////
-        public override void OnPressedOK() => ExitWithResult(0);
-        public override void OnPressedCancel() => ExitWithResult(-1);
-        */
+        public override void onPressedOK() => ExitWithResult(0);
+        public override void onPressedCancel() => ExitWithResult(-1);
+
 
 
 

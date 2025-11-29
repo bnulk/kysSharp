@@ -183,7 +183,7 @@ namespace kysSharp
         /// <param name="tw">人的朝向</param>
         /// <param name="x1">面向一格x</param>
         /// <param name="y1">面向一格y</param>
-        public void getTowardsPosition(int x0, int y0, Towards tw, ref int x1, ref int y1)
+        public static void getTowardsPosition(int x0, int y0, Towards tw, ref int x1, ref int y1)
         {
             if (tw == Towards.None) { return; }
             x1 = x0;

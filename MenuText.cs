@@ -66,7 +66,7 @@ namespace kysSharp
             return -1;
         }
 
-
+        public string getResultString() { return getStringFromResult(result_); }
 
 
 

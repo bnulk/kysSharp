@@ -1,5 +1,6 @@
 ﻿using kysSharp;
 using kysSharp.Types;
+using SDL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,16 +31,15 @@ namespace kysSharp
             distance_layer_ = null;
         }
 
-        public void SetRole(Role r) => role_ = r;
-        public int RunAsRole(Role r)
+        public void setRole(Role r) => role_ = r;
+        public int runAsRole(Role r)
         {
-            SetRole(r);
+            setRole(r);
             return run();
         }
 
-        public void SetBattleScene(BattleScene b) => battle_scene_ = b;
+        public void setBattleScene(BattleScene b) => battle_scene_ = b;
 
-        /*
         /////////////////////////////////////////////////////////////////////////
         // 进入菜单时初始化
         /////////////////////////////////////////////////////////////////////////
@@ -53,36 +53,41 @@ namespace kysSharp
             }
 
             // 移动过则不可移动
-            if (role_?.Moved || role_?.PhysicalPower < 10)
+            if (role_?.Moved!=0 || role_?.PhysicalPower < 10)
                 childs_text_["移動"].setVisible(false);
-            if (role_.GetLearnedMagicCount() <= 0 || role_.PhysicalPower < 20)
+            if (role_?.GetLearnedMagicCount() <= 0 || role_?.PhysicalPower < 20)
                 childs_text_["武學"].setVisible(false);
-            if (role_.UsePoison <= 0 || role_.PhysicalPower < 30)
+            if (role_?.UsePoison <= 0 || role_?.PhysicalPower < 30)
                 childs_text_["用毒"].setVisible(false);
-            if (role_.Detoxification <= 0 || role_.PhysicalPower < 30)
+            if (role_?.Detoxification <= 0 || role_?.PhysicalPower < 30)
                 childs_text_["解毒"].setVisible(false);
-            if (role_.Medcine <= 0 || role_.PhysicalPower < 10)
+            if (role_?.Medcine <= 0 || role_?.PhysicalPower < 10)
                 childs_text_["醫療"].setVisible(false);
-            if (role_.HiddenWeapon <= 15 || role_.PhysicalPower < 10)
+            if (role_?.HiddenWeapon <= 15 || role_?.PhysicalPower < 10)
                 childs_text_["暗器"].setVisible(false);
 
             // 禁用等待
             childs_text_["等待"].setVisible(false);
 
-            SetFontSize(20);
-            Arrange(0, 0, 0, 28);
-            pass_child_ = FindFirstVisibleChild();
-            ForcePassChild();
+            setFontSize(20);
+            arrange(0, 0, 0, 28);
+            pass_child_ = findFirstVisibleChild();
+            forcePassChild();
 
-            // 设置为未计算过AI的行动
-            if (!role_.Moved)
+            ///////////////////////////////////////////////////////////////////////
+            // 若 Moved == 0（未移动），则将 AI_Action 重置为 -1
+            ///////////////////////////////////////////////////////////////////////
+            if (role_?.Moved == 0)
+            {
                 role_.AI_Action = -1;
+            }
         }
 
+        /*
         /////////////////////////////////////////////////////////////////////////
         // 事件响应（AI 或 玩家）
         /////////////////////////////////////////////////////////////////////////
-        public override void DealEvent(BP_Event e)
+        public override void dealEvent(SDL_Event e)
         {
             if (battle_scene_ == null) return;
 
@@ -489,7 +494,6 @@ namespace kysSharp
             return items;
         }
         */
-
 
     }
 }

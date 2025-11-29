@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static kysSharp.GameRandom;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace kysSharp
 {
@@ -60,27 +61,27 @@ namespace kysSharp
             role_layer_ = new MapSquare<Role>(COORD_COUNT);
 
             battle_menu_ = new BattleActionMenu();
-            battle_menu_.SetBattleScene(this);
+            battle_menu_.setBattleScene(this);
             battle_menu_.setPosition(160, 200);
 
             head_self_ = new Head();
             addChild(head_self_);
 
             battle_cursor_ = new BattleCursor();
-            battle_cursor_.SetBattleScene(this);
+            battle_cursor_.setBattleScene(this);
 
             save_ = Save.getInstance();
         }
 
         public BattleScene(int id) : this()
         {
-            SetID(id);
+            setID(id);
         }
 
         /////////////////////////////////////////////////////////////////////////
         // 初始化与绘制逻辑
         /////////////////////////////////////////////////////////////////////////
-        public void SetID(int id)
+        public void setID(int id)
         {
             battle_id_ = id;
             info_ = BattleMap.getInstance().GetBattleInfo(id) ?? new BattleInfo();
@@ -93,6 +94,7 @@ namespace kysSharp
             effect_layer_.SetAll(-1);
         }
 
+        public void setSelectPosition(int x, int y) { select_x_ = x; select_y_ = y; }
         public override void draw()
         {
             Role? r0 = battle_roles_.Count > 0 ? battle_roles_[0] : null;
@@ -113,29 +115,28 @@ namespace kysSharp
                     if (!isOutLine(ix, iy))
                     {
                         int num = earth_layer_.Data(ix, iy) / 2;
-                        SDL_Color color = new SDL_Color() { r=255,g=255,b=255,a=255};
+                        SDL_Color color = new SDL_Color() { r = 255, g = 255, b = 255, a = 255 };
 
-                        /*
-                        if (battle_cursor_.IsRunning() && !r0.IsAuto())
+                        if (battle_cursor_.isRunning() && !r0.isAuto())                   //如果是自动人物没有变暗的选择效果看着太乱
                         {
                             if (select_layer_.Data(ix, iy) < 0)
-                                color = new BP_Color(64, 64, 64, 255);
+                                color = new SDL_Color() { r = 64, g = 64, b = 64, a = 255 };
                             else
-                                color = new BP_Color(128, 128, 128, 255);
+                                color = new SDL_Color() { r = 128, g = 128, b = 128, a = 255 };
 
                             if (battle_cursor_.Mode == BattleCursor.Action)
                             {
-                                if (HaveEffect(ix, iy))
+                                if (haveEffect(ix, iy))
                                 {
-                                    color = CanSelect(ix, iy)
-                                        ? new BP_Color(192, 192, 192, 255)
-                                        : new BP_Color(160, 160, 160, 255);
+                                    color = canSelect(ix, iy)
+                                        ? new SDL_Color() { r = 192, g = 192, b = 182, a = 255 }
+                                        : new SDL_Color() { r = 160, g = 160, b = 160, a = 255 };
                                 }
                             }
                             if (ix == select_x_ && iy == select_y_)
-                                color = new BP_Color(255, 255, 255, 255);
+                                color = new SDL_Color() { r = 255, g = 255, b = 255, a = 255 };
                         }
-                        */
+
 
                         if (num > 0)
                             TextureManager.getInstance().renderTexture("smap", num, p.x, p.y, color);
@@ -143,12 +144,78 @@ namespace kysSharp
                 }
             }
 
-            // 建筑层和人物层绘制略……
+            // 建筑层和人物层绘制
+
+            for (int sum = -view_sum_region_; sum <= view_sum_region_ + 15; sum++)
+            {
+                for (int i = -view_width_region_; i <= view_width_region_; i++)
+                {
+                    int ix = man_x_ + i + (sum / 2);
+                    int iy = man_y_ - i + (sum - sum / 2);
+
+                    var p = getPositionOnRender(ix, iy, man_x_, man_y_);
+                    p.x += x_;
+                    p.y += y_;
+
+                    if (!isOutLine(ix, iy))
+                    {
+                        int num = building_layer_.Data(ix, iy) / 2;
+                        if (num > 0)
+                        {
+                            TextureManager.getInstance().renderTexture("smap", num, p.x, p.y);
+                        }
+
+                        var r = role_layer_.Data(ix, iy);
+                        if (r != null)
+                        {
+                            string path = Path.Combine("fight","fight"+ r.HeadID.ToString("000"));
+
+                            SDL_Color color = new SDL_Color() { r = 255, g = 255, b = 255, a = 255 };
+                            byte alpha = 255;
+
+                            if (battle_cursor_.isRunning() && !r0.isAuto())
+                            {
+                                color = new SDL_Color() { r = 128, g = 128, b = 128, a = 255 };
+                                if (inEffect(r0, r))
+                                {
+                                    color = new SDL_Color() { r = 255, g = 255, b = 255, a = 255 };
+                                }
+                            }
+
+                            int pic = (r == r0)
+                                ? calRolePic(r, action_type_, action_frame_)
+                                : calRolePic(r);
+
+                            if (r.HP <= 0)
+                                alpha = dead_alpha_;
+
+                            TextureManager.getInstance().renderTexture(path, pic, p.x, p.y, color, alpha);
+                        }
+
+                        if (effect_id_ >= 0 && haveEffect(ix, iy))
+                        {
+                            string path = Path.Combine("etf", "etf" + effect_id_.ToString("000"));
+
+                            num = effect_frame_ + RandomClassical.rand(10) - RandomClassical.rand(10);
+
+                            TextureManager.getInstance().renderTexture(
+                                path,
+                                num,
+                                p.x,
+                                p.y,
+                                new SDL_Color() { r = 255, g = 255, b = 255, a = 255 },
+                            224
+                            );
+                        }
+                    }
+                }
+            }
+
             Engine.getInstance().renderAssistTextureToWindow();
         }
 
         //是否输了也有经验
-        public void setHaveFailExp(bool b) { fail_exp_ = b; }    
+        public void setHaveFailExp(bool b) { fail_exp_ = b; }
 
 
         public override void onEntrance()
@@ -274,7 +341,7 @@ namespace kysSharp
             string frameTxt = File.ReadAllText(file);
 
             // 提取所有数字
-            List<int> frames= new List<int>();
+            List<int> frames = new List<int>();
             ConvertLibs.FindNumbers(frameTxt, ref frames);
 
 
@@ -383,9 +450,9 @@ namespace kysSharp
         }
 
         //所在坐标是否有效果
-        public bool haveEffect(int x, int y) 
+        public bool haveEffect(int x, int y)
         {
-            return effect_layer_.Data(x, y) >= 0; 
+            return effect_layer_.Data(x, y) >= 0;
         }
 
         public int calDistance(Role r1, Role r2)
@@ -412,6 +479,742 @@ namespace kysSharp
             // > 0 ：r1 在 r2 后
             return r2.Speed.CompareTo(r1.Speed);
         }
+
+        public bool canSelect(int x, int y)
+        {
+            return !isOutLine(x, y) && select_layer_.Data(x, y) >= 0;
+        }
+
+        public int calRolePic(Role r, int style = -1, int frame = 0)
+        {
+            // 如果该动作没有帧数，则视为无效动作
+            if(style!=-1)
+            {
+                if (r.FightFrame[style] <= 0)
+                {
+                    style = -1;
+                }
+            }            
+
+            // style = -1 ：自动根据 FightFrame 查找第一个有效动作
+            if (style == -1)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    if (r.FightFrame[i] > 0)
+                    {
+                        return r.FightFrame[i] * r.FaceTowards;
+                    }
+                }
+            }
+            else
+            {
+                int total = 0;
+
+                for (int i = 0; i < 5; i++)
+                {
+                    if (i == style)
+                    {
+                        // 找到目标动作：总偏移 + 本动作偏移 + 当前帧
+                        return total + r.FightFrame[style] * r.FaceTowards + frame;
+                    }
+
+                    // 每个动作有 4 个方向，所以偏移为 FightFrame[i] * 4
+                    total += r.FightFrame[i] * 4;
+                }
+            }
+
+            // 没找到动作，直接返回面向方向
+            return r.FaceTowards;
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        // 处理事件：dealEvent
+        // 对应 C++: void BattleScene::dealEvent(BP_Event& e)
+        //
+        // 主要逻辑：
+        // 1. 选择人物数组中的第一个人。
+        // 2. 若该人物已经行动过，则表示所有人都行动过；重置行动状态并重新排序。
+        // 3. 更新人物位置、选中位置以及头像状态。
+        // 4. 调用 action() 处理行动。
+        // 5. 清除死亡角色。
+        // 6. 检测战斗结果，若我方胜利则退出战斗。
+        ///////////////////////////////////////////////////////////////////////
+        public override void dealEvent(SDL_Event e)
+        {
+            // 选择位于人物数组中的第一个人
+            var r = battle_roles_[0];
+
+            // 若第一个人已经行动过，说明所有人都行动过，则重置并排序
+            if (r.Acted != 0)
+            {
+                resetRolesAct();
+                sortRoles();
+                r = battle_roles_[0];
+            }
+
+            // 定位
+            man_x_ = r.X();
+            man_y_ = r.Y();
+            select_x_ = r.X();
+            select_y_ = r.Y();
+            head_self_.SetRole(ref r);
+            head_self_.setState(State.Pass);
+
+            // 行动
+            action(r);
+
+            // 清除被击退/死亡人物
+            clearDead();
+
+            // 检测战斗结果
+            int battle_result = checkResult();
+
+            // 我方胜 >= 0
+            if (battle_result >= 0)
+            {
+                result_ = battle_result;
+                setExit(true);
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        // 处理事件：dealEvent2
+        // 对应 C++: void BattleScene::dealEvent2(BP_Event& e)
+        //
+        // 逻辑：
+        // 若检测到取消按键，则将我方队伍 Team == 0 的角色 Auto 标记清除。
+        ///////////////////////////////////////////////////////////////////////
+        public override void dealEvent2(SDL_Event e)
+        {
+            if (isPressCancel(e))
+            {
+                foreach (var r in battle_roles_)
+                {
+                    if (r.Team == 0)
+                    {
+                        r.Auto = 0;
+                    }
+                }
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        // 重置所有角色的行动状态：ResetRolesAct
+        // 对应 C++: void BattleScene::resetRolesAct()
+        //
+        // 功能说明：
+        // 1. 将 Acted 设为 0 —— 表示未行动。
+        // 2. 将 Moved 设为 0 —— 表示未移动。
+        // 3. 调用 r.SetPosition(r.X(), r.Y()) —— 重新确认当前位置，通常用于触发
+        //    内部更新（如网格刷新、碰撞刷新或内部状态重建）。
+        ///////////////////////////////////////////////////////////////////////
+        public void resetRolesAct()
+        {
+            foreach (var r in battle_roles_)
+            {
+                r.Acted = 0;
+                r.Moved = 0;
+
+                // C++: r->setPosition(r->X(), r->Y());
+                r.SetPosition(r.X(), r.Y());
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        // 行动主控：Action
+        // 对应 C++：void BattleScene::action(Role* r)
+        //
+        // 整体流程：
+        // 1. 调用 battle_menu_ 以角色身份运行，得到用户选择结果（字符串）。
+        // 2. 根据字符串分支执行不同的行动逻辑。
+        // 3. 如果此角色成功进行了一次行动(Acted != 0)，则将其移到队列末尾，
+        //    并触发 poisonEffect(r)。
+        //
+        // 说明：
+        // 原代码使用字符串进行判断（例如 "移動"、"武學" 等），C# 版本保持一致。
+        // 如果之后需要优化，可以改为 enum，但当前严格保持原逻辑。
+        ///////////////////////////////////////////////////////////////////////
+        public void action(Role r)
+        {
+            // C++：battle_menu_->runAsRole(r);
+            battle_menu_.runAsRole(r);
+
+            // C++：std::string str = battle_menu_->getResultString();
+            string str = battle_menu_.getResultString();
+
+            ///////////////////////////////////////////////////////////////////////
+            // 根据返回字符串决定行动
+            ///////////////////////////////////////////////////////////////////////
+            switch (str)
+            {
+                case "移動": actMove(r); break;
+                //case "武學": actUseMagic(r); break;
+                //case "用毒": actUsePoison(r); break;
+                //case "解毒": actDetoxification(r); break;
+                //case "醫療": actMedicine(r); break;
+                //case "暗器": actUseHiddenWeapon(r); break;
+                //case "藥品": actUseDrug(r); break;
+                //case "等待": actWait(r); break;
+                //case "狀態": actStatus(r); break;
+                case "自動": actAuto(r); break;
+                case "結束": actRest(r); break;
+            }
+
+            ///////////////////////////////////////////////////////////////////////
+            // 若此角色完成行动，则放到队尾（保持轮转机制与原 C++ 相同）
+            ///////////////////////////////////////////////////////////////////////
+            if (r.Acted != 0)
+            {
+                // C++:
+                // battle_roles_.erase(battle_roles_.begin());
+                // battle_roles_.push_back(r);
+
+                var first = battle_roles_[0];
+                battle_roles_.RemoveAt(0);
+                battle_roles_.Add(first);
+
+                // C++：poisonEffect(r);
+                poisonEffect(r);
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        // 中毒效果：PoisonEffect
+        // 对应 C++：void BattleScene::poisonEffect(Role* r)
+        //
+        // 功能说明：
+        // 1. 对角色 r 的中毒状态进行处理。
+        // 2. 抗毒值（AntiPoison）会自动减少中毒值。
+        // 3. 中毒值限制在 0~MAX_POISON 之间。
+        // 4. HP 会扣除中毒值的三分之一，但最低保留 1 点血。
+        ///////////////////////////////////////////////////////////////////////
+        public void poisonEffect(Role r)
+        {
+            if (r != null)
+            {
+                // 抗毒高者会自动解毒
+                r.Poison -= r.AntiPoison;
+
+                // 限制中毒值在 [0, MAX_POISON] 之间
+                GameUtil.limit2(ref r.Poison, 0, Constant.MAX_POISON);
+
+                // 扣除血量
+                r.HP -= r.Poison / 3;
+
+                // 最低扣到1点
+                if (r.HP < 1)
+                {
+                    r.HP = 1;
+                }
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        // 清理死亡角色：ClearDead
+        // 对应 C++：void BattleScene::clearDead()
+        //
+        // 功能说明：
+        // 1. 检查是否存在 HP <= 0 的角色。
+        // 2. 若存在，则播放退场渐隐动画（alpha 从 255 降到 0）。
+        // 3. 将死亡角色从 battle_roles_ 中移除，并把其坐标设置为 (-1, -1)。
+        // 4. 保留所有存活角色。
+        ///////////////////////////////////////////////////////////////////////
+        public void clearDead()
+        {
+            // 判断是否有人死亡
+            bool foundDead = false;
+            foreach (var r in battle_roles_)
+            {
+                if (r.HP <= 0)
+                {
+                    foundDead = true;
+                    break;
+                }
+            }
+
+            if (!foundDead)
+                return;
+
+            // 退场动画，逐步降低 dead_alpha_
+            for (int i = 0; i <= 25; i++)
+            {
+                dead_alpha_ = (byte)(255 - i * 10);
+                if (dead_alpha_ < 0)
+                    dead_alpha_ = 0;
+
+                drawAndPresent(animation_delay_);
+            }
+
+            // 动画结束，重置 alpha
+            dead_alpha_ = 255;
+
+            // 保留存活角色，并把死亡角色移除
+            var alive = new List<Role>();
+
+            foreach (var r in battle_roles_)
+            {
+                if (r.HP > 0)
+                {
+                    alive.Add(r);
+                }
+                else
+                {
+                    // 死亡角色移到地图外
+                    r.SetPosition(-1, -1);
+                }
+            }
+
+            battle_roles_ = alive;
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        // 检查战斗结果：CheckResult
+        //
+        // 对应 C++：int BattleScene::checkResult()
+        //
+        // 功能说明：
+        // 1. 检查是否有一方全灭。
+        // 2. 返回值含义：
+        //    - 返回 0  → 我方胜（team == 0 全体存活）
+        //    - 返回 1  → 敌方胜（team == 0 全灭）
+        //    - 返回 -1 → 胜负未分
+        //
+        // 判断逻辑说明：
+        // team0 = 我方存活人数
+        // battle_roles_.Count = 当前战场总存活人数
+        //
+        // 如果我方人数 == 总人数，则说明全是我方 → 我方胜。
+        // 如果我方人数 == 0，则我方全灭 → 敌方胜。
+        // 否则战斗继续。
+        ///////////////////////////////////////////////////////////////////////
+        public int checkResult()
+        {
+            int team0 = getTeamMateCount(0);
+
+            if (team0 == battle_roles_.Count)
+                return 0;   // 我方胜利
+
+            if (team0 == 0)
+                return 1;   // 敌方胜利
+
+            return -1;       // 胜负未分，继续战斗
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        // 获取指定队伍人数：GetTeamMateCount
+        //
+        // 对应 C++：int BattleScene::getTeamMateCount(int team)
+        //
+        // 功能说明：
+        // 统计 battle_roles_ 中属于指定队伍 team 的人物数量。
+        // team 示例：
+        //   0 → 我方
+        //   1 → 敌方
+        //
+        // 实现逻辑：
+        // 遍历角色列表，判断 r.Team 是否等于 team，
+        // 若相等则计数器加 1。
+        ///////////////////////////////////////////////////////////////////////
+        public int getTeamMateCount(int team)
+        {
+            int count = 0;
+
+            foreach (var r in battle_roles_)
+            {
+                if (r.Team == team)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        public void actAuto(Role r)
+        {
+            foreach (var role in battle_roles_)
+            {
+                role.Auto = 1;
+            }
+        }
+
+        public void actRest(Role r)
+        {
+            if (r?.Moved == 0)
+            {
+                r.PhysicalPower = GameUtil.limit(r.PhysicalPower + 5, 0, Constant.MAX_PHYSICAL_POWER);
+                r.HP = GameUtil.limit(r.HP + (int)(0.05 * r.MaxHP), 0, r.MaxHP);
+                r.MP = GameUtil.limit(r.MP + (int)(0.05 * r.MaxMP), 0, r.MaxMP);
+            }
+
+            if (r != null)
+                r.Acted = 1;
+        }
+
+        public void actMove(Role r)
+        {
+            if (r == null)
+                return;
+
+            int step = calMoveStep(r);
+            calSelectLayer(r, 0, step);
+
+            battle_cursor_.setRoleAndMagic(r);
+            battle_cursor_.setMode(BattleCursor.Move);
+
+            // run() == 0 表示成功执行移动
+            if (battle_cursor_.run() == 0)
+            {
+                r.PhysicalPower = GameUtil.limit(r.PhysicalPower - 2, 0, Constant.MAX_PHYSICAL_POWER);
+
+                // 保存移动前的位置
+                r.SetPrevPosition(r.X(), r.Y());
+
+                // 执行动画：从旧位置到 select_x_/select_y_
+                moveAnimation(r, select_x_, select_y_);
+
+                // Moved = 1 表示“已经移动过”
+                r.Moved = 1;
+            }
+        }
+
+        /// <summary>
+        /// 计算可移动步数(考虑装备)
+        /// </summary>
+        /// <param name="r">角色</param>
+        /// <returns></returns>
+        public int calMoveStep(Role r)
+        {
+            if (r == null)
+                return 0;
+
+            // 如果已经移动过，则不可再移动
+            if (r.Moved != 0)
+                return 0;
+
+            int speed = r.Speed;
+
+            // 装备 0
+            if (r.Equip0 >= 0)
+            {
+                var item0 = Save.getInstance().GetItem(r.Equip0);
+                speed += item0.AddSpeed;
+            }
+
+            // 装备 1
+            if (r.Equip1 >= 0)
+            {
+                var item1 = Save.getInstance().GetItem(r.Equip1);
+                speed += item1.AddSpeed;
+            }
+
+            // 原版公式：speed / 15 + 1
+            return speed / 15 + 1;
+        }
+
+        public void calSelectLayer(int x, int y, int team, int mode, int step = 0)
+        {
+            if (mode == 0)
+            {
+                select_layer_.SetAll(-1);
+
+                List<Point> calStack = new List<Point>();
+                select_layer_.Data(x, y) = (short)step;  // 正确写法
+
+                calStack.Add(new Point(x, y));
+
+                int count = 0;
+
+                while (step >= 0)
+                {
+                    List<Point> nextStack = new List<Point>();
+
+                    void CheckNext(Point p1)
+                    {
+                        // 未计算过且可以走
+                        if (select_layer_.Data(p1.x, p1.y) == -1 && canWalk(p1.x, p1.y))
+                        {
+                            select_layer_.Data(p1.y, p1.y) = (short)(step - 1);
+                            nextStack.Add(p1);
+                            count++;
+                        }
+                    }
+
+                    foreach (var p in calStack)
+                    {
+                        // 若在敌方旁边，但不是起点 — 则不向外扩散
+                        if (!isNearEnemy(team, p.x, p.y) || (p.x == x && p.y == y))
+                        {
+                            CheckNext(new Point(p.x - 1, p.y));
+                            CheckNext(new Point(p.x + 1, p.y));
+                            CheckNext(new Point(p.x, p.y - 1));
+                            CheckNext(new Point(p.x, p.y + 1));
+                        }
+
+                        // 计算上限，避免无限循环
+                        if (count >= COORD_COUNT * COORD_COUNT)
+                            break;
+                    }
+
+                    if (nextStack.Count == 0)
+                        break;
+
+                    calStack = nextStack;
+                    step--;
+                }
+            }
+            else if (mode == 1)
+            {
+                for (int ix = 0; ix < COORD_COUNT; ix++)
+                {
+                    for (int iy = 0; iy < COORD_COUNT; iy++)
+                    {
+                        select_layer_.Data(ix, iy) = (short)(step - calDistance(ix, iy, x, y));
+                    }
+                }
+            }
+            else if (mode == 2)
+            {
+                select_layer_.SetAll(0);
+            }
+            else if (mode == 3)
+            {
+                for (int ix = 0; ix < COORD_COUNT; ix++)
+                {
+                    for (int iy = 0; iy < COORD_COUNT; iy++)
+                    {
+                        int dx = Math.Abs(ix - x);
+                        int dy = Math.Abs(iy - y);
+
+                        if ((dx == 0 && dy <= step) ||
+                            (dy == 0 && dx <= step))
+                        {
+                            select_layer_.Data(ix, iy) = 0;
+                        }
+                        else
+                        {
+                            select_layer_.Data(ix, iy) = -1;
+                        }
+                    }
+                }
+
+                select_layer_.Data(x, y) = -1; // 原位禁止移动
+            }
+            else
+            {
+                select_layer_.SetAll(-1);
+            }
+        }
+
+        public void calSelectLayer(Role r, int mode, int step = 0)
+        {
+            if (r == null)
+                return;
+
+            calSelectLayer(r.X(), r.Y(), r.Team, mode, step);
+        }
+
+        public void walk(Role r, int x, int y, Towards t)
+        {
+            if (canWalk(x, y))
+            {
+                r.SetPosition(x, y);
+            }
+        }
+
+        public override bool canWalk(int x, int y)
+        {
+            if (isOutLine(x, y) || isBuilding(x, y) || isWater(x, y) || isRole(x, y))
+                return false;
+
+            return true;
+        }
+
+        public bool isBuilding(int x, int y)
+        {
+            return building_layer_.Data(x, y) > 0;
+        }
+
+        public bool isWater(int x, int y)
+        {
+            int num = earth_layer_.Data(x, y) / 2;
+
+            if ((num >= 179 && num <= 181) ||
+                num == 261 || num == 511 ||
+                (num >= 662 && num <= 665) ||
+                num == 674)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool isRole(int x, int y)
+        {
+            return role_layer_.Data(x, y) != null;
+        }
+
+        public override bool isOutScreen(int x, int y)
+        {
+            return (Math.Abs(man_x_ - x) >= 16 || Math.Abs(man_y_ - y) >= 20);
+        }
+
+        public bool isNearEnemy(int team, int x, int y)
+        {
+            foreach (var r1 in battle_roles_)
+            {
+                if (team != r1.Team && calDistance(r1.X(), r1.Y(), x, y) <= 1)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public void moveAnimation(Role r, int x, int y)
+        {
+            if (r == null)
+                return;
+
+            // 从目标格开始往回回溯路径
+            List<Point> way = new List<Point>();
+
+            // 局部函数，等价于 C++ 的 lambda（捕获外部变量 way）
+            bool CheckNext(Point p1, int step)
+            {
+                if (canSelect(p1.x, p1.y) &&
+                    select_layer_.Data(p1.x, p1.y) == (short)step)
+                {
+                    way.Add(p1);
+                    return true;
+                }
+                return false;
+            }
+
+            // ① 将终点加入路径
+            way.Add(new Point(x, y));
+
+            // 起点步数
+            int startStep = select_layer_.Data(r.X(), r.Y());
+            // 终点步数
+            int endStep = select_layer_.Data(x, y);
+
+            // ② 从终点逐步反向往起点回溯
+            for (int step = endStep; step < startStep; step++)
+            {
+                int cx = way[way.Count - 1].x;
+                int cy = way[way.Count - 1].y;
+
+                // 四方向寻找下一个点
+                if (CheckNext(new Point(cx - 1, cy), step + 1)) continue;
+                if (CheckNext(new Point(cx + 1, cy), step + 1)) continue;
+                if (CheckNext(new Point(cx, cy - 1), step + 1)) continue;
+                if (CheckNext(new Point(cx, cy + 1), step + 1)) continue;
+            }
+
+            // ③ 反向播放移动动画（倒序 way）
+            for (int i = way.Count - 2; i >= 0; i--)
+            {
+                Point p = way[i];
+
+                // 设置朝向
+                r.FaceTowards = (int)calTowards(r.X(), r.Y(), p.x, p.y);
+
+                // 设置位置
+                r.SetPosition(p.x, p.y);
+
+                // 每步呈现
+                drawAndPresent(2);
+            }
+
+            // 最终位置
+            r.SetPosition(x, y);
+            r.Moved = 1;
+
+            // 清空选中层
+            select_layer_.SetAll(-1);
+        }
+
+        public void calEffectLayer(Role r, int selectX, int selectY, Magic m = null, int levelIndex = 0)
+        {
+            calEffectLayer(r.X(), r.Y(), selectX, selectY, m, levelIndex);
+        }
+
+        public void calEffectLayer(int x, int y, int selectX, int selectY, Magic m = null, int levelIndex = 0)
+        {
+            effect_layer_.SetAll(-1);
+
+            // 若无武学（m == null）或 AttackAreaType == 0，则只选择 selectX, selectY 这一点
+            if (m == null || m.AttackAreaType == 0)
+            {
+                effect_layer_.Data(selectX, selectY) = 0;
+                return;
+            }
+
+            // AttackAreaType == 1 ：方向型直线攻击
+            if (m.AttackAreaType == 1)
+            {
+                int tw = (int)calTowards(x, y, selectX, selectY);
+                int dis = m.SelectDistance[levelIndex];
+
+                for (int ix = x - dis; ix <= x + dis; ix++)
+                {
+                    for (int iy = y - dis; iy <= y + dis; iy++)
+                    {
+                        if (!isOutLine(ix, iy) &&
+                            (x == ix || y == iy) &&
+                            (int)calTowards(x, y, ix, iy) == tw)
+                        {
+                            effect_layer_.Data(ix, iy) = 0;
+                        }
+                    }
+                }
+            }
+            // AttackAreaType == 2 ：十字攻击
+            else if (m.AttackAreaType == 2)
+            {
+                int dis = m.SelectDistance[levelIndex];
+
+                for (int ix = x - dis; ix <= x + dis; ix++)
+                {
+                    for (int iy = y - dis; iy <= y + dis; iy++)
+                    {
+                        if (!isOutLine(ix, iy) &&
+                            (x == ix || y == iy))
+                        {
+                            effect_layer_.Data(ix, iy) = 0;
+                        }
+                    }
+                }
+            }
+            // AttackAreaType == 3 ：圆形区域攻击（以 selectX, selectY 为中心）
+            else if (m.AttackAreaType == 3)
+            {
+                int dis = m.AttackDistance[levelIndex];
+
+                for (int ix = selectX - dis; ix <= selectX + dis; ix++)
+                {
+                    for (int iy = selectY - dis; iy <= selectY + dis; iy++)
+                    {
+                        if (!isOutLine(ix, iy))
+                        {
+                            effect_layer_.Data(ix, iy) = 0;
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+
 
 
 

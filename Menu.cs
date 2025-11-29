@@ -71,7 +71,7 @@ namespace kysSharp
 
         public override void onEntrance()
         {
-            pass_child_ = findFristVisibleChild();
+            pass_child_ = findFirstVisibleChild();
             forcePassChild();
         }
 
@@ -79,7 +79,6 @@ namespace kysSharp
         {
             exitWithResult(-1);
         }
-
 
 
 

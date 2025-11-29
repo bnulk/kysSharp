@@ -229,7 +229,7 @@ namespace kysSharp
             return i0;
         }
 
-        public int findFristVisibleChild()
+        public int findFirstVisibleChild()
         {
             for (int i = 0; i < childs_.Count; i++)
             {
