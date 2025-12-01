@@ -129,7 +129,7 @@ namespace kysSharp
                                 if (haveEffect(ix, iy))
                                 {
                                     color = canSelect(ix, iy)
-                                        ? new SDL_Color() { r = 192, g = 192, b = 182, a = 255 }
+                                        ? new SDL_Color() { r = 192, g = 192, b = 192, a = 255 }
                                         : new SDL_Color() { r = 160, g = 160, b = 160, a = 255 };
                                 }
                             }
@@ -879,6 +879,18 @@ namespace kysSharp
             }
         }
 
+
+        /// <summary>
+        /// 依据能力值计算行动的范围步数
+        /// </summary>
+        /// <param name="ability">能力值</param>
+        /// <returns></returns>
+        public int calActionStep(int ability)
+        { 
+            return ability / 15 + 1; 
+        }
+
+
         /// <summary>
         /// 计算可移动步数(考虑装备)
         /// </summary>
@@ -913,6 +925,31 @@ namespace kysSharp
             return speed / 15 + 1;
         }
 
+        public void calSelectLayerByMagic(int x, int y, int team, Magic magic, int levelIndex)
+        {
+            int dis = magic.SelectDistance[levelIndex];
+
+            switch (magic.AttackAreaType)
+            {
+                case 0:
+                case 3:
+                    // 与 C++：calSelectLayer(x, y, team, 1, dis)
+                    calSelectLayer(x, y, team, 1, dis);
+                    break;
+
+                case 1:
+                    // 与 C++：calSelectLayer(x, y, team, 3, dis)
+                    calSelectLayer(x, y, team, 3, dis);
+                    break;
+
+                default:
+                    // 与 C++：calSelectLayer(x, y, team, 4, dis)
+                    calSelectLayer(x, y, team, 4, dis);
+                    break;
+            }
+        }
+
+
         public void calSelectLayer(int x, int y, int team, int mode, int step = 0)
         {
             if (mode == 0)
@@ -935,7 +972,7 @@ namespace kysSharp
                         // 未计算过且可以走
                         if (select_layer_.Data(p1.x, p1.y) == -1 && canWalk(p1.x, p1.y))
                         {
-                            select_layer_.Data(p1.y, p1.y) = (short)(step - 1);
+                            select_layer_.Data(p1.x, p1.y) = (short)(step - 1);
                             nextStack.Add(p1);
                             count++;
                         }
@@ -1014,6 +1051,126 @@ namespace kysSharp
 
             calSelectLayer(r.X(), r.Y(), r.Team, mode, step);
         }
+
+        /////////////////////////////////////////////////////////////////////////
+        // r1 使用武学 magic 攻击 r2 的伤害（返回正值）
+        /////////////////////////////////////////////////////////////////////////
+        public int calMagicHurt(Role r1, Role r2, Magic magic)
+        {
+            int levelIndex = Save.getInstance().GetRoleLearnedMagicLevelIndex(ref r1, ref magic);
+
+            int attack = r1.Attack + magic.Attack[levelIndex] / 3;
+            int defence = r2.Defence;
+
+            // 装备加成
+            if (r1.Equip0 >= 0)
+            {
+                var i = Save.getInstance().GetItem(r1.Equip0);
+                attack += i.AddAttack;
+            }
+            if (r1.Equip1 >= 0)
+            {
+                var i = Save.getInstance().GetItem(r1.Equip1);
+                attack += i.AddAttack;
+            }
+            if (r2.Equip0 >= 0)
+            {
+                var i = Save.getInstance().GetItem(r2.Equip0);
+                defence += i.AddDefence;
+            }
+            if (r2.Equip1 >= 0)
+            {
+                var i = Save.getInstance().GetItem(r2.Equip1);
+                defence += i.AddDefence;
+            }
+
+            // 基础伤害
+            int v = attack - defence;
+
+            // 距离衰减
+            int dis = calDistance(r1, r2);
+            double decay = Math.Exp((dis - 1) / 10.0);
+            v = (int)(v / decay);
+
+            // 随机扰动
+            v += GameRandom.RandomClassical.rand(10) - GameRandom.RandomClassical.rand(10);
+
+            // 最低伤害：如果 <10，则 1~10
+            if (v < 10)
+            {
+                v = 1 + GameRandom.RandomClassical.rand(10);
+            }
+
+            return v;
+        }
+
+        /////////////////////////////////////////////////////////////////////////
+        // r 使用武学 m 对所有敌人造成伤害
+        // simulation == true  → 仅模拟，用于 AI 评分
+        /////////////////////////////////////////////////////////////////////////
+        public int calMagicHurtAllEnemies(Role r, Magic m, bool simulation)
+        {
+            int total = 0;
+
+            foreach (var r2 in battle_roles_)
+            {
+                // 目标必须：不是同队 & 在效果层内
+                if (r2.Team != r.Team && haveEffect(r2.X(), r2.Y()))
+                {
+                    int hurt = calMagicHurt(r, r2, m);
+
+                    if (!simulation)
+                    {
+                        // 显示伤害文字
+                        r2.ShowString = $"-{hurt}";
+                        r2.ShowColor = new int[4] {255, 0, 0, 255 };
+
+                        // 扣血
+                        r2.HP = GameUtil.limit(r2.HP - hurt, 0, r2.MaxHP);
+
+                        // 经验奖励（与原版一致）
+                        r.ExpGot += hurt / 10;
+                    }
+                    else
+                    {
+                        // AI 模拟时：如果能打死，算 1.25×HP 的收益（与原版完全一致）
+                        if (hurt >= r2.HP)
+                        {
+                            hurt = (int)(1.25 * r2.HP);
+                        }
+                    }
+
+                    total += hurt;
+                }
+            }
+            return total;
+        }
+
+
+        public int calHiddenWeaponHurt(Role r1, Role r2, Item item)
+        {
+            // v = r1->HiddenWeapon - item->AddHP;
+            int v = r1.HiddenWeapon - item.AddHP;
+
+            // 计算距离
+            int dis = calDistance(r1, r2);
+
+            // v = v / exp((dis - 1) / 10)
+            double decay = Math.Exp((dis - 1) / 10.0);
+            v = (int)(v / decay);
+
+            // 随机扰动：相当于 rand(10) - rand(10);
+            v += GameRandom.RandomClassical.rand(10) - GameRandom.RandomClassical.rand(10);
+
+            // v < 1 则 v = 1
+            if (v < 1)
+                v = 1;
+
+            return v;
+        }
+
+
+
 
         public void walk(Role r, int x, int y, Towards t)
         {

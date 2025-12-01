@@ -3,7 +3,7 @@ using kysSharp.Types;
 
 namespace kysSharp
 {
-    class UIItem : Element
+    public class UIItem : Element
     {
         //这里注意，用来显示物品图片的按钮的纹理编号实际就是物品编号
         public Button[] item_buttons_;

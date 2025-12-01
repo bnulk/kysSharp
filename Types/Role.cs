@@ -30,8 +30,8 @@ namespace kysSharp.Types
         public int AI_Action = 0;
         public int AI_MoveX, AI_MoveY;
         public int AI_ActionX, AI_ActionY;
-        public Magic AI_Magic = new Magic();
-        public Item AI_Item = new Item();
+        public Magic? AI_Magic = new Magic();
+        public Item? AI_Item = new Item();
 
         public Role()
         {
@@ -44,6 +44,8 @@ namespace kysSharp.Types
 
         public void SetPoitionLayer(MapSquare<Role> l) { position_layer_ = l; }
 
+
+        public void SetPositionOnly(int x, int y) { X_ = x; Y_ = y; }
 
         //设置人物坐标，若输入值为负，相当于从人物层清除
         public void SetPosition(int x, int y)
