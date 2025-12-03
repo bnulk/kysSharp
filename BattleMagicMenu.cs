@@ -25,6 +25,12 @@ namespace kysSharp
             setPosition(160, 200);
         }
 
+        public void setRole(Role r) { role_ = r; }
+        public int runAsRole(Role r) { setRole(r); return run(); }
+
+        public Magic getMagic() { return magic_; }
+
+
         public override void dealEvent(SDL_Event e)
         {
             if (role_ == null) return;

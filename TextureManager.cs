@@ -55,7 +55,7 @@ namespace kysSharp
             }
         }
 
-        public void renderTexture(string path, int num, int x, int y, SDL_Color c=default, byte alpha=255, double zoom_x=1, double zoom_y = 1)
+        public void renderTexture(string path, int num, int x, int y, SDL_Color c = default, byte alpha = 255, double zoom_x = 1, double zoom_y = 1)
         {
             // 如果调用时没传 c，它就是 {0,0,0,0}。改为默认白色
             if (c.r == 0 && c.g == 0 && c.b == 0 && c.a == 0)
@@ -73,7 +73,7 @@ namespace kysSharp
             List<Texture>? v = new List<Texture>();
             Texture tmpTex = new Texture();
 
-            if (texture_manager_!=null && texture_manager_.map_ != null && texture_manager_.map_.ContainsKey(path))
+            if (texture_manager_ != null && texture_manager_.map_ != null && texture_manager_.map_.ContainsKey(path))
             {
                 v = texture_manager_.map_[path];
             }
@@ -111,7 +111,15 @@ namespace kysSharp
         {
             if (texture_manager_ != null)
             {
-                var v = texture_manager_.map_[path];
+                if (texture_manager_.map_.TryGetValue(path, out var v))
+                {
+                    // v 是 List<Texture>
+                    // 在这里安全使用 v
+                }
+                else
+                {
+                    v= new List<Texture>();
+                }
 
                 if (v.Count == 0)
                 {
@@ -139,14 +147,25 @@ namespace kysSharp
                 return;
             }
 
-            var v = texture_manager_.map_[path];
+            //纹理组信息
+            //不存在的纹理组也会有一个List存在，但是里面只有一个空列表
+            if (texture_manager_.map_.TryGetValue(path, out var v))
+            {
+                // v 是 List<Texture>
+                // 在这里安全使用 v
+            }
+            else
+            {
+                v = new List<Texture>();
+            }
+
             //纹理组信息
             //不存在的纹理组也会有一个vector存在，但是里面只有一个空指针
             if (v.Count == 0)
             {
                 short[] s;                 //两个字节，不同于C++中的char一字节。后期对比再看。
                 int l = 0;
-                GameFile.readFile(Path.Combine(p , "index.ka"), out s, out l);                       //读坐标dx和dy的文件index.ka
+                GameFile.readFile(Path.Combine(p, "index.ka"), out s, out l);                       //读坐标dx和dy的文件index.ka
                 l /= 4;
                 if (l == 0)
                 {
@@ -173,7 +192,7 @@ namespace kysSharp
                 var engine = Engine.getInstance();
                 for (int i = 0; i < v.Count; i++)
                 {
-                    Texture texture= new Texture();
+                    Texture texture = new Texture();
                     loadTexture2(path, i, ref texture);
                     v[i] = texture;
                 }
@@ -183,11 +202,11 @@ namespace kysSharp
         private void loadTexture2(string path, int num, ref Texture t)
         {
             var p = Path.Combine(path_, path);
-            if (t.loaded== false)
+            if (t.loaded == false)
             {
                 //printf("Load texture %s, %d\n", p.c_str(), num);
-                t.tex[0] = Engine.getInstance().loadImage(Path.Combine(p, num.ToString()+".png"));
-                if (t.tex[0]!=null)
+                t.tex[0] = Engine.getInstance().loadImage(Path.Combine(p, num.ToString() + ".png"));
+                if (t.tex[0] != null)
                 {
 
                 }
@@ -195,8 +214,8 @@ namespace kysSharp
                 {
                     for (int i = 0; i < 10; i++)
                     {
-                        t.tex[i] = Engine.getInstance().loadImage(Path.Combine(p ,num.ToString()+"_" +i.ToString() + ".png"));
-                        if (t.tex[i]==null)
+                        t.tex[i] = Engine.getInstance().loadImage(Path.Combine(p, num.ToString() + "_" + i.ToString() + ".png"));
+                        if (t.tex[i] == null)
                         {
                             t.count = i;
                             break;

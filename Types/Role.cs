@@ -1,4 +1,5 @@
-﻿
+﻿using SDL;
+
 namespace kysSharp.Types
 {
     /// <summary>
@@ -20,7 +21,7 @@ namespace kysSharp.Types
         public int ActTeam;  //选择行动阵营 0-我方，1-非我方，画效果层时有效
 
         public string ShowString = "";
-        public int[] ShowColor = new int[4];
+        public SDL_Color ShowColor = new SDL_Color();
 
         public MapSquare<Role> position_layer_ = new MapSquare<Role>();
 

@@ -55,7 +55,7 @@ namespace kysSharp
         }
 
 
-        public void draw(string text, int size, int x, int y, SDL_Color color)
+        public void draw(string text, int size, int x, int y, SDL_Color color, byte alpha=255)
         {
             int p = 0;
             while (p < text.Length)

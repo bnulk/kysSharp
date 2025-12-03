@@ -1,10 +1,13 @@
 ﻿using kysSharp;
 using kysSharp.Types;
+using Microsoft.VisualBasic;
 using SDL;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using static kysSharp.GameRandom;
+using static System.Net.Mime.MediaTypeNames;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace kysSharp
@@ -194,7 +197,7 @@ namespace kysSharp
 
                         if (effect_id_ >= 0 && haveEffect(ix, iy))
                         {
-                            string path = Path.Combine("etf", "etf" + effect_id_.ToString("000"));
+                            string path = Path.Combine("eft", "eft" + effect_id_.ToString("000"));
 
                             num = effect_frame_ + RandomClassical.rand(10) - RandomClassical.rand(10);
 
@@ -649,7 +652,7 @@ namespace kysSharp
             switch (str)
             {
                 case "移動": actMove(r); break;
-                //case "武學": actUseMagic(r); break;
+                case "武學": actUseMagic(r); break;
                 //case "用毒": actUsePoison(r); break;
                 //case "解毒": actDetoxification(r); break;
                 //case "醫療": actMedicine(r); break;
@@ -678,6 +681,227 @@ namespace kysSharp
                 poisonEffect(r);
             }
         }
+
+        public void actUseMagic(Role r)
+        {
+            var magicMenu = new BattleMagicMenu();
+
+            while (true)
+            {
+                magicMenu.runAsRole(r);
+                var magic = magicMenu.getMagic();
+
+                if (magic == null)
+                {
+                    break;
+                }
+
+                r.ActTeam = 1;
+
+                // level_index表示从0到9，而level从0到999
+                int levelIndex = r.GetMagicLevelIndex(magic.ID);
+                calSelectLayerByMagic(r.X(), r.Y(), r.Team, magic, levelIndex);
+
+                // 选择目标
+                battle_cursor_.setMode(BattleCursor.Action);
+                battle_cursor_.setRoleAndMagic(r, magic, levelIndex);
+                int selected = battle_cursor_.run();
+
+                // 取消选择目标则重新进入选武功
+                if (selected < 0)
+                {
+                    continue;
+                }
+                else
+                {
+                    for (int i = 0; i <= GameUtil.sign(r.AttackTwice); i++)
+                    {
+                        // 播放攻击画面，计算伤害
+                        showMagicName(GameUtil.EraseModredundantChar(magic.strName));
+                        r.PhysicalPower = GameUtil.limit(r.PhysicalPower - 3, 0, Constant.MAX_PHYSICAL_POWER);
+                        r.MP = GameUtil.limit(r.MP - magic.CalNeedMP(levelIndex), 0, r.MaxMP);
+                        useMagicAnimation(r, magic);
+                        calMagicHurtAllEnemies(r, magic);
+                        showNumberAnimation();
+
+                        // 武学等级增加
+                        int index = 1 + r.GetMagicOfRoleIndex(magic);
+                        if (index >= 0)
+                        {
+                            r.MagicLevel[index] += RandomClassical.rand(2);
+                            GameUtil.limit2(ref r.MagicLevel[index], 0, Constant.MAX_MAGIC_LEVEL);
+                        }
+                    }
+
+                    r.Acted = 1;
+                    break;
+                }
+            }
+        }
+
+        // 使用武学动画
+        public void useMagicAnimation(Role r, Magic m)
+        {
+            if (r != null && m != null)
+            {
+                Audio.getInstance().playAsound(m.SoundID);   //这里播放音效严格说不正确，不管了
+                actionAnimation(r, m.MagicType, m.EffectID);
+            }
+        }
+
+        public void actionAnimation(Role r, int style, int effect_id, int shake = 0)
+        {
+            // 若角色不在当前选择的坐标上，则重新计算朝向
+            if (r.X() != select_x_ || r.Y() != select_x_)
+            {
+                r.FaceTowards = (int)calTowards(r.X(), r.Y(), select_x_, select_x_);
+            }
+
+            // 自动战斗：自动朝向最近敌人
+            if (r.isAuto())
+            {
+                setFaceTowardsNearest(r, true);
+            }
+
+            // 动作帧数
+            int frame_count = r.FightFrame[style];
+            action_type_ = style;
+
+            // 播放动作动画
+            for (action_frame_ = 0; action_frame_ < frame_count; action_frame_++)
+            {
+                drawAndPresent(animation_delay_);
+            }
+
+            action_frame_ = frame_count - 1;
+            effect_id_ = effect_id;
+
+            // 生成特效纹理组路径
+            string path = Path.Combine("eft", "eft" + effect_id_.ToString("000"));
+
+            // 特效帧数
+            int effect_count = TextureManager.getInstance().getTextureGroupCount(path);
+
+            // 播放特效音效
+            Audio.getInstance().playEsound(effect_id_);
+
+            // 播放特效动画
+            for (effect_frame_ = 0; effect_frame_ < effect_count + 10; effect_frame_++)
+            {
+                // 有震屏参数
+                if (shake > 0)
+                {
+                    x_ = RandomClassical.rand(shake) - RandomClassical.rand(shake);
+                    y_ = RandomClassical.rand(shake) - RandomClassical.rand(shake);
+                }
+
+                drawAndPresent(animation_delay_);
+            }
+
+            // 动画复位
+            action_frame_ = 0;
+            action_type_ = -1;
+            effect_frame_ = 0;
+            effect_id_ = -1;
+            x_ = 0;
+            y_ = 0;
+        }
+
+        public int calMagiclHurtAllEnemies(Role r, Magic m, bool simulation)
+        {
+            int total = 0;
+
+            foreach (var r2 in battle_roles_)
+            {
+                // 非我方且被击中（即所在位置的效果层非负）
+                if (r2.Team != r.Team && haveEffect(r2.X(), r2.Y()))
+                {
+                    int hurt = calMagicHurt(r, r2, m);
+
+                    if (!simulation)
+                    {
+                        r2.ShowString = "-" + hurt.ToString();
+                        r2.ShowColor = new SDL_Color() { r = 255, g = 20, b = 20, a = 255 };
+                        r2.HP = GameUtil.limit(r2.HP - hurt, 0, r2.MaxHP);
+                        r.ExpGot += hurt / 10;
+                    }
+                    else
+                    {
+                        if (hurt >= r2.HP)
+                        {
+                            hurt = (int)(1.25 * r2.HP);
+                        }
+                    }
+
+                    total += hurt;
+                }
+            }
+
+            return total;
+        }
+
+        public void showNumberAnimation()
+        {
+            // 判断是否有需要显示的数字
+            bool need_show = false;
+            foreach (var r in battle_roles_)
+            {
+                if (!string.IsNullOrEmpty(r.ShowString))
+                {
+                    need_show = true;
+                    break;
+                }
+            }
+            if (!need_show) { return; }
+
+            int size = 28;
+
+            for (int i = 0; i <= 10; i++)
+            {
+                // C# 中需要使用 Action<object?>
+                Action<object?> drawNumber = (_) =>
+                {
+                    foreach (var r in battle_roles_)
+                    {
+                        if (!string.IsNullOrEmpty(r.ShowString))
+                        {
+                            var p = getPositionOnWindow(r.X(), r.Y(), man_x_, man_y_);
+                            int x = p.x - size * r.ShowString.Length / 4;
+                            int y = p.y - 75 - i * 2;
+
+                            GameFont.getInstance().draw(
+                                r.ShowString,
+                                size,
+                                x,
+                                y,
+                                r.ShowColor,
+                                (byte)(255 - 20 * i)
+                            );
+                        }
+                    }
+                };
+
+                drawAndPresent(animation_delay_, drawNumber);
+            }
+
+            // 清除所有人的显示
+            foreach (var r in battle_roles_)
+            {
+                r.ShowString = string.Empty;
+            }
+        }
+
+
+        public void showMagicName(string name)
+        {
+            var magicName = new TextBox();
+            magicName.setText(name);
+            magicName.setPosition(450, 150);
+            magicName.setFontSize(20);
+            magicName.setStayFrame(40);
+            magicName.run();
+        }
+
 
         ///////////////////////////////////////////////////////////////////////
         // 中毒效果：PoisonEffect
@@ -1108,7 +1332,7 @@ namespace kysSharp
         // r 使用武学 m 对所有敌人造成伤害
         // simulation == true  → 仅模拟，用于 AI 评分
         /////////////////////////////////////////////////////////////////////////
-        public int calMagicHurtAllEnemies(Role r, Magic m, bool simulation)
+        public int calMagicHurtAllEnemies(Role r, Magic m, bool simulation=false)
         {
             int total = 0;
 
@@ -1123,7 +1347,7 @@ namespace kysSharp
                     {
                         // 显示伤害文字
                         r2.ShowString = $"-{hurt}";
-                        r2.ShowColor = new int[4] {255, 0, 0, 255 };
+                        r2.ShowColor = new SDL_Color() { r = 255, g = 0, b = 0, a = 255 };
 
                         // 扣血
                         r2.HP = GameUtil.limit(r2.HP - hurt, 0, r2.MaxHP);

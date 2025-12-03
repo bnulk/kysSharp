@@ -29,8 +29,8 @@ namespace kysSharp
             else base.dealEvent(e);
         }
 
-        public void SetRole(Role r) => role_ = r;
-        public Role GetRole() => role_;
+        public void setRole(Role r) => role_ = r;
+        public Role getRole() => role_;
 
         public void AddItem(Item item, int count)
         {
@@ -62,7 +62,7 @@ namespace kysSharp
         public static List<Item> GetAvaliableItems(Role role, int type)
         {
             var menu = new BattleItemMenu();
-            menu.SetRole(role);
+            menu.setRole(role);
             menu.setForceItemType(type);
             var items = menu.GetAvaliableItems();
             return items;
