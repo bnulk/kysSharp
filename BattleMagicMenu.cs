@@ -19,7 +19,7 @@ namespace kysSharp
             {
                 var m = Save.getInstance().GetRoleLearnedMagic(ref role_, i);
                 if (m != null)
-                    magic_names.Add($"{m.Name}{role_.GetRoleShowLearnedMagicLevel(i),7}");
+                    magic_names.Add($"{GameUtil.EraseModredundantChar(m.strName)}{role_.GetRoleShowLearnedMagicLevel(i),7}");
             }
             setStrings(magic_names);
             setPosition(160, 200);

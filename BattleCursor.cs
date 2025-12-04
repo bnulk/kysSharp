@@ -67,6 +67,10 @@ namespace kysSharp
             // 在 C# 中由 GC 负责内存释放
         }
 
+        public Head getHead() { return head_selected_; }
+
+        public UIStatus getUIStatus() { return ui_status_; }
+
         ///////////////////////////////////////////////////////////////////////
         // 设置角色与法术
         ///////////////////////////////////////////////////////////////////////

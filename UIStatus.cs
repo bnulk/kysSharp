@@ -47,6 +47,8 @@ namespace kysSharp
 
         public override void draw()
         {
+            Engine.getInstance().fillColor(new SDL.SDL_Color() { r = 30, g = 30, b = 30, a = 220 }, 0, 0, -1, -1);
+
             string str;
             int exp_up;
 

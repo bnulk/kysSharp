@@ -624,6 +624,11 @@ namespace kysSharp
             }
         }
 
+        public Role getSelectedRole()
+        {
+            return role_layer_.Data(select_x_, select_y_);
+        }
+
         ///////////////////////////////////////////////////////////////////////
         // 行动主控：Action
         // 对应 C++：void BattleScene::action(Role* r)
@@ -653,13 +658,13 @@ namespace kysSharp
             {
                 case "移動": actMove(r); break;
                 case "武學": actUseMagic(r); break;
-                //case "用毒": actUsePoison(r); break;
-                //case "解毒": actDetoxification(r); break;
-                //case "醫療": actMedicine(r); break;
-                //case "暗器": actUseHiddenWeapon(r); break;
-                //case "藥品": actUseDrug(r); break;
-                //case "等待": actWait(r); break;
-                //case "狀態": actStatus(r); break;
+                case "用毒": actUsePoison(r); break;
+                case "解毒": actDetoxification(r); break;
+                case "醫療": actMedicine(r); break;
+                case "暗器": actUseHiddenWeapon(r); break;
+                case "藥品": actUseDrug(r); break;
+                case "等待": actWait(r); break;
+                case "狀態": actStatus(r); break;
                 case "自動": actAuto(r); break;
                 case "結束": actRest(r); break;
             }
@@ -680,6 +685,208 @@ namespace kysSharp
                 // C++：poisonEffect(r);
                 poisonEffect(r);
             }
+        }
+
+        public void actUsePoison(Role r)
+        {
+            calSelectLayer(r, 1, calActionStep(r.UsePoison));
+            battle_cursor_.setMode(BattleCursor.Action);
+            battle_cursor_.setRoleAndMagic(r);
+
+            r.ActTeam = 1;
+
+            int selected = battle_cursor_.run();
+            if (selected >= 0)
+            {
+                var r2 = getSelectedRole();
+                if (r2 != null)
+                {
+                    int v = GameUtil.UsePoison(ref r, ref r2);
+                    r2.ShowString = v.ToString();
+                    r2.ShowColor = new SDL_Color() { r = 20, g = 255, b = 20, a = 255 };
+                }
+
+                r.PhysicalPower = GameUtil.limit(r.PhysicalPower - 3, 0, Constant.MAX_PHYSICAL_POWER);
+
+                actionAnimation(r, 0, 30);
+                showNumberAnimation();
+
+                r.Acted = 1;
+            }
+        }
+
+        public void actDetoxification(Role r)
+        {
+            calSelectLayer(r, 1, calActionStep(r.Detoxification));
+            battle_cursor_.setMode(BattleCursor.Action);
+            battle_cursor_.setRoleAndMagic(r);
+
+            r.ActTeam = 0;
+
+            int selected = battle_cursor_.run();
+            if (selected >= 0)
+            {
+                var r2 = getSelectedRole();
+                if (r2 != null)
+                {
+                    int v = GameUtil.Detoxification(ref r, ref r2);
+                    r2.ShowString = "-" + v.ToString();
+                    r2.ShowColor = new SDL_Color() { r = 20, g = 200, b = 255, a = 255 };
+                }
+
+                r.PhysicalPower = GameUtil.limit(r.PhysicalPower - 5, 0, Constant.MAX_PHYSICAL_POWER);
+
+                actionAnimation(r, 0, 36);
+                showNumberAnimation();
+
+                r.Acted = 1;
+            }
+        }
+
+        public void actMedicine(Role r)
+        {
+            calSelectLayer(r, 1, calActionStep(r.Medcine));
+
+            battle_cursor_.setMode(BattleCursor.Action);
+            battle_cursor_.setRoleAndMagic(r);
+
+            r.ActTeam = 0;
+
+            int selected = battle_cursor_.run();
+            if (selected >= 0)
+            {
+                var r2 = getSelectedRole();
+                if (r2 != null)
+                {
+                    int v = GameUtil.Medicine(ref r, ref r2);
+                    r2.ShowString = "-"+ (Math.Abs(v)).ToString();
+                    r2.ShowColor = new SDL_Color() { r=255,g=255,b=200,a=255};
+                }
+
+                r.PhysicalPower = GameUtil.limit(r.PhysicalPower - 5, 0, Constant.MAX_PHYSICAL_POWER);
+
+                actionAnimation(r, 0, 0);
+                showNumberAnimation();
+
+                r.Acted = 1;
+            }
+        }
+
+        public void actUseHiddenWeapon(Role r)
+        {
+            var item_menu = new BattleItemMenu();
+            item_menu.setRole(r);
+            item_menu.setForceItemType(3);
+            item_menu.runAtPosition(300, 0);
+
+            var item = item_menu.getCurrentItem();
+            if (item != null)
+            {
+                calSelectLayer(r, 1, calActionStep(r.HiddenWeapon));
+                battle_cursor_.setMode(BattleCursor.Action);
+                battle_cursor_.setRoleAndMagic(r);
+                r.ActTeam = 1;
+
+                int selected = battle_cursor_.run();
+                if (selected >= 0)
+                {
+                    var r2 = getSelectedRole();
+                    int v = 0;
+
+                    if (r2 != null)
+                    {
+                        v = calHiddenWeaponHurt(r, r2, item);
+                        r2.ShowString = "-" + v.ToString();
+                        r2.ShowColor = new SDL_Color() { r = 255, g = 20, b = 20, a = 255 };
+                    }
+
+                    showMagicName(GameUtil.EraseModredundantChar(item.strName));
+                    r.PhysicalPower = GameUtil.limit(r.PhysicalPower - 5, 0, Constant.MAX_PHYSICAL_POWER);
+
+                    actionAnimation(r, 0, item.HiddenWeaponEffectID);
+
+                    if (r2 != null)
+                    {
+                        r2.HP = GameUtil.limit(r2.HP - v, 0, r2.MaxHP);
+                    }
+
+                    showNumberAnimation();
+                    item_menu.AddItem(item, -1);
+                    r.Acted = 1;
+                }
+            }
+
+            // C++ delete 转为 C# 不需要，但若类有 Dispose，可调用
+            // item_menu.Dispose();
+        }
+
+        public void actUseDrug(Role r)
+        {
+            var item_menu = new BattleItemMenu();
+            item_menu.setForceItemType(2);
+            item_menu.setRole(r);
+            item_menu.runAtPosition(300, 0);
+
+            var item = item_menu.getCurrentItem();
+            if (item != null)
+            {
+                // Role r0 = *r;   ← C++ 是拷贝构造，这里需要复制一个值拷贝
+                Role r0 = r.Clone();   // 你需要在 Role 类中实现 Clone()
+
+                GameUtil.UseItem(ref r, ref item);
+
+                var df = new ShowRoleDifference(r0, r);
+                df.setText(GameUtil.EraseModredundantChar(r.strName)+ "服用"+GameUtil.EraseModredundantChar(item.strName));
+                df.SetBlackScreen(false);
+                df.SetShowHead(false);
+                df.setPosition(250, 220);
+                df.setStayFrame(40);
+                df.run();
+                // C# 无需 delete
+                // df.Dispose(); // 若有 IDisposable 则调用
+
+                item_menu.AddItem(item, -1);
+                r.Acted = 1;
+            }
+
+            // C# 不需要 delete
+            // item_menu.Dispose();
+        }
+
+        public void actWait(Role r)
+        {
+            // 等待，将自己插入到最后一个没行动的人的后面
+            for (int i = 1; i < battle_roles_.Count; i++)
+            {
+                if (battle_roles_[i].Acted == 0)
+                {
+                    // C++: battle_roles_.erase(battle_roles_.begin());
+                    battle_roles_.RemoveAt(0);
+
+                    // C++: battle_roles_.insert(battle_roles_.begin() + i, r);
+                    battle_roles_.Insert(i, r);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 状态
+        /// </summary>
+        /// <param name="r">角色</param>
+        public void actStatus(Role r)
+        {
+            head_self_.setVisible(false);
+            battle_cursor_.getHead().setVisible(false);
+            battle_cursor_.getUIStatus().setVisible(true);
+
+            calSelectLayer(r, 2, 0);
+            battle_cursor_.setRoleAndMagic(r);
+            battle_cursor_.setMode(BattleCursor.Check);
+            battle_cursor_.run();
+
+            head_self_.setVisible(true);
+            battle_cursor_.getHead().setVisible(true);
+            battle_cursor_.getUIStatus().setVisible(false);
         }
 
         public void actUseMagic(Role r)
