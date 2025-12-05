@@ -74,6 +74,7 @@ namespace kysSharp
             {
                 title_.setAllChildVisible(false);
                 title_.getChild(f).setVisible(true);
+                title_.getChild(f).state_ = State.Press;
             }
             else
             {
@@ -162,6 +163,8 @@ namespace kysSharp
 
         public override void draw()
         {
+            Engine.getInstance().fillColor(new SDL.SDL_Color() { r = 30, g = 30, b = 30, a = 220 }, 0, 0, -1, -1);
+
             if (current_item_ == null)
                 return;
             showItemProperty(current_item_);

@@ -241,6 +241,20 @@ namespace kysSharp
             sortRoles();
         }
 
+        public override void onExit()
+        {
+            if (result_ == 0 || (result_ == 1 && fail_exp_))
+            {
+                calExpGot();
+            }
+
+            // 清空全部角色的位置层
+            foreach (var r in Save.getInstance().GetRoles())
+            {
+                r.SetRolePoitionLayer(null);
+            }
+        }
+
         public unsafe void readBattleInfo()
         {
             // 设置全部角色的位置层，避免今后出错
@@ -759,7 +773,7 @@ namespace kysSharp
                 if (r2 != null)
                 {
                     int v = GameUtil.Medicine(ref r, ref r2);
-                    r2.ShowString = "-"+ (Math.Abs(v)).ToString();
+                    r2.ShowString = "+"+ (Math.Abs(v)).ToString();
                     r2.ShowColor = new SDL_Color() { r=255,g=255,b=200,a=255};
                 }
 
@@ -1792,6 +1806,108 @@ namespace kysSharp
                     }
                 }
             }
+        }
+
+        public void calExpGot()
+        {
+            head_self_.setVisible(false);
+
+            List<Role> alive_teammate = new List<Role>();
+            if (result_ == 0)
+            {
+                foreach (var r in battle_roles_)
+                {
+                    if (r.Team == 0)
+                    {
+                        alive_teammate.Add(r);
+                    }
+                }
+            }
+            else
+            {
+                alive_teammate = friends_;
+            }
+
+            if (alive_teammate.Count == 0) { return; }
+
+            // 还在场的人获得经验
+            foreach (var r in alive_teammate)
+            {
+                r.ExpGot += info_.Exp / alive_teammate.Count;
+            }
+
+            var show_exp = new ShowExp();
+            show_exp.setRoles(alive_teammate);
+            show_exp.run();
+            // C# 不需要 delete
+
+            // 升级，修炼物品
+            var diff = new ShowRoleDifference();
+            for(int i=0;i<alive_teammate.Count;i++)
+            {
+                var r = alive_teammate[i];
+                // Role r0 = *r; ← C++ 拷贝，这里需要深拷贝
+                Role r0 = r.Clone();
+
+                var item = Save.getInstance().GetItem(r.PracticeItem);
+
+                if (r.Level >= Constant.MAX_LEVEL)
+                {
+                    // 已满级，全加到物品经验
+                    r.ExpForItem += r.ExpGot;
+                }
+                else if (item != null)
+                {
+                    // 未满级，平分经验
+                    r.Exp += r.ExpGot / 2;
+                    r.ExpForItem += r.ExpGot / 2;
+                }
+                else
+                {
+                    // 其余情况全加到人物经验
+                    r.Exp += r.ExpGot;
+                }
+
+                // 避免越界
+                if (r.Exp < r0.Exp) r.Exp = Constant.MAX_EXP;
+                if (r.ExpForItem < r0.ExpForItem) r.ExpForItem = Constant.MAX_EXP;
+
+                // 升级
+                int change = 0;
+                while (GameUtil.CanLevelUp(ref r))
+                {
+                    GameUtil.LevelUp(ref r);
+                    change++;
+                }
+                if (change > 0)
+                {
+                    diff.SetTwinRole(r0, r);
+                    diff.setText("升級");
+                    diff.run();
+                }
+
+                // 修炼秘笈
+                if (item != null)
+                {
+                    r0 = r.Clone();
+                    change = 0;
+
+                    while (GameUtil.CanFinishedItem(ref r))
+                    {
+                        GameUtil.UseItem(ref r, ref item);
+                        change++;
+                    }
+
+                    if (change > 0)
+                    {
+                        diff.SetTwinRole(r0, r);
+                        diff.setText("修煉"+ GameUtil.EraseModredundantChar(item.strName) + "成功");
+                        diff.run();
+                    }
+                }
+            }
+
+            // C# 不需要 delete diff
         }
 
 

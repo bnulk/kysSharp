@@ -23,7 +23,7 @@ namespace kysSharp.Types
         public string ShowString = "";
         public SDL_Color ShowColor = new SDL_Color();
 
-        public MapSquare<Role> position_layer_ = new MapSquare<Role>();
+        public MapSquare<Role>? position_layer_ = new MapSquare<Role>();
 
         private int X_, Y_;
         private int prevX_, prevY_;
@@ -45,6 +45,7 @@ namespace kysSharp.Types
 
         public void SetPoitionLayer(MapSquare<Role> l) { position_layer_ = l; }
 
+        public void SetRolePoitionLayer(MapSquare<Role>? l) { position_layer_ = l; }
 
         public void SetPositionOnly(int x, int y) { X_ = x; Y_ = y; }
 

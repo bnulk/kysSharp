@@ -24,7 +24,7 @@ namespace kysSharp
             addChild(head1_);
             head2_ = new Head();
             addChild(head2_, 400, 0);
-            //setText("修習成功");
+            setText("修習成功");
             setPosition(250, 180);
             setTextPosition(0, -30);
         }
@@ -36,7 +36,7 @@ namespace kysSharp
             addChild(head1_);
             head2_ = new Head(r2);
             addChild(head2_, 400, 0);
-            //setText("修習成功");
+            setText("修習成功");
             setPosition(250, 180);
             setTextPosition(0, -30);
 
