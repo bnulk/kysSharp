@@ -101,6 +101,9 @@ namespace kysSharp
                     current_head_ = i;
                 }
 
+                if (role == null)
+                    return;
+
                 //如在物品栏则判断是否在使用，或者可以使用
                 if (childs_[0] == ui_item_)
                 {
