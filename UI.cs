@@ -5,7 +5,7 @@ namespace kysSharp
 {
     class UI : Element
     {
-        private static UI ui_ = new UI();
+        public static UI ui_ = new UI();
         private int current_head_ = 0;
         private int current_button_ = 0;
 
@@ -19,7 +19,12 @@ namespace kysSharp
         int item_id_ = -1;
 
 
-        public static UI getInstance() { return ui_; }
+        public static UI getInstance()
+        {
+            if(ui_== null)
+                ui_= new UI();
+            return ui_; 
+        }
 
         public UI()
         {
@@ -70,6 +75,12 @@ namespace kysSharp
 
         public override void onEntrance()
         {
+            
+        }
+
+        public void reSetHeads()
+        {
+            
         }
 
         /// <summary>
@@ -81,7 +92,6 @@ namespace kysSharp
             {
                 var head = heads_[i];
                 var role = Save.getInstance().GetTeamMate(i);
-                if (role == null) { continue; }
                 head.SetRole(ref role);
                 
                 if (head.getState() == State.Pass)

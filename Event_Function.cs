@@ -420,8 +420,6 @@ namespace kysSharp
                     break;
                 }
             }
-            UI ui = new UI();
-            ui.run();
         }
 
         // 22 全队内力归零
