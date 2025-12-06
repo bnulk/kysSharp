@@ -118,7 +118,7 @@ namespace kysSharp
             /////////////////////////////////////////////////////////////////////////
             // 3. 读取离队列表
             /////////////////////////////////////////////////////////////////////////
-            var filePath = Path.Combine("game", "list", "levelup.txt");
+            var filePath = Path.Combine("game", "list", "leave.txt");
             string leaveTxt = File.ReadAllText(filePath);
             ConvertLibs.FindNumbers(leaveTxt, ref leave_event_id_);
 
@@ -136,7 +136,9 @@ namespace kysSharp
             if (event_id <= 0 || event_id >= kdef_.Count) { return false; }
             if (subscene is not SubScene s)
             {
-                return false;
+                s = null;
+                if (subscene != null)
+                    return false;
             }
             subscene_ = s;
             submap_id_ = -1;
