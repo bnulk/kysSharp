@@ -1,6 +1,7 @@
 ﻿using kysSharp.Types;
 using System;
 using System.Threading.Tasks;
+using static kysSharp.GameRandom;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace kysSharp
@@ -12,7 +13,7 @@ namespace kysSharp
 
         private List<int> offset = new List<int>();
         private List<int> length = new List<int>();
-        private List<string> talk_= new List<string>();
+        private List<string> talk_ = new List<string>();
         private List<List<int>> kdef_ = new List<List<int>>();
 
         private int leave_event_0_;
@@ -49,7 +50,7 @@ namespace kysSharp
             talk_box_down_ = new Talk();
             talk_box_.addChild(talk_box_up_);
             talk_box_.addChild(talk_box_down_, 0, 400);
-            menu2_ = new MenuText(new List<string>{ "確認（Y）", "取消（N）" });
+            menu2_ = new MenuText(new List<string> { "確認（Y）", "取消（N）" });
             menu2_.setPosition(400, 300);
             menu2_.setFontSize(24);
             menu2_.setHaveBox(true);
@@ -61,7 +62,7 @@ namespace kysSharp
 
         public static Event getInstance()
         {
-            if(event_==null)
+            if (event_ == null)
             {
                 event_ = new Event();
             }
@@ -110,7 +111,7 @@ namespace kysSharp
                     short val = BitConverter.ToInt16(kdef, offset[i] + k * 2);
                     eventList.Add(val);
                 }
-                kdef_.Add(eventList);            
+                kdef_.Add(eventList);
             }
 
             kdef = null;
@@ -131,7 +132,7 @@ namespace kysSharp
             return false;
         }
 
-        public bool CallEvent(int event_id, Element? subscene=null, int supmap_id=-1, int item_id=-1, int event_index=-1, int x=-1, int y=-1) //调用指令的内容写这里
+        public bool CallEvent(int event_id, Element? subscene = null, int supmap_id = -1, int item_id = -1, int event_index = -1, int x = -1, int y = -1) //调用指令的内容写这里
         {
             if (event_id <= 0 || event_id >= kdef_.Count) { return false; }
             if (subscene is not SubScene s)
@@ -154,7 +155,7 @@ namespace kysSharp
             y_ = y;
 
             // 将节点加载到绘图栈的最上，这样两个对话可以画出来
-            if(talk_box_!=null)
+            if (talk_box_ != null)
             {
                 talk_box_.setExit(false);
                 Element.addOnRootTop(talk_box_);
@@ -384,261 +385,376 @@ namespace kysSharp
                 switch (e[i])
                 {
                     case 1: /* 执行旧对话指令（3个参数） */
-                    RUN_INSTRUCT("oldTalk", () => VOID3(oldTalk));
-                    break;
+                        RUN_INSTRUCT("oldTalk", () => VOID3(oldTalk));
+                        break;
 
                     case 2: /* 添加物品（2个参数） */
-                    RUN_INSTRUCT("addItem", () => VOID2(addItem));
-                    break;
+                        RUN_INSTRUCT("addItem", () => VOID2(addItem));
+                        break;
 
                     case 3: /* 修改事件（13个参数） */
-                    RUN_INSTRUCT("modifyEvent", () => VOID13(modifyEvent));
-                    break;
+                        RUN_INSTRUCT("modifyEvent", () => VOID13(modifyEvent));
+                        break;
 
                     case 4: /* 检查是否正在使用物品（1个参数，返回布尔值） */
-                    RUN_INSTRUCT("isUsingItem", () => BOOL1(isUsingItem));
-                    break;
+                        RUN_INSTRUCT("isUsingItem", () => BOOL1(isUsingItem));
+                        break;
 
                     case 5: /* 询问是否战斗（无参数，返回布尔值） */
-                    RUN_INSTRUCT("askBattle", () => BOOL(() => askBattle()));
-                    break;
+                        RUN_INSTRUCT("askBattle", () => BOOL(() => askBattle()));
+                        break;
 
                     case 6: /* 尝试战斗（2个参数，特殊顺序，返回布尔值） */
-                    RUN_INSTRUCT("tryBattle", () => BOOL2_2(tryBattle));
-                    break;
+                        RUN_INSTRUCT("tryBattle", () => BOOL2_2(tryBattle));
+                        break;
 
                     case 8: /* 更改主地图音乐（1个参数） */
-                    RUN_INSTRUCT("changeMainMapMusic", () => VOID1(changeMainMapMusic));
-                    break;
+                        RUN_INSTRUCT("changeMainMapMusic", () => VOID1(changeMainMapMusic));
+                        break;
 
                     case 9: /* 询问是否加入队伍（无参数，返回布尔值） */
-                    RUN_INSTRUCT("askJoin", () => BOOL(() => askJoin()));
-                    break;
+                        RUN_INSTRUCT("askJoin", () => BOOL(() => askJoin()));
+                        break;
 
                     case 10: /* 加入队伍（1个参数） */
-                    RUN_INSTRUCT("join", () => VOID1(join));
-                    break;
+                        RUN_INSTRUCT("join", () => VOID1(join));
+                        break;
 
                     case 11: /* 询问是否休息（无参数，返回布尔值） */
-                    RUN_INSTRUCT("askRest", () => BOOL(() => askRest()));
-                    break;
+                        RUN_INSTRUCT("askRest", () => BOOL(() => askRest()));
+                        break;
 
                     case 12: /* 执行休息（无参数） */
-                    RUN_INSTRUCT("rest", () => VOID(() => rest(), 0));
-                    break;
+                        RUN_INSTRUCT("rest", () => VOID(() => rest(), 0));
+                        break;
 
                     case 13: /* 场景变亮（无参数） */
-                    RUN_INSTRUCT("lightScence", () => VOID(() => lightScene(), 0));
-                    break;
+                        RUN_INSTRUCT("lightScence", () => VOID(() => lightScene(), 0));
+                        break;
 
                     case 14: /* 场景变暗（无参数） */
-                    RUN_INSTRUCT("darkScence", () => VOID(() => darkScene(), 0));
-                    break;
+                        RUN_INSTRUCT("darkScence", () => VOID(() => darkScene(), 0));
+                        break;
 
                     case 15: /* 角色死亡（无参数） */
-                    RUN_INSTRUCT("dead", () => VOID(() => dead(), 0));
-                    break;
+                        RUN_INSTRUCT("dead", () => VOID(() => dead(), 0));
+                        break;
 
                     case 16: /* 检查是否在队伍中（1个参数，返回布尔值） */
-                    RUN_INSTRUCT("inTeam", () => BOOL1(inTeam));
-                    break;
+                        RUN_INSTRUCT("inTeam", () => BOOL1(inTeam));
+                        break;
 
                     case 17: /* 设置子地图层数据（5个参数） */
-                    RUN_INSTRUCT("setSubMapLayerData", () => VOID5(setSubMapLayerData));
-                    break;
+                        RUN_INSTRUCT("setSubMapLayerData", () => VOID5(setSubMapLayerData));
+                        break;
 
                     case 18: /* 检查是否有物品（1个参数，返回布尔值） */
-                    RUN_INSTRUCT("haveItemBool", () => BOOL1(haveItemBool));
-                    break;
+                        RUN_INSTRUCT("haveItemBool", () => BOOL1(haveItemBool));
+                        break;
 
                     case 19: /* 设置场景位置（2个参数） */
-                    RUN_INSTRUCT("oldSetScencePosition", () => VOID2(oldSetScencePosition));
-                    break;
+                        RUN_INSTRUCT("oldSetScencePosition", () => VOID2(oldSetScencePosition));
+                        break;
 
                     case 20: /* 检查队伍是否已满（无参数，返回布尔值） */
-                    RUN_INSTRUCT("teamIsFull", () => BOOL(() => teamIsFull()));
-                    break;
+                        RUN_INSTRUCT("teamIsFull", () => BOOL(() => teamIsFull()));
+                        break;
 
                     case 21: /* 离开队伍（1个参数） */
-                    RUN_INSTRUCT("leaveTeam", () => VOID1(leaveTeam));
-                    break;
+                        RUN_INSTRUCT("leaveTeam", () => VOID1(leaveTeam));
+                        break;
 
                     case 22: /* 清空所有MP（无参数） */
-                    RUN_INSTRUCT("zeroAllMP", () => VOID(() => zeroAllMP(), 0));
-                    break;
+                        RUN_INSTRUCT("zeroAllMP", () => VOID(() => zeroAllMP(), 0));
+                        break;
 
                     case 23: /* 设置角色使用毒药（2个参数） */
-                    RUN_INSTRUCT("setRoleUsePoison", () => VOID2(setRoleUsePoison));
-                    break;
+                        RUN_INSTRUCT("setRoleUsePoison", () => VOID2(setRoleUsePoison));
+                        break;
 
                     case 25: /* 子地图视角切换（4个参数） */
-                    RUN_INSTRUCT("subMapViewFromTo", () => VOID4(subMapViewFromTo));
-                    break;
+                        RUN_INSTRUCT("subMapViewFromTo", () => VOID4(subMapViewFromTo));
+                        break;
 
                     case 26: /* 添加3个事件编号（5个参数） */
-                    RUN_INSTRUCT("add3EventNum", () => VOID5(add3EventNum));
-                    break;
+                        RUN_INSTRUCT("add3EventNum", () => VOID5(add3EventNum));
+                        break;
 
                     case 27: /* 播放动画（3个参数） */
-                    RUN_INSTRUCT("playAnimation", () => VOID3(playAnimation));
-                    break;
+                        RUN_INSTRUCT("playAnimation", () => VOID3(playAnimation));
+                        break;
 
                     case 28: /* 检查角色道德（3个参数，返回布尔值） */
-                    RUN_INSTRUCT("checkRoleMorality", () => BOOL3(checkRoleMorality));
-                    break;
+                        RUN_INSTRUCT("checkRoleMorality", () => BOOL3(checkRoleMorality));
+                        break;
 
                     case 29: /* 检查角色攻击（3个参数，返回布尔值） */
-                    RUN_INSTRUCT("checkRoleAttack", () => BOOL3(checkRoleAttack));
-                    break;
+                        RUN_INSTRUCT("checkRoleAttack", () => BOOL3(checkRoleAttack));
+                        break;
 
                     case 30: /* 角色行走（4个参数） */
-                    RUN_INSTRUCT("walkFromTo", () => VOID4(walkFromTo));
-                    break;
+                        RUN_INSTRUCT("walkFromTo", () => VOID4(walkFromTo));
+                        break;
 
                     case 31: /* 检查是否有足够金钱（1个参数，返回布尔值） */
-                    RUN_INSTRUCT("checkEnoughMoney", () => BOOL1(checkEnoughMoney));
-                    break;
+                        RUN_INSTRUCT("checkEnoughMoney", () => BOOL1(checkEnoughMoney));
+                        break;
 
                     case 32: /* 添加物品（无提示，2个参数） */
-                    RUN_INSTRUCT("addItemWithoutHint", () => VOID2(addItemWithoutHint));
-                    break;
+                        RUN_INSTRUCT("addItemWithoutHint", () => VOID2(addItemWithoutHint));
+                        break;
 
                     case 33: /* 学习旧魔法（3个参数） */
-                    RUN_INSTRUCT("oldLearnMagic", () => VOID3(oldLearnMagic));
-                    break;
+                        RUN_INSTRUCT("oldLearnMagic", () => VOID3(oldLearnMagic));
+                        break;
 
                     case 34: /* 增加智商（2个参数） */
-                    RUN_INSTRUCT("addIQ", () => VOID2(addIQ));
-                    break;
+                        RUN_INSTRUCT("addIQ", () => VOID2(addIQ));
+                        break;
 
                     case 35: /* 设置角色魔法（4个参数） */
-                    RUN_INSTRUCT("setRoleMagic", () => VOID4(setRoleMagic));
-                    break;
+                        RUN_INSTRUCT("setRoleMagic", () => VOID4(setRoleMagic));
+                        break;
 
                     case 36: /* 检查角色性别（1个参数，返回布尔值） */
-                    RUN_INSTRUCT("checkRoleSexual", () => BOOL1(checkRoleSexual));
-                    break;
+                        RUN_INSTRUCT("checkRoleSexual", () => BOOL1(checkRoleSexual));
+                        break;
 
                     case 37: /* 增加道德值（1个参数） */
-                    RUN_INSTRUCT("addMorality", () => VOID1(addMorality));
-                    break;
+                        RUN_INSTRUCT("addMorality", () => VOID1(addMorality));
+                        break;
 
                     case 38: /* 更改子地图图片（4个参数） */
-                    RUN_INSTRUCT("changeSubMapPic", () => VOID4(changeSubMapPic));
-                    break;
+                        RUN_INSTRUCT("changeSubMapPic", () => VOID4(changeSubMapPic));
+                        break;
 
                     case 39: /* 打开子地图（1个参数） */
-                    RUN_INSTRUCT("openSubMap", () => VOID1(openSubMap));
-                    break;
+                        RUN_INSTRUCT("openSubMap", () => VOID1(openSubMap));
+                        break;
 
                     case 40: /* 设置朝向（1个参数） */
-                    RUN_INSTRUCT("setTowards", () => VOID1(setTowards));
-                    break;
+                        RUN_INSTRUCT("setTowards", () => VOID1(setTowards));
+                        break;
 
                     case 41: /* 角色添加物品（3个参数） */
-                    RUN_INSTRUCT("roleAddItem", () => VOID3(roleAddItem));
-                    break;
+                        RUN_INSTRUCT("roleAddItem", () => VOID3(roleAddItem));
+                        break;
 
                     case 42: /* 检查队伍中是否有女性（无参数，返回布尔值） */
-                    RUN_INSTRUCT("checkFemaleInTeam", () => BOOL(() => checkFemaleInTeam()));
-                    break;
+                        RUN_INSTRUCT("checkFemaleInTeam", () => BOOL(() => checkFemaleInTeam()));
+                        break;
 
                     case 43: /* 检查是否有物品（1个参数，返回布尔值） */
-                    RUN_INSTRUCT("haveItemBool", () => BOOL1(haveItemBool));
-                    break;
+                        RUN_INSTRUCT("haveItemBool", () => BOOL1(haveItemBool));
+                        break;
 
                     case 44: /* 播放2个动画（6个参数） */
-                    RUN_INSTRUCT("play2Amination", () => VOID6(play2Amination));
-                    break;
+                        RUN_INSTRUCT("play2Amination", () => VOID6(play2Amination));
+                        break;
 
                     case 45: /* 增加速度（2个参数） */
-                    RUN_INSTRUCT("addSpeed", () => VOID2(addSpeed));
-                    break;
+                        RUN_INSTRUCT("addSpeed", () => VOID2(addSpeed));
+                        break;
 
                     case 46: /* 增加最大MP（2个参数） */
-                    RUN_INSTRUCT("addMaxMP", () => VOID2(addMaxMP));
-                    break;
+                        RUN_INSTRUCT("addMaxMP", () => VOID2(addMaxMP));
+                        break;
 
                     case 47: /* 增加攻击力（2个参数） */
-                    RUN_INSTRUCT("addAttack", () => VOID2(addAttack));
-                    break;
+                        RUN_INSTRUCT("addAttack", () => VOID2(addAttack));
+                        break;
 
                     case 48: /* 增加最大HP（2个参数） */
-                    RUN_INSTRUCT("addMaxHP", () => VOID2(addMaxHP));
-                    break;
+                        RUN_INSTRUCT("addMaxHP", () => VOID2(addMaxHP));
+                        break;
 
                     case 49: /* 设置MP类型（2个参数） */
-                    RUN_INSTRUCT("setMPType", () => VOID2(setMPType));
-                    break;
+                        RUN_INSTRUCT("setMPType", () => VOID2(setMPType));
+                        break;
 
                     case 50: /* 特殊指令50：检查是否有5个物品（条件分支） */
-                    if (e[i + 1] > 128)
-                        RUN_INSTRUCT("checkHave5Item", () => BOOL5(checkHave5Item));
-                    else
-                    {
-                        int temp = e[i + 8];
-                        instruct_50e(e[i + 1], e[i + 2], e[i + 3], e[i + 4], e[i + 5], e[i + 6], e[i + 7], ref temp);
-                        e[i + 8] = temp;
-                        i += 8;
-                    }
-                    break;
+                        if (e[i + 1] > 128)
+                            RUN_INSTRUCT("checkHave5Item", () => BOOL5(checkHave5Item));
+                        else
+                        {
+                            int temp = e[i + 8];
+                            instruct_50e(e[i + 1], e[i + 2], e[i + 3], e[i + 4], e[i + 5], e[i + 6], e[i + 7], ref temp);
+                            e[i + 8] = temp;
+                            i += 8;
+                        }
+                        break;
 
                     case 51: /* 询问软星（无参数） */
-                    RUN_INSTRUCT("askSoftStar", () => VOID(() => askSoftStar(), 0));
-                    break;
+                        RUN_INSTRUCT("askSoftStar", () => VOID(() => askSoftStar(), 0));
+                        break;
 
                     case 52: /* 显示道德值（无参数） */
-                    RUN_INSTRUCT("showMorality", () => VOID(() => showMorality(), 0));
-                    break;
+                        RUN_INSTRUCT("showMorality", () => VOID(() => showMorality(), 0));
+                        break;
 
                     case 53: /* 显示声望（无参数） */
-                    RUN_INSTRUCT("showFame", () => VOID(() => showFame(), 0));
-                    break;
+                        RUN_INSTRUCT("showFame", () => VOID(() => showFame(), 0));
+                        break;
 
                     case 54: /* 打开所有子地图（无参数） */
-                    RUN_INSTRUCT("openAllSubMap", () => VOID(() => openAllSubMap(), 0));
-                    break;
+                        RUN_INSTRUCT("openAllSubMap", () => VOID(() => openAllSubMap(), 0));
+                        break;
 
                     case 55: /* 检查事件ID（2个参数，返回布尔值） */
-                    RUN_INSTRUCT("checkEventID", () => BOOL2(checkEventID));
-                    break;
+                        RUN_INSTRUCT("checkEventID", () => BOOL2(checkEventID));
+                        break;
 
                     case 56: /* 增加声望（1个参数） */
-                    RUN_INSTRUCT("addFame", () => VOID1(addFame));
-                    break;
+                        RUN_INSTRUCT("addFame", () => VOID1(addFame));
+                        break;
 
                     case 57: /* 打破石门（无参数） */
-                    RUN_INSTRUCT("breakStoneGate", () => VOID(() => breakStoneGate(), 0));
-                    break;
+                        RUN_INSTRUCT("breakStoneGate", () => VOID(() => breakStoneGate(), 0));
+                        break;
 
                     case 58: /* 争夺第一（无参数） */
-                    RUN_INSTRUCT("fightForTop", () => VOID(() => fightForTop(), 0));
-                    break;
+                        RUN_INSTRUCT("fightForTop", () => VOID(() => fightForTop(), 0));
+                        break;
 
                     case 59: /* 全员离开（无参数） */
-                    RUN_INSTRUCT("allLeave", () => VOID(() => allLeave(), 0));
-                    break;
+                        RUN_INSTRUCT("allLeave", () => VOID(() => allLeave(), 0));
+                        break;
+
+                    case 60:
+                        RUN_INSTRUCT("checkSubMapPic", () => BOOL3(checkSubMapPic));
+                        break;
+
+                    case 61:
+                        RUN_INSTRUCT("check14BooksPlaced", () => BOOL(check14BooksPlaced));
+                        break;
+
+                    case 62:
+                        RUN_INSTRUCT("backHome", () => VOID0(backHome));
+                        break;
+
+                    case 63:
+                        RUN_INSTRUCT("setSexual", () => VOID2(setSexual));
+                        break;
+
+                    case 64:
+                        RUN_INSTRUCT("shop", () => VOID0(shop));
+                        break;
+
+                    case 66:
+                        RUN_INSTRUCT("playMusic", () => VOID1(playMusic));
+                        break;
+
+                    case 67:
+                        RUN_INSTRUCT("playWave", () => VOID1(playWave));
+                        break;
 
                     case 7:
                     case -1: /* 结束事件循环 */
-                    i += 1;
-                    loop_ = false;
-                    break;
+                        i += 1;
+                        loop_ = false;
+                        break;
 
                     default: /* 未知指令，跳过 */
-                    i += 1;
-                    break;
+                        i += 1;
+                        break;
                 }
             }
 
             if (talk_box_ != null)
                 Element.removeFromRoot(talk_box_);
-            if(talk_box_up_ != null)
+            if (talk_box_up_ != null)
                 talk_box_up_.setContent("");
-            if(talk_box_down_ != null)
+            if (talk_box_down_ != null)
                 talk_box_down_.setContent("");
 
             return true;
+        }
+
+        public void playMusic(int music_id)
+        {
+            // C++: Audio::getInstance()->playMusic(music_id);
+            Audio.getInstance().playMusic(music_id);
+        }
+
+        public void playWave(int wave_id)
+        {
+            // C++: Audio::getInstance()->playASound(wave_id);
+            Audio.getInstance().playAsound(wave_id);
+        }
+
+        public void shop()
+        {
+            // C++: oldTalk(0xB9E, 0x6F, 0);
+            oldTalk(0xB9E, 0x6F, 0);
+
+            // C++: auto shop = new UIShop();
+            UIShop shop = new UIShop();
+
+            // C++: shop->setShopID(RandomClassical::rand(5));
+            shop.setShopID(RandomClassical.rand(5));
+
+            // C++: int result = shop->run();
+            int result = shop.run();
+
+            if (result < 0)
+            {
+                // C++ 空操作块：{}
+            }
+            else
+            {
+                // C++: oldTalk(0xBA0, 0x6F, 0);
+                oldTalk(0xBA0, 0x6F, 0);
+            }
+        }
+
+        public void backHome() { }
+        public void setSexual(int role_id, int value)
+        {
+            // C++: Save::getInstance()->getRole(role_id)->Sexual = value;
+            // C#: Save.getInstance().getRole(role_id).Sexual = value;
+
+            Save.getInstance().GetRole(role_id).Sexual = value;
+        }
+
+
+        public bool checkSubMapPic(int submap_id, int event_index, int pic)
+        {
+            // 获取子场景记录（与 C++ 的 getSubMapRecordFromID 相同）
+            var s = getSubMapRecordFromID(submap_id);
+
+            // 如果子场景存在
+            if (s != null)
+            {
+                // 取得该子场景的 event（与 C++ 的 s->Event(event_index) 一样）
+                var e = s.Event(event_index);
+
+                // 若事件存在，则比较它的三种图片编号
+                if (e != null)
+                {
+                    return (e.CurrentPic == pic ||
+                            e.BeginPic == pic ||
+                            e.EndPic == pic);
+                }
+            }
+
+            // 没找到子场景或事件，或者三种图片都不匹配
+            return false;
+        }
+
+        public bool check14BooksPlaced()
+        {
+            // 检查事件编号 11 到 24（共 14 个）的 CurrentPic 是否全部为 4664
+            for (int i = 11; i <= 24; i++)
+            {
+                // subscene_->getMapInfo()->Event(i)->CurrentPic
+                // ↓↓↓ C# 写法 ↓↓↓
+                if (subscene_?.getMapInfo()?.Event(i)?.CurrentPic != 4664)
+                {
+                    return false;   // 只要有一个不是 4664，就说明未全部放置
+                }
+            }
+
+            return true;  // 所有 14 个事件的 CurrentPic 都是 4664
         }
 
 
