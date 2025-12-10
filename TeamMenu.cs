@@ -56,7 +56,6 @@ namespace kysSharp
                         if (!GameUtil.CanUseItem(r, item_))
                         {
                             heads_[i].setText("不適合");
-
                         }
                         if (r.PracticeItem == item_.ID || r.Equip0 == item_.ID || r.Equip1 == item_.ID)
                         {

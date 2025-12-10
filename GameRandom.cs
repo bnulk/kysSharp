@@ -241,6 +241,27 @@ namespace kysSharp
                 if (_rng == null) _rng = new Random();
                 return _rng.Next(n);
             }
+
+            public static int randNextNormalInt0ToN(int n)
+            {
+                if (n <= 1) return 0;
+
+                double mean = n / 2.0;
+                double std = n / 10.0;     // 建议值，可根据需要调整，分母越大分布越集中
+
+                if (_rng != null)
+                {
+                    double z = _rng.Next();         // 正态浮点
+                    int v = (int)Math.Round(z);     // 四舍五入
+                    return Math.Clamp(v, 0, n); // 限制到 [0, n]
+                }
+                else
+                {
+                    int v = (int)n / 2;
+                    return v;
+                }
+                
+            }
         }
     }
 

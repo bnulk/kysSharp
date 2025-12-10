@@ -250,6 +250,7 @@ namespace kysSharp.Types
                 if (MagicID[i] <= 0)
                 {
                     index = i;
+                    i = Constant.ROLE_MAGIC_COUNT;
                 }
             }
 

@@ -768,7 +768,7 @@ namespace kysSharp
                 if (r2 != null)
                 {
                     int v = GameUtil.Detoxification(ref r, ref r2);
-                    r2.ShowString = "-" + v.ToString();
+                    r2.ShowString = "-" + Math.Abs(v).ToString();
                     r2.ShowColor = new SDL_Color() { r = 20, g = 200, b = 255, a = 255 };
                 }
 
@@ -970,7 +970,7 @@ namespace kysSharp
                         showNumberAnimation();
 
                         // 武学等级增加
-                        int index = 1 + r.GetMagicOfRoleIndex(magic);
+                        int index = r.GetMagicOfRoleIndex(magic);
                         if (index >= 0)
                         {
                             r.MagicLevel[index] += RandomClassical.rand(2);
@@ -1955,6 +1955,7 @@ namespace kysSharp
 
                     if (change > 0)
                     {
+                        r.LearnMagic(item.MagicID);
                         diff.SetTwinRole(r0, r);
                         diff.setText("修煉"+ GameUtil.EraseModredundantChar(item.strName) + "成功");
                         diff.run();
