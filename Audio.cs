@@ -193,7 +193,7 @@ namespace kysSharp
         {
             tracks = new List<nint>();
             tracks.Add((IntPtr)SDL3_mixer.MIX_CreateTrack((MIX_Mixer*)mixer));
-            SDL3_mixer.MIX_SetTrackAudio((MIX_Track*)tracks[0], (MIX_Audio*)music[num]);
+            SDL3_mixer.MIX_SetTrackAudio((MIX_Track*)tracks[0], (MIX_Audio*)music[num-1]);
             SDL3_mixer.MIX_PlayTrack((MIX_Track*)tracks[0], 0 /* options */);
 
             /*
