@@ -185,9 +185,15 @@ namespace kysSharp
                                 }
                             }
 
-                            int pic = (r == r0)
-                                ? calRolePic(r, action_type_, action_frame_)
-                                : calRolePic(r);
+                            int pic = 0;
+                            if (r == r0)
+                            {
+                                pic = calRolePic(r, action_type_, action_frame_);
+                            }
+                            else
+                            {
+                                pic = calRolePic(r);
+                            }
 
                             if (r.HP <= 0)
                                 alpha = dead_alpha_;
@@ -303,7 +309,7 @@ namespace kysSharp
 
             if (info_.AutoTeamMate[0] >= 0)
             {
-                for (int i = 1; i < Constant.TEAMMATE_COUNT; i++)
+                for (int i = 0; i < Constant.TEAMMATE_COUNT; i++)
                 {
                     var r = Save.getInstance().GetRole(info_.AutoTeamMate[i]);
                     if (r != null)
@@ -502,9 +508,25 @@ namespace kysSharp
             return !isOutLine(x, y) && select_layer_.Data(x, y) >= 0;
         }
 
+        ///////////////////////////////////////////////////////////////////////
+        // calRolePic
+        //
+        // 功能：
+        //   根据角色的战斗帧信息（FightFrame）、朝向（FaceTowards）、
+        //   当前动作风格（style）与帧数（frame），计算角色当前要显示的贴图序号。
+        //
+        // 参数：
+        //   Role r   —— 角色对象，包含 FightFrame[5] 与 FaceTowards 信息
+        //   int style —— 动作类型（0~4），如果对应 FightFrame[style] <= 0 则自动退化为 -1
+        //   int frame —— 当前动作帧偏移
+        //
+        // 返回：
+        //   int —— 计算得到的贴图索引，用于渲染
+        //
+        ///////////////////////////////////////////////////////////////////////
         public int calRolePic(Role r, int style = -1, int frame = 0)
         {
-            // 如果该动作没有帧数，则视为无效动作
+            // 如果当前 style 对应的 FightFrame 无效（<=0），则退化为 -1（使用默认逻辑）
             if(style!=-1)
             {
                 if (r.FightFrame[style] <= 0)
@@ -513,13 +535,14 @@ namespace kysSharp
                 }
             }            
 
-            // style = -1 ：自动根据 FightFrame 查找第一个有效动作
+            // style == -1 表示没有指定动作，自动选择第一个有效的动作
             if (style == -1)
             {
                 for (int i = 0; i < 5; i++)
                 {
                     if (r.FightFrame[i] > 0)
                     {
+                        // 返回该动作的基础帧数量 * 朝向（通常为 1 或 -1）
                         return r.FightFrame[i] * r.FaceTowards;
                     }
                 }
@@ -528,20 +551,21 @@ namespace kysSharp
             {
                 int total = 0;
 
+                // style != -1，需累加所有前置动作的帧数（每动作4帧）
                 for (int i = 0; i < 5; i++)
                 {
                     if (i == style)
                     {
-                        // 找到目标动作：总偏移 + 本动作偏移 + 当前帧
+                        // 找到目标动作，返回累积偏移 + 当前动作帧 + 朝向偏移
                         return total + r.FightFrame[style] * r.FaceTowards + frame;
                     }
 
-                    // 每个动作有 4 个方向，所以偏移为 FightFrame[i] * 4
+                    // 前面每种动作累加 4 帧
                     total += r.FightFrame[i] * 4;
                 }
             }
 
-            // 没找到动作，直接返回面向方向
+            // 如果所有都失败，则退回角色朝向
             return r.FaceTowards;
         }
 
@@ -972,29 +996,60 @@ namespace kysSharp
 
         public void actionAnimation(Role r, int style, int effect_id, int shake = 0)
         {
-            // 若角色不在当前选择的坐标上，则重新计算朝向
-            if (r.X() != select_x_ || r.Y() != select_x_)
-            {
-                r.FaceTowards = (int)calTowards(r.X(), r.Y(), select_x_, select_x_);
-            }
+            ///////////////////////////////////////////////////////////////////////
+            // actionAnimation
+            //
+            // 功能：
+            //   播放角色 r 的动作动画与特效动画，包括：
+            //     1. 根据位置调整 FaceTowards 朝向
+            //     2. 自动角色会面向最近敌人
+            //     3. 播放指定动作（style）的逐帧动画
+            //     4. 播放指定特效（effect_id）的逐帧动画，可带震动 shake
+            //
+            // 参数：
+            //   Role r        —— 执行动作的角色对象
+            //   int style     —— 动作类型（战斗动作）
+            //   int effect_id —— 特效 ID（如刀光、气功、火球等）
+            //   int shake     —— 屏幕震动幅度（默认 0 不震动）
+            //
+            // 注：
+            //   drawAndPresent(animation_delay_) 会渲染一帧并延迟
+            //   所有内部成员变量（action_frame_、effect_frame_ 等）保持原名
+            //
+            ///////////////////////////////////////////////////////////////////////
 
-            // 自动战斗：自动朝向最近敌人
+            /*
+            // 若角色不在选中坐标，则根据坐标自动计算朝向
+            if (r.X() != select_x_ || r.Y() != select_y_)
+            {
+                r.FaceTowards = (int)calTowards(r.X(), r.Y(), select_x_, select_y_);
+            }
+            */
+            r.FaceTowards = (int)calTowards(r.X(), r.Y(), select_x_, select_y_);
+
+
+            // 自动角色会自动朝向最近敌人
             if (r.isAuto())
             {
                 setFaceTowardsNearest(r, true);
             }
 
-            // 动作帧数
-            int frame_count = r.FightFrame[style];
+            // 获取该动作的总帧数
+            var frame_count = r.FightFrame[style];
+
+            // 设置当前动作类型
             action_type_ = style;
 
-            // 播放动作动画
+            // 播放动作帧动画
             for (action_frame_ = 0; action_frame_ < frame_count; action_frame_++)
             {
                 drawAndPresent(animation_delay_);
             }
 
+            // 动作收尾：停在最后一帧
             action_frame_ = frame_count - 1;
+
+            // 记录特效
             effect_id_ = effect_id;
 
             // 生成特效纹理组路径
@@ -1006,10 +1061,10 @@ namespace kysSharp
             // 播放特效音效
             Audio.getInstance().playEsound(effect_id_);
 
-            // 播放特效动画
+            // 播放特效动画（+10 为额外延迟时间）
             for (effect_frame_ = 0; effect_frame_ < effect_count + 10; effect_frame_++)
             {
-                // 有震屏参数
+                // 若需要震动效果
                 if (shake > 0)
                 {
                     x_ = RandomClassical.rand(shake) - RandomClassical.rand(shake);
@@ -1019,7 +1074,7 @@ namespace kysSharp
                 drawAndPresent(animation_delay_);
             }
 
-            // 动画复位
+            // 结束：全部变量恢复默认状态
             action_frame_ = 0;
             action_type_ = -1;
             effect_frame_ = 0;

@@ -254,21 +254,23 @@ namespace kysSharp
                     if (childs_text_[actionText].getVisible())
                     {
                         var r2 = GetNearestRole(role, enemies);
-                        ArgumentNullException.ThrowIfNull(r2);
 
-                        AIAction aa = new();
-                        calAIActionNearest(r2, ref aa);
-
-                        int actionDis = battle_scene_.calActionStep(role.UsePoison);
-                        if (actionDis >= CalNeedActionDistance(aa))
+                        if (r2 != null)
                         {
-                            aa.Action = getResultFromString(actionText);
-                            aa.point = Math.Min(Constant.MAX_POISON - r2.Poison, role.UsePoison) / 2;
+                            AIAction aa = new();
+                            calAIActionNearest(r2, ref aa);
 
-                            if (r2.HP < 10)
-                                aa.point = 1;
+                            int actionDis = battle_scene_.calActionStep(role.UsePoison);
+                            if (actionDis >= CalNeedActionDistance(aa))
+                            {
+                                aa.Action = getResultFromString(actionText);
+                                aa.point = Math.Min(Constant.MAX_POISON - r2.Poison, role.UsePoison) / 2;
 
-                            aiActions.Add(aa);
+                                if (r2.HP < 10)
+                                    aa.point = 1;
+
+                                aiActions.Add(aa);
+                            }
                         }
                     }
                 }
@@ -280,29 +282,31 @@ namespace kysSharp
                 if (childs_text_[actionText].getVisible())
                 {
                     var r2 = GetNearestRole(role, enemies);
-                    ArgumentNullException.ThrowIfNull(r2);
-
-                    AIAction aa = new();
-                    calAIActionNearest(r2, ref aa, roleTemp);
-
-                    int actionDis = battle_scene_.calActionStep(role.HiddenWeapon);
-
-                    if (actionDis >= CalNeedActionDistance(aa))
+                    
+                    if(r2!=null)
                     {
-                        aa.Action = getResultFromString(actionText);
+                        AIAction aa = new();
+                        calAIActionNearest(r2, ref aa, roleTemp);
 
-                        var items = BattleItemMenu.GetAvaliableItems(role, 3);
-                        foreach (var item in items)
+                        int actionDis = battle_scene_.calActionStep(role.HiddenWeapon);
+
+                        if (actionDis >= CalNeedActionDistance(aa))
                         {
-                            aa.point = battle_scene_.calHiddenWeaponHurt(roleTemp, r2, item);
+                            aa.Action = getResultFromString(actionText);
 
-                            if (aa.point > r2.HP)
-                                aa.point = r2.HP * 1.25 - 10; // 稍微降低暗器价值
+                            var items = BattleItemMenu.GetAvaliableItems(role, 3);
+                            foreach (var item in items)
+                            {
+                                aa.point = battle_scene_.calHiddenWeaponHurt(roleTemp, r2, item);
 
-                            aa.item = item;
-                            aiActions.Add(aa);
+                                if (aa.point > r2.HP)
+                                    aa.point = r2.HP * 1.25 - 10; // 稍微降低暗器价值
+
+                                aa.item = item;
+                                aiActions.Add(aa);
+                            }
                         }
-                    }
+                    }                    
                 }
 
                 // ==========================================================
@@ -312,56 +316,58 @@ namespace kysSharp
                 if (childs_text_[actionText].getVisible())
                 {
                     var r2 = GetNearestRole(role, enemies);
-                    ArgumentNullException.ThrowIfNull(r2);
-
-                    AIAction aa = new()
+                    
+                    if(r2!=null)
                     {
-                        Action = getResultFromString(actionText)
-                    };
-
-                    calAIActionNearest(r2, ref aa, roleTemp);
-
-                    // 遍历所有武学
-                    for (int i = 0; i < Constant.MAGIC_COUNT; i++)
-                    {
-                        int maxHurt = -1;
-
-                        var magic = Save.getInstance().GetRoleLearnedMagic(ref role, i);
-                        if (magic == null)
-                            continue;
-
-                        int levelIndex = role.GetRoleMagicLevelIndex(i);
-
-                        // Magic 可视范围
-                        battle_scene_.calSelectLayerByMagic(aa.MoveX, aa.MoveY, role.Team, magic, levelIndex);
-
-                        // 遍历所有点进行伤害评估
-                        for (int ix = 0; ix < BattleConstant.BATTLEMAP_COORD_COUNT; ix++)
+                        AIAction aa = new()
                         {
-                            for (int iy = 0; iy < BattleConstant.BATTLEMAP_COORD_COUNT; iy++)
+                            Action = getResultFromString(actionText)
+                        };
+
+                        calAIActionNearest(r2, ref aa, roleTemp);
+
+                        // 遍历所有武学
+                        for (int i = 0; i < Constant.MAGIC_COUNT; i++)
+                        {
+                            int maxHurt = -1;
+
+                            var magic = Save.getInstance().GetRoleLearnedMagic(ref role, i);
+                            if (magic == null)
+                                continue;
+
+                            int levelIndex = role.GetRoleMagicLevelIndex(i);
+
+                            // Magic 可视范围
+                            battle_scene_.calSelectLayerByMagic(aa.MoveX, aa.MoveY, role.Team, magic, levelIndex);
+
+                            // 遍历所有点进行伤害评估
+                            for (int ix = 0; ix < BattleConstant.BATTLEMAP_COORD_COUNT; ix++)
                             {
-                                if (!battle_scene_.canSelect(ix, iy))
-                                    continue;
-
-                                battle_scene_.calEffectLayer(aa.MoveX, aa.MoveY, ix, iy, magic, levelIndex);
-
-                                int totalHurt = battle_scene_.calMagicHurtAllEnemies(roleTemp, magic, true);
-
-                                if (totalHurt > maxHurt)
+                                for (int iy = 0; iy < BattleConstant.BATTLEMAP_COORD_COUNT; iy++)
                                 {
-                                    maxHurt = totalHurt;
-                                    aa.magic = magic;
-                                    aa.ActionX = ix;
-                                    aa.ActionY = iy;
+                                    if (!battle_scene_.canSelect(ix, iy))
+                                        continue;
+
+                                    battle_scene_.calEffectLayer(aa.MoveX, aa.MoveY, ix, iy, magic, levelIndex);
+
+                                    int totalHurt = battle_scene_.calMagicHurtAllEnemies(roleTemp, magic, true);
+
+                                    if (totalHurt > maxHurt)
+                                    {
+                                        maxHurt = totalHurt;
+                                        aa.magic = magic;
+                                        aa.ActionX = ix;
+                                        aa.ActionY = iy;
+                                    }
                                 }
                             }
+
+                            aa.point = maxHurt;
+                            if (role.AttackTwice != 0)
+                                aa.point *= 2;
+
+                            aiActions.Add(aa);
                         }
-
-                        aa.point = maxHurt;
-                        if (role.AttackTwice!=0)
-                            aa.point *= 2;
-
-                        aiActions.Add(aa);
                     }
                 }
 

@@ -69,8 +69,6 @@ namespace kysSharp
             return event_;
         }
 
-        public void forceExit() { loop_ = false; }
-
         /////////////////////////////////////////////////////////////////////////
         // 函数：loadEventData
         // 功能：加载对话、事件定义与离队列表数据
@@ -404,10 +402,57 @@ namespace kysSharp
                         RUN_INSTRUCT("askBattle", () => BOOL(() => askBattle()));
                         break;
 
-                    case 6: /* 尝试战斗（2个参数，特殊顺序，返回布尔值） */
-                        RUN_INSTRUCT("tryBattle", () => BOOL2_2(tryBattle));
+                    case 6:
+                        ///////////////////////////////////////////////////////////////////////
+                        // case 6 : tryBattle 分支
+                        //
+                        // 功能：
+                        //   执行一次 tryBattle 判定，根据结果跳转不同偏移量。
+                        //   原始 C++ 行为：
+                        //     printf("%s: %d, %d, %d, %d\n", "tryBattle", e[i+1], e[i+2], e[i+3], e[i+4]);
+                        //
+                        // 参数说明（来自脚本数组 e[]）：
+                        //   e[i + 1] —— 作为第一个参数传入 tryBattle()
+                        //   e[i + 2] —— 若 tryBattle == true，则 i += e[i + 2]
+                        //   e[i + 3] —— 若 tryBattle == false，则 i += e[i + 3]
+                        //   e[i + 4] —— tryBattle() 的第二个参数
+                        //
+                        // 执行流程：
+                        //   1. 调试输出 tryBattle 参数
+                        //   2. 调用 tryBattle(e[i+1], e[i+4])
+                        //   3. 根据结果跳转 i 的偏移
+                        //   4. 最后统一 i += 5（跳过参数本体）
+                        //
+                        ///////////////////////////////////////////////////////////////////////
+
+                        Console.WriteLine(
+                            "{0}: {1}, {2}, {3}, {4}",
+                            "tryBattle",
+                            e[i + 1],
+                            e[i + 2],
+                            e[i + 3],
+                            e[i + 4]
+                        );
+
+                        // 若 tryBattle 返回 true，跳转 e[i+2]；否则跳转 e[i+3]
+                        if (tryBattle(e[i + 1], e[i + 4]))
+                        {
+                            i += e[i + 2];
+                        }
+                        else
+                        {
+                            i += e[i + 3];
+                        }
+
+                        // 跳过 case + 参数（5 个整数）
+                        i += 5;
+
                         break;
 
+
+                    case 7: /* 退出（0个参数） */
+                        RUN_INSTRUCT("forceExit", () => VOID0(forceExit));
+                        break;
                     case 8: /* 更改主地图音乐（1个参数） */
                         RUN_INSTRUCT("changeMainMapMusic", () => VOID1(changeMainMapMusic));
                         break;
@@ -648,7 +693,6 @@ namespace kysSharp
                         RUN_INSTRUCT("playWave", () => VOID1(playWave));
                         break;
 
-                    case 7:
                     case -1: /* 结束事件循环 */
                         i += 1;
                         loop_ = false;

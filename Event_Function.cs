@@ -353,6 +353,12 @@ namespace kysSharp
             }
         }
 
+        //7 强制退出对话
+        public void forceExit()
+        {
+            loop_ = false;
+        }
+
         //15 死亡
         public void dead()
         {
