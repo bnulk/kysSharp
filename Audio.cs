@@ -234,13 +234,14 @@ namespace kysSharp
 
         public void StopMusic()
         {
-            if (tracks.Count == 0)
+            SDL3_mixer.MIX_StopAllTracks((MIX_Mixer*)mixer, 0);
+            if (tracks != null && tracks.Count > 0)
             {
-                return;
-            }
-            for (int i=0;i<tracks.Count;i++)
-            {
-                SDL3_mixer.MIX_StopTrack((MIX_Track*)tracks[i], 0 /* fade-out ms */);
+                
+
+                // 可选：释放 track 资源
+                //SDL3_mixer.MIX_DestroyTrack((MIX_Track*)tracks[0]);
+                //tracks.Clear();
             }
         }
 

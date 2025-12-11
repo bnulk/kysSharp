@@ -819,7 +819,7 @@ namespace kysSharp
             ///////////////////////////////////////////////////////////////////////
             // 检查角色是否已持有该物品，如有则叠加数量
             ///////////////////////////////////////////////////////////////////////
-            for (int i = 0; i < Constant.ROLE_MAGIC_COUNT; i++)
+            for (int i = 0; i < Constant.ROLE_TAKING_ITEM_COUNT; i++)
             {
                 if (role.TakingItem[i] == itemId)
                 {
@@ -837,7 +837,7 @@ namespace kysSharp
                 ///////////////////////////////////////////////////////////////////////
                 // 如果角色未持有该物品，则在空位中添加
                 ///////////////////////////////////////////////////////////////////////
-                for (int i = 0; i < Constant.ROLE_MAGIC_COUNT; i++)
+                for (int i = 0; i < Constant.ROLE_TAKING_ITEM_COUNT; i++)
                 {
                     if (role.TakingItem[i] < 0)
                     {
