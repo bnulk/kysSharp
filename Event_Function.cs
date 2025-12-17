@@ -332,6 +332,7 @@ namespace kysSharp
                 /////////////////////////////////////////////////////////////////////////
                 role.HP = role.MaxHP;
                 role.MP = role.MaxMP;
+                role.PhysicalPower = Constant.MAX_PHYSICAL_POWER;
                 role.Hurt = 0;
                 role.Poison = 0;
             }

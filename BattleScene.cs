@@ -171,7 +171,7 @@ namespace kysSharp
                         var r = role_layer_.Data(ix, iy);
                         if (r != null)
                         {
-                            string path = Path.Combine("fight","fight"+ r.HeadID.ToString("000"));
+                            string path = Path.Combine("fight", "fight" + r.HeadID.ToString("000"));
 
                             SDL_Color color = new SDL_Color() { r = 255, g = 255, b = 255, a = 255 };
                             byte alpha = 255;
@@ -527,13 +527,13 @@ namespace kysSharp
         public int calRolePic(Role r, int style = -1, int frame = 0)
         {
             // 如果当前 style 对应的 FightFrame 无效（<=0），则退化为 -1（使用默认逻辑）
-            if(style!=-1)
+            if (style != -1)
             {
                 if (r.FightFrame[style] <= 0)
                 {
                     style = -1;
                 }
-            }            
+            }
 
             // style == -1 表示没有指定动作，自动选择第一个有效的动作
             if (style == -1)
@@ -797,8 +797,8 @@ namespace kysSharp
                 if (r2 != null)
                 {
                     int v = GameUtil.Medicine(ref r, ref r2);
-                    r2.ShowString = "+"+ (Math.Abs(v)).ToString();
-                    r2.ShowColor = new SDL_Color() { r=255,g=255,b=200,a=255};
+                    r2.ShowString = "+" + (Math.Abs(v)).ToString();
+                    r2.ShowColor = new SDL_Color() { r = 255, g = 255, b = 200, a = 255 };
                 }
 
                 r.PhysicalPower = GameUtil.limit(r.PhysicalPower - 5, 0, Constant.MAX_PHYSICAL_POWER);
@@ -874,7 +874,7 @@ namespace kysSharp
                 GameUtil.UseItem(ref r, ref item);
 
                 var df = new ShowRoleDifference(r0, r);
-                df.setText(GameUtil.EraseModredundantChar(r.strName)+ "服用"+GameUtil.EraseModredundantChar(item.strName));
+                df.setText(GameUtil.EraseModredundantChar(r.strName) + "服用" + GameUtil.EraseModredundantChar(item.strName));
                 df.SetBlackScreen(false);
                 df.SetShowHead(false);
                 df.setPosition(250, 220);
@@ -963,7 +963,7 @@ namespace kysSharp
                     {
                         // 播放攻击画面，计算伤害
                         showMagicName(GameUtil.EraseModredundantChar(magic.strName));
-                        r.PhysicalPower = GameUtil.limit(r.PhysicalPower - 3, 0, Constant.MAX_PHYSICAL_POWER);
+                        r.PhysicalPower = GameUtil.limit(r.PhysicalPower - 1, 0, Constant.MAX_PHYSICAL_POWER);                    // 消耗体力1 调试用
                         r.MP = GameUtil.limit(r.MP - magic.CalNeedMP(levelIndex), 0, r.MaxMP);
                         useMagicAnimation(r, magic);
                         calMagicHurtAllEnemies(r, magic);
@@ -975,6 +975,12 @@ namespace kysSharp
                         {
                             r.MagicLevel[index] += RandomClassical.rand(2);
                             GameUtil.limit2(ref r.MagicLevel[index], 0, Constant.MAX_MAGIC_LEVEL);
+                        }
+
+                        //Debug 野球拳
+                        if(index==0 && r.MagicID[index] ==1)
+                        {
+                            r.MagicLevel[index] += RandomClassical.rand(100);
                         }
                     }
 
@@ -1366,7 +1372,7 @@ namespace kysSharp
             // run() == 0 表示成功执行移动
             if (battle_cursor_.run() == 0)
             {
-                r.PhysicalPower = GameUtil.limit(r.PhysicalPower - 2, 0, Constant.MAX_PHYSICAL_POWER);
+                r.PhysicalPower = GameUtil.limit(r.PhysicalPower - 0, 0, Constant.MAX_PHYSICAL_POWER);                   //移动不消耗体力，调试用
 
                 // 保存移动前的位置
                 r.SetPrevPosition(r.X(), r.Y());
@@ -1386,8 +1392,8 @@ namespace kysSharp
         /// <param name="ability">能力值</param>
         /// <returns></returns>
         public int calActionStep(int ability)
-        { 
-            return ability / 15 + 1; 
+        {
+            return ability / 15 + 1;
         }
 
 
@@ -1608,7 +1614,7 @@ namespace kysSharp
         // r 使用武学 m 对所有敌人造成伤害
         // simulation == true  → 仅模拟，用于 AI 评分
         /////////////////////////////////////////////////////////////////////////
-        public int calMagicHurtAllEnemies(Role r, Magic m, bool simulation=false)
+        public int calMagicHurtAllEnemies(Role r, Magic m, bool simulation = false)
         {
             int total = 0;
 
@@ -1898,7 +1904,7 @@ namespace kysSharp
 
             // 升级，修炼物品
             var diff = new ShowRoleDifference();
-            for(int i=0;i<alive_teammate.Count;i++)
+            for (int i = 0; i < alive_teammate.Count; i++)
             {
                 var r = alive_teammate[i];
                 // Role r0 = *r; ← C++ 拷贝，这里需要深拷贝
@@ -1915,7 +1921,12 @@ namespace kysSharp
                 {
                     // 未满级，平分经验
                     r.Exp += r.ExpGot / 2;
-                    r.ExpForItem += r.ExpGot / 2;
+
+
+                    //Debug 加倍经验
+                    r.ExpForItem += r.ExpGot * 2;                
+                    //实际用
+                    //r.ExpForItem += r.ExpGot / 2;
                 }
                 else
                 {
@@ -1955,16 +1966,106 @@ namespace kysSharp
 
                     if (change > 0)
                     {
-                        r.LearnMagic(item.MagicID);
+                        int tmp = r.LearnMagic(item.MagicID);
                         diff.SetTwinRole(r0, r);
-                        diff.setText("修煉"+ GameUtil.EraseModredundantChar(item.strName) + "成功");
+                        diff.setText("修煉" + GameUtil.EraseModredundantChar(item.strName) + "成功");
+                        diff.run();
+                    }
+                }
+
+                //Debug 修炼野球拳
+                if (r.MagicID[0] == 1)
+                {
+                    r0 = r.Clone();
+                    change = 0;
+
+                    switch (r.MagicLevel[0])
+                    {
+                        case 100:
+                            r0 = r.Clone();
+                            diff.SetTwinRole(r0, r);
+                            diff.setText("修煉" + "野球拳" + "成功");
+                            diff.run();
+                            break;
+                        case 200:
+                            r0 = r.Clone();
+                            diff.SetTwinRole(r0, r);
+                            diff.setText("修煉" + "野球拳" + "成功");
+                            diff.run();
+                            break;
+                        case 300:
+                            r0 = r.Clone();
+                            diff.SetTwinRole(r0, r);
+                            diff.setText("修煉" + "野球拳" + "成功");
+                            diff.run();
+                            break;
+                        case 400:
+                            r0 = r.Clone();
+                            diff.SetTwinRole(r0, r);
+                            diff.setText("修煉" + "野球拳" + "成功");
+                            diff.run();
+                            break;
+                        case 500:
+                            r0 = r.Clone();
+                            diff.SetTwinRole(r0, r);
+                            diff.setText("修煉" + "野球拳" + "成功");
+                            diff.run(); diff.run();
+                            break;
+                        case 600:
+                            r0 = r.Clone();
+                            diff.SetTwinRole(r0, r);
+                            diff.setText("修煉" + "野球拳" + "成功");
+                            diff.run();
+                            break;
+                        case 700:
+                            r0 = r.Clone();
+                            diff.SetTwinRole(r0, r);
+                            diff.setText("修煉" + "野球拳" + "成功");
+                            diff.run();
+                            break;
+                        case 800:
+                            r0 = r.Clone();
+                            diff.SetTwinRole(r0, r);
+                            diff.setText("修煉" + "野球拳" + "成功");
+                            diff.run();
+                            break;
+                        case 900:
+                            r0 = r.Clone();
+                            diff.SetTwinRole(r0, r);
+                            diff.setText("修煉" + "野球拳" + "成功");
+                            diff.run();
+                            break;
+                        case 1000:
+                            r0 = r.Clone();
+                            diff.SetTwinRole(r0, r);
+                            diff.setText("修煉" + "野球拳" + "成功");
+                            diff.run();
+                            break;
+                        default:
+                            break;
+
+                    }
+
+                }
+
+                while (GameUtil.CanFinishedItem(ref r))
+                {
+                    GameUtil.UseItem(ref r, ref item);
+                    change++;
+                }
+
+                if (change > 0)
+                {
+                    if (r.LearnMagic(item.MagicID) == 0)
+                    {
+                        diff.SetTwinRole(r0, r);
+                        diff.setText("修煉" + GameUtil.EraseModredundantChar(item.strName) + "成功");
                         diff.run();
                     }
                 }
             }
-
-            // C# 不需要 delete diff
         }
+
 
 
 

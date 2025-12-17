@@ -231,6 +231,8 @@ namespace kysSharp
 
         public override void onEntrance()
         {
+            Audio.getInstance().StopMusic();
+
             calViewRegion();
             towards_ = MainScene.getInstance().towards_;
         }
