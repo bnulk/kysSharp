@@ -193,7 +193,7 @@ namespace kysSharp
             if (item.isCompass() == true)
             {
                 int man_x = 0, man_y = 0;
-                //MainScene.getInstance().GetManPosition(ref man_x, ref man_y);
+                MainScene.getInstance().getManPosition(ref man_x, ref man_y);
                 string strCompass = "當前坐標 " + man_x.ToString() + " " + man_y.ToString();
                 ShowOneProperty(1, strCompass, size, c, ref x, ref y);
             }
@@ -203,9 +203,6 @@ namespace kysSharp
             {
                 return;
             }
-
-            //GameFont.GetInstance().Draw("效果：", size, x_ + x, y_ + y, c);
-            //y += size + 10;
 
             ShowOneProperty(item.AddHP, "生命", size, c, ref x, ref y);
             ShowOneProperty(item.AddMaxHP, "生命上限", size, c, ref x, ref y);

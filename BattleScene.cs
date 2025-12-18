@@ -2043,24 +2043,6 @@ namespace kysSharp
                             break;
                         default:
                             break;
-
-                    }
-
-                }
-
-                while (GameUtil.CanFinishedItem(ref r))
-                {
-                    GameUtil.UseItem(ref r, ref item);
-                    change++;
-                }
-
-                if (change > 0)
-                {
-                    if (r.LearnMagic(item.MagicID) == 0)
-                    {
-                        diff.SetTwinRole(r0, r);
-                        diff.setText("修煉" + GameUtil.EraseModredundantChar(item.strName) + "成功");
-                        diff.run();
                     }
                 }
             }
