@@ -674,7 +674,7 @@ namespace kysSharp
                         break;
 
                     case 62:
-                        RUN_INSTRUCT("backHome", () => VOID0(backHome));
+                        RUN_INSTRUCT("backHome", () => VOID6(backHome));
                         break;
 
                     case 63:
@@ -751,7 +751,16 @@ namespace kysSharp
             }
         }
 
-        public void backHome() { }
+        public void backHome(int event_index1, int begin_pic1, int end_pic1,
+              int event_index2, int begin_pic2, int end_pic2)
+        {
+            subscene_.forceManPic(-2);
+            play2Amination(event_index1, begin_pic1, end_pic1,
+                           event_index2, begin_pic2, end_pic2);
+            Element.exitAll(1);
+            forceExit();
+        }
+
         public void setSexual(int role_id, int value)
         {
             // C++: Save::getInstance()->getRole(role_id)->Sexual = value;

@@ -166,7 +166,7 @@ namespace kysSharp
             font.draw("經驗".PadRight(7), font_size, x, y + 75, color_ability1);
             font.draw(GameUtil.EraseModredundantChar(role_.Exp.ToString().PadLeft(5)), font_size, x + 66, y + 75, color_white);
 
-            str = "升級 ------";
+            str = "------";
             exp_up = GameUtil.GetLevelUpExp(role_.Level);
             if (exp_up != int.MaxValue)
             {

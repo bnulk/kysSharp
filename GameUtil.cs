@@ -428,7 +428,7 @@ namespace kysSharp
             {
                 if (i.EquipType == 0)
                 {
-                    if (equip0.ID != 0) { equip0.User = -1; }
+                    if (equip0 != null && equip0.ID != 0) { equip0.User = -1; }
                     r.Equip0 = i.ID;
                 }
                 if (i.EquipType == 1)

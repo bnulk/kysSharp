@@ -243,7 +243,7 @@ namespace kysSharp
             var magic = Save.getInstance().GetMagic(item.MagicID);
             if (magic != null)
             {
-                string strTmpMagic = "習得武學" + GameUtil.EraseModredundantChar(magic.strName);
+                str = "習得武學" + GameUtil.EraseModredundantChar(magic.strName);
                 ShowOneProperty(1, str, size, c, ref x, ref y);
             }
 
